@@ -1,5 +1,5 @@
-# Filter Dolphin "cd" commands
-HISTIGNORE=" cd *"
+# Don't put duplicate lines or lines starting with space in the history.
+HISTCONTROL=ignoreboth
 
 # ls aliases
 alias ll='ls -alF'
