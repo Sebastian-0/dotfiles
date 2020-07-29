@@ -14,6 +14,15 @@ alias sudo='sudo ' # Needed to make aliases work for sudo
 #   sleep 10; alert
 alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
 
+# Compute checksum of folder
+sha1folder() {
+    if [ "$#" -eq 1 ]; then
+        find $1 -type f -print0 | sort -z | xargs -0 sha1sum | sha1sum
+    else
+        echo "Missing message parameter!"
+    fi
+}
+
 # Add git aliases
 alias gip='git pull'
 alias gipu='git push'
