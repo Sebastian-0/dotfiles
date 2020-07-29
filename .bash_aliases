@@ -1,7 +1,14 @@
-alias vi=vim
+# Filter Dolphin "cd" commands
+HISTIGNORE=" cd *"
+
+# ls aliases
 alias ll='ls -alF'
 alias la='ls -A'
 alias l='ls -CF'
+
+# Misc aliases
+alias vi='vim'
+alias sudo='sudo '
 
 # Add git aliases
 alias gip='git pull'
