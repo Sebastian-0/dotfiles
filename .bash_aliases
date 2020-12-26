@@ -8,7 +8,7 @@ alias l='ls -CF'
 
 # Misc aliases
 alias vi='vim'
-alias sudo='sudo '
+alias sudo='sudo ' # Needed to make aliases work for sudo
 
 # Add an "alert" alias for long running commands.  Use like so:
 #   sleep 10; alert
