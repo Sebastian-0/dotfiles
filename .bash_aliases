@@ -24,6 +24,9 @@ sha1folder() {
     fi
 }
 
+# List ascending disk usage of all items in the folder, in user-readable format
+alias folder_usage='du -hd 1 . | sort -h'
+
 # Add git aliases
 alias gip='git pull'
 alias gipu='git push'
