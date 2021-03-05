@@ -13,12 +13,12 @@ alias ip='ip --color'
 
 # Add an "alert" alias for long running commands.  Use like so:
 #   sleep 10; alert
-alias alert='notify-send --urgency=low -i "$([ $? = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
+alias alert='notify-send --urgency=low -i "$([ "$?" = 0 ] && echo terminal || echo error)" "$(history|tail -n1|sed -e '\''s/^\s*[0-9]\+\s*//;s/[;&|]\s*alert$//'\'')"'
 
 # Compute checksum of folder
 sha1folder() {
     if [ "$#" -eq 1 ]; then
-        find $1 -type f -print0 | sort -z | xargs -0 sha1sum | sha1sum
+        find "$1" -type f -print0 | sort -z | xargs -0 sha1sum | sha1sum
     else
         echo "Missing message parameter!"
     fi
@@ -50,7 +50,7 @@ gic() {
         fi
 }
 
-SSH_ENV=$HOME/.ssh/environment
+SSH_ENV="$HOME/.ssh/environment"
 
 function start_agent {
     echo "Initializing new SSH agent..."
@@ -65,7 +65,7 @@ function start_agent {
 gii() {
     if [ -f "${SSH_ENV}" ]; then
         . "${SSH_ENV}" > /dev/null
-        ps -ef | grep ${SSH_AGENT_PID} | grep ssh-agent$ > /dev/null || {
+        ps -ef | grep "${SSH_AGENT_PID}" | grep ssh-agent$ > /dev/null || {
            start_agent;
         }
     else
