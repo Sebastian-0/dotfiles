@@ -37,6 +37,8 @@ alias giap='git add -p'
 alias gicl='git clone'
 alias gica='git commit --amend'
 alias gil='git log'
+alias gitk='gitk &'
+alias gig='git gui &'
 
 gic() {
         if [ "$#" -eq 1 ]; then
