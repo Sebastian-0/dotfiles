@@ -20,34 +20,64 @@ sha1folder() {
     if [ "$#" -eq 1 ]; then
         find "$1" -type f -print0 | sort -z | xargs -0 sha1sum | sha1sum
     else
-        echo "Missing message parameter!"
+        echo "Missing folder parameter!"
     fi
 }
 
 # List ascending disk usage of all items in the folder, in user-readable format
 alias folder_usage='du -hd 1 . | sort -h'
 
+# Print all files in a folder
+print_folder() {
+    if [ "$#" -eq 1 ]; then
+        find "$1" -name "*" -exec /usr/bin/lpr {} \;
+    else
+        echo "Missing folder parameter!"
+    fi
+}
+
 # Add git aliases
 alias gip='git pull'
 alias gipu='git push'
+
 alias gis='git status'
+
 alias gia='git add'
 alias giau='git add -u'
 alias giap='git add -p'
+
 alias gicl='git clone'
 alias gica='git commit --amend'
+
 alias gil='git log'
 alias gitk='gitk &'
 alias gig='git gui &'
 
-gic() {
-        if [ "$#" -eq 1 ]; then
-                git commit -m "$1"
-        elif [ "$#" -eq 2 ]; then
-                git commit -m "$1" -m "$2"
+alias gist='git stash'
+alias gisp='git stash pop'
+
+alias girc='git rebase --continue'
+
+giri() {
+    if [ "$#" -eq 1 ]; then
+        if [[ "$1" =~ [0-9]+ ]]; then
+            git rebase --interactive "HEAD~$1"
         else
-                echo "Missing message parameter!"
+            echo "Commit count must be an integer"
         fi
+    else
+        echo "Missing commit count!"
+    fi
+}
+
+gic() {
+    if [ "$#" -eq 1 ]; then
+        git commit -m "$1"
+    elif [ "$#" -eq 2 ]; then
+        git commit -m "$1" -m "$2"
+    else
+        echo "Missing message parameter!"
+    fi
 }
 
 SSH_ENV="$HOME/.ssh/environment"
