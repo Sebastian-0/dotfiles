@@ -50,13 +50,17 @@ alias gicl='git clone'
 alias gica='git commit --amend'
 
 alias gil='git log'
-alias gitk='gitk &'
+alias gitk='gitk_background'
 alias gig='git gui &'
 
 alias gist='git stash'
 alias gisp='git stash pop'
 
 alias girc='git rebase --continue'
+
+gitk_background() {
+    \gitk "$@" &
+}
 
 giri() {
     if [ "$#" -eq 1 ]; then
