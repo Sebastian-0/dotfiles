@@ -93,7 +93,10 @@ function start_agent {
     echo "Initialization succeeded!"
     chmod 600 "${SSH_ENV}"
     . "${SSH_ENV}" > /dev/null
-    /usr/bin/ssh-add
+    /usr/bin/ssh-add || {
+        kill ${SSH_AGENT_PID}
+        echo "Failed to add identity, forgot password?"
+    }
 }
 
 gii() {
