@@ -64,13 +64,13 @@ gitk_background() {
 
 giri() {
     if [ "$#" -eq 1 ]; then
-        if [[ "$1" =~ [0-9]+ ]]; then
+        if [[ "$1" =~ ^[0-9]+$ ]]; then
             git rebase --interactive "HEAD~$1"
         else
-            echo "Commit count must be an integer"
+            git rebase --interactive "$1"
         fi
     else
-        echo "Missing commit count!"
+        echo "Missing commit count/hash!"
     fi
 }
 
