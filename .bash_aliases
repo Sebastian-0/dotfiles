@@ -7,7 +7,12 @@ alias la='ls -A'
 alias l='ls -CF'
 
 # Misc aliases
-alias vi='vim'
+if [ "$(which nvim)" ]; then
+	alias vi='nvim'
+	alias vim='nvim'
+else
+	alias vi='vim'
+fi
 alias sudo='sudo ' # Needed to make aliases work for sudo
 alias ip='ip --color'
 
