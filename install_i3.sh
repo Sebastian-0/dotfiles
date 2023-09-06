@@ -90,6 +90,9 @@ client.background       #ffffff
 gaps inner 10
 gaps outer 0
 
+# Misc
+focus_follows_mouse no
+
 # Plasma compatibility improvements
 for_window [window_role="pop-up"] floating enable
 for_window [window_role="task_dialog"] floating enable
