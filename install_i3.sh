@@ -30,7 +30,16 @@ if [ -z "$(which i3)" ]; then
 	echo "Installing packages..."
 	if [ "$(is_ubuntu)" = "true" ]; then
 	    # Ubuntu
-	    sudo apt-get install -y i3 feh wmctrl
+	    sudo apt-get install -y i3 feh wmctrl scrot
+
+	    # Build i3lock-color
+	    sudo apt install autoconf gcc make pkg-config libpam0g-dev libcairo2-dev libfontconfig1-dev libxcb-composite0-dev libev-dev libx11-xcb-dev libxcb-xkb-dev libxcb-xinerama0-dev libxcb-randr0-dev libxcb-image0-dev libxcb-util-dev libxcb-xrm-dev libxkbcommon-dev libxkbcommon-x11-dev libjpeg-dev
+
+	    git clone https://github.com/Raymo111/i3lock-color.git
+            cd i3lock-color
+	    ./install-i3lock-color.sh
+	    cd ..
+	    rm -rf i3lock-color
 
 	    # Older Ubuntu
 	    if [ -n "$(grep "22.04" /etc/os-release)" ]; then
@@ -61,24 +70,65 @@ if [ "$(is_at_least_version 5.25)" = "true" ]; then
     kwriteconfig5 --file startkderc --group General --key systemdBoot false
 fi
 
+echo "Configure i3lock..."
+if [ ! -f ~/.config/i3/scripts/lock.sh ]; then
+    mkdir ~/.config/i3/scripts
+    cat <<-'EOF' >> ~/.config/i3/scripts/lock.sh
+#!/bin/sh
+
+BLANK='#00000000'
+CLEAR='#ffffff22'
+DEFAULT='#00897bE6'
+TEXT='#00897bE6'
+WRONG='#880000bb'
+VERIFYING='#00564dE6'
+
+i3lock \
+--insidever-color=$CLEAR     \
+--ringver-color=$VERIFYING   \
+\
+--insidewrong-color=$CLEAR   \
+--ringwrong-color=$WRONG     \
+\
+--inside-color=$BLANK        \
+--ring-color=$DEFAULT        \
+--line-color=$BLANK          \
+--separator-color=$DEFAULT   \
+\
+--verif-color=$TEXT          \
+--wrong-color=$TEXT          \
+--time-color=$TEXT           \
+--date-color=$TEXT           \
+--layout-color=$TEXT         \
+--keyhl-color=$WRONG         \
+--bshl-color=$WRONG          \
+\
+--screen 1                   \
+--blur 9                     \
+--clock                      \
+--indicator                  \
+--time-str="%H:%M:%S"        \
+--date-str="%A, %Y-%m-%d"    \
+--keylayout 1                \
+EOF
+fi
+
+# TODO Replace fixed path with $HOME and subtitution for / to \/
 echo "Configure i3..."
 if [ -z "$(grep "Plasma compatibility improvements" ~/.config/i3/config)" ]; then
+    sed -i 's/i3lock/\/home\/intuicell\/.config\/i3\/scripts\/lock.sh/g' ~/.config/i3/config
     cat <<-EOF >> ~/.config/i3/config
 
-# Keyboard layout
+# Execute programs
 exec_always setxkbmap -layout se -variant swerty
-
-# Background image
 exec feh --bg-scale --zoom fill /home/intuicell/Repositories/dotfiles/background.jpg
-
-# Yakuake
 exec yakuake
 
 # Borders
-default_border pixel 2
+default_border pixel 3
 
 # Colors                border  backgr. text    indicator child_border
-client.focused          #4c7899 #cc0099 #ffffff #2e9ef4   #cc0099
+client.focused          #4c7899 #e65c00 #ffffff #2e9ef4   #e65c00
 client.focused_inactive #333333 #5f676a #ffffff #484e50   #5f676a
 client.unfocused        #333333 #222222 #888888 #292d2e   #222222
 client.urgent           #2f343a #900000 #ffffff #900000   #900000
@@ -89,6 +139,10 @@ client.background       #ffffff
 # Gaps
 gaps inner 10
 gaps outer 0
+
+# Keybinds
+bindsym \$mod+Shift+S exec spectacle
+bindsym \$mod+Ctrl+L exec $HOME/.config/i3/scripts/lock.sh
 
 # Misc
 focus_follows_mouse no
