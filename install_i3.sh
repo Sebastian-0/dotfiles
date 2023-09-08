@@ -30,7 +30,7 @@ if [ -z "$(which i3)" ]; then
 	echo "Installing packages..."
 	if [ "$(is_ubuntu)" = "true" ]; then
 	    # Ubuntu
-	    sudo apt-get install -y i3 feh wmctrl scrot
+	    sudo apt-get install -y i3 feh wmctrl scrot picom
 
 	    # Build i3lock-color
 	    sudo apt install autoconf gcc make pkg-config libpam0g-dev libcairo2-dev libfontconfig1-dev libxcb-composite0-dev libev-dev libx11-xcb-dev libxcb-xkb-dev libxcb-xinerama0-dev libxcb-randr0-dev libxcb-image0-dev libxcb-util-dev libxcb-xrm-dev libxkbcommon-dev libxkbcommon-x11-dev libjpeg-dev
@@ -49,7 +49,7 @@ if [ -z "$(which i3)" ]; then
 	    fi
 	else
 	    # Manjaro
-	    sudo pacman -Syu && sudo pacman -S i3 feh i3-dmenu-desktop morc_menu wmctrl
+	    sudo pacman -Syu && sudo pacman -S i3 feh i3-dmenu-desktop morc_menu wmctrl picom
 	fi
 	echo "Log into an i3 session and relaunch this script to continue installation!"
 	exit
@@ -121,6 +121,7 @@ if [ -z "$(grep "Plasma compatibility improvements" ~/.config/i3/config)" ]; the
 
 # Execute programs
 exec_always setxkbmap -layout se -variant swerty
+exec_always picom -f
 exec feh --bg-scale --zoom fill /home/intuicell/Repositories/dotfiles/background.jpg
 exec yakuake
 
