@@ -1,0 +1,15 @@
+vim.opt.relativenumber = true
+vim.opt.number = true
+vim.opt.mouse = "vi" -- Enabled for visual & insert modes
+--vim.opt.cursorline = true
+vim.opt.cursorcolumn = true
+vim.opt.scrolloff = 5
+vim.opt.tabstop = 4
+vim.opt.expandtab = true
+vim.opt.shiftwidth = 4
+vim.opt.breakindent = true
+vim.opt.breakindentopt = "shift:2"
+vim.opt.wildmode = "longest,list"
+vim.opt.ignorecase = true
+--vim.opt.signcolumn = "yes" -- Could also set this to "number"
+--vim.opt.completeopt = "menu" -- I don't notice the difference...
