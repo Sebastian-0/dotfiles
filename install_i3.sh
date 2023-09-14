@@ -27,32 +27,32 @@ echo ""
 read -p "Press enter to start..."
 
 if [ -z "$(which i3)" ]; then
-	echo "Installing packages..."
-	if [ "$(is_ubuntu)" = "true" ]; then
-	    # Ubuntu
-	    sudo apt-get install -y i3 feh wmctrl scrot picom
+    echo "Installing packages..."
+    if [ "$(is_ubuntu)" = "true" ]; then
+        # Ubuntu
+        sudo apt-get install -y i3 feh wmctrl scrot picom
 
-	    # Build i3lock-color
-	    sudo apt install autoconf gcc make pkg-config libpam0g-dev libcairo2-dev libfontconfig1-dev libxcb-composite0-dev libev-dev libx11-xcb-dev libxcb-xkb-dev libxcb-xinerama0-dev libxcb-randr0-dev libxcb-image0-dev libxcb-util-dev libxcb-xrm-dev libxkbcommon-dev libxkbcommon-x11-dev libjpeg-dev
+        # Build i3lock-color
+        sudo apt install autoconf gcc make pkg-config libpam0g-dev libcairo2-dev libfontconfig1-dev libxcb-composite0-dev libev-dev libx11-xcb-dev libxcb-xkb-dev libxcb-xinerama0-dev libxcb-randr0-dev libxcb-image0-dev libxcb-util-dev libxcb-xrm-dev libxkbcommon-dev libxkbcommon-x11-dev libjpeg-dev
 
-	    git clone https://github.com/Raymo111/i3lock-color.git
+        git clone https://github.com/Raymo111/i3lock-color.git
             cd i3lock-color
-	    ./install-i3lock-color.sh
-	    cd ..
-	    rm -rf i3lock-color
+        ./install-i3lock-color.sh
+        cd ..
+        rm -rf i3lock-color
 
-	    # Older Ubuntu
-	    if [ -n "$(grep "22.04" /etc/os-release)" ]; then
-		sudo add-apt-repository ppa:regolith-linux/release
-		sudo apt update
-		sudo apt install i3-gaps
-	    fi
-	else
-	    # Manjaro
-	    sudo pacman -Syu && sudo pacman -S i3 feh i3-dmenu-desktop morc_menu wmctrl picom
-	fi
-	echo "Log into an i3 session and relaunch this script to continue installation!"
-	exit
+        # Older Ubuntu
+        if [ -n "$(grep "22.04" /etc/os-release)" ]; then
+            sudo add-apt-repository ppa:regolith-linux/release
+            sudo apt update
+            sudo apt install i3-gaps
+        fi
+    else
+        # Manjaro
+        sudo pacman -Syu && sudo pacman -S i3 feh i3-dmenu-desktop morc_menu wmctrl picom
+    fi
+    echo "Log into an i3 session and relaunch this script to continue installation!"
+    exit
 fi
 
 echo "Creating session entry..."
