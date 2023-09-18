@@ -1,7 +1,7 @@
 vim.opt.relativenumber = true
 vim.opt.number = true
 vim.opt.mouse = "v" -- Enabled for visual mode
---vim.opt.cursorline = true
+vim.opt.cursorline = true
 vim.opt.cursorcolumn = true
 vim.opt.scrolloff = 5
 vim.opt.tabstop = 4
@@ -42,4 +42,4 @@ vim.keymap.set("v", "<a-k>", ":m '<-2<CR>gv=gv")
 vim.keymap.set("n", "Y", "y$")
 
 -- Plugins
--- require("plugins")
+require("plugins")

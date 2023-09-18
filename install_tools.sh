@@ -10,8 +10,15 @@ is_ubuntu() {
 }
 
 if [ is_ubuntu ]; then
-    sudo apt install -y git gitk fonts-firacode yakuake scrot xclip
+    sudo apt install -y git gitk fonts-firacode yakuake
 else
-    sudo pacman -S git tk ttf-fira-code xclip
+    sudo pacman -S git tk ttf-fira-code yakuake
 fi
+
+echo "Vim installation"
 sudo snap install --classic nvim
+if [ is_ubuntu ]; then
+    sudo apt install -y ripgrep xclip fd-find
+else
+    sudo pacman -S ripgrep xclip fd
+fi
