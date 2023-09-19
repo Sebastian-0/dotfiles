@@ -42,7 +42,34 @@ require("lazy").setup({
     {
         "catppuccin/nvim",
         name = "catppuccin",
-        priority = 1000
+        priority = 1000,
+        config = function()
+            require("catppuccin").setup {
+                integrations = {
+                    treesitter = true,
+                    telescope = {
+                        enabled = true,
+                        -- style = "nvchad"
+                    }
+                }
+        --         custom_highlights = function(colors)
+        --             return {
+        --                 CursorColumn = { bg = colors.surface0 }
+        --             }
+        --         end
+            }
+        end
+    },
+    {
+        'nvim-lualine/lualine.nvim',
+        dependencies = { 'nvim-tree/nvim-web-devicons' },
+        config = function()
+            require("lualine").setup {
+                options = {
+                    theme = "catppuccin"
+                }
+            }
+        end
     },
     {
         "karb94/neoscroll.nvim",
