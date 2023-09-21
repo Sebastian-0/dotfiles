@@ -83,6 +83,9 @@ require("lazy").setup({
         config = function()
             require("nvim_comment").setup()
         end
+    },
+    {
+        "ryanoasis/vim-devicons",
     }
 })
 

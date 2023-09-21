@@ -9,16 +9,24 @@ is_ubuntu() {
     fi
 }
 
-if [ is_ubuntu ]; then
-    sudo apt install -y git gitk fonts-firacode yakuake
+if [ "$(is_ubuntu)" = "true" ]; then
+    sudo apt-get install -y git gitk yakuake # fonts-firacode
 else
-    sudo pacman -S git tk ttf-fira-code yakuake
+    sudo pacman -S --needed git tk yakuake # ttf-fira-code
 fi
 
 echo "Vim installation"
 sudo snap install --classic nvim
-if [ is_ubuntu ]; then
-    sudo apt install -y ripgrep xclip fd-find
+if [ "$(is_ubuntu)" = "true" ]; then
+    sudo apt-get install -y ripgrep xclip fd-find
 else
-    sudo pacman -S ripgrep xclip fd
+    sudo pacman -S --needed ripgrep xclip fd
 fi
+
+echo "Install FiraCode nerd font..."
+git clone --filter=blob:none --sparse https://github.com/ryanoasis/nerd-fonts.git
+cd nerd-fonts
+git sparse-checkout add patched-fonts/FiraCode
+./install.sh FiraCode
+cd ..
+rm -rf nerd-fonts
