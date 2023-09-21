@@ -67,7 +67,7 @@ require("lazy").setup({
             require("lualine").setup {
                 options = {
                     theme = "catppuccin"
-                },sections = {
+                }, sections = {
                     lualine_a = {'mode'},
                     lualine_b = {'branch', 'diff', 'diagnostics'},
                     lualine_c = {'filename'},
@@ -93,7 +93,43 @@ require("lazy").setup({
     },
     {
         "ryanoasis/vim-devicons",
-    }
+    },
+    {
+        'VonHeikemen/lsp-zero.nvim',
+        branch = 'v3.x',
+        dependencies = {
+            'williamboman/mason.nvim',
+            'williamboman/mason-lspconfig.nvim',
+            'neovim/nvim-lspconfig',
+            'hrsh7th/nvim-cmp',
+            'hrsh7th/cmp-nvim-lsp',
+            'L3MON4D3/LuaSnip',
+        },
+        config = function()
+            local lsp_zero = require('lsp-zero')
+
+            lsp_zero.on_attach(function(client, bufnr)
+                -- see :help lsp-zero-keybindings
+                -- to learn the available actions
+                lsp_zero.default_keymaps({buffer = bufnr})
+            end)
+
+            require('mason').setup({})
+            require('mason-lspconfig').setup({
+                ensure_installed = {
+                    'tsserver',
+                    'rust_analyzer',
+                    'pylsp',
+                    'clangd',
+                    'lua_ls',
+                    'bashls'
+                },
+                handlers = {
+                    lsp_zero.default_setup,
+                },
+            })
+        end
+    },
 })
 
 -- Enable theme
