@@ -117,6 +117,7 @@ fi
 echo "Configure i3..."
 if [ -z "$(grep "Plasma compatibility improvements" ~/.config/i3/config)" ]; then
     sed -i 's/i3lock/\/home\/intuicell\/.config\/i3\/scripts\/lock.sh/g' ~/.config/i3/config
+    sed -i 's/i3-sensible-terminal/konsole/g' ~/.config/i3/config
     cat <<-EOF >> ~/.config/i3/config
 
 # Execute programs
