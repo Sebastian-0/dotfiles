@@ -30,7 +30,7 @@ if [ -z "$(which i3)" ]; then
     echo "Installing packages..."
     if [ "$(is_ubuntu)" = "true" ]; then
         # Ubuntu
-        sudo apt-get install -y i3 feh wmctrl scrot picom dunst
+        sudo apt-get install -y i3 feh wmctrl scrot picom dunst rofi
 
         # Build i3lock-color
         sudo apt-get install autoconf gcc make pkg-config libpam0g-dev libcairo2-dev libfontconfig1-dev libxcb-composite0-dev libev-dev libx11-xcb-dev libxcb-xkb-dev libxcb-xinerama0-dev libxcb-randr0-dev libxcb-image0-dev libxcb-util-dev libxcb-xrm-dev libxkbcommon-dev libxkbcommon-x11-dev libjpeg-dev
@@ -49,9 +49,20 @@ if [ -z "$(which i3)" ]; then
         fi
     else
         # Manjaro
-        sudo pacman -S --needed --noconfirm i3 feh wmctrl picom yay dunst
+        sudo pacman -S --needed --noconfirm i3 feh wmctrl picom yay dunst rofi
         sudo yay -S --noconfirm --ask 4 --useask --answerclean All --answerdiff None i3lock-color
     fi
+
+    echo "Install rofi themes..."
+    git clone --depth=1 https://github.com/adi1090x/rofi.git
+    cd rofi
+    ./setup.sh
+    cd ..
+    rm -rf rofi
+    sed -i 's/@import .*/@import "~\/.config\/rofi\/colors\/catppuccin.rasi"/g' ~/.config/rofi/launchers/type-4/shared/colors.rasi
+    sed -i 's/@import .*/@import "~\/.config\/rofi\/colors\/catppuccin.rasi"/g' ~/.config/rofi/powermenu/type-1/shared/colors.rasi
+    sed -i "s/theme='style-1'/theme='style-3'/g" ~/.config/rofi/powermenu/type-1/powermenu.sh
+
     echo "Log into an i3 session and relaunch this script to continue installation!"
     exit
 fi
@@ -119,6 +130,7 @@ echo "Configure i3..."
 if [ -z "$(grep "Plasma compatibility improvements" ~/.config/i3/config)" ]; then
     sed -i 's/i3lock/\/home\/intuicell\/.config\/i3\/scripts\/lock.sh/g' ~/.config/i3/config
     sed -i 's/i3-sensible-terminal/konsole/g' ~/.config/i3/config
+    sed -i 's/bindsym $mod+d exec --no-startup-id dmenu_run/bindsym $mod+d exec --no-startup-id ~/.config/rofi/launchers/type-4/launcher.sh/g' ~/.config/i3/config
     sed -i 's/bindsym $mod+h split h/bindsym $mod+b split h/g' ~/.config/i3/config
 
     sed -i 's/bindsym $mod+j focus left/bindsym $mod+h focus left/g' ~/.config/i3/config
@@ -166,6 +178,7 @@ gaps outer 0
 # Keybinds
 bindsym \$mod+Shift+S exec spectacle
 bindsym \$mod+Ctrl+L exec $HOME/.config/i3/scripts/lock.sh
+bindsym \$mod+X exec ~/.config/rofi/powermenu/type-1/powermenu.sh
 
 # Misc
 focus_follows_mouse no
