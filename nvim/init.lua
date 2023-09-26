@@ -30,6 +30,14 @@ vim.api.nvim_create_autocmd("BufReadPost", {
     command = [[if line("'\"") > 1 && line("'\"") <= line("$") | execute "normal! g'\"" | endif]]
 })
 
+-- Register comment character for CUDA files
+local cudaCommentGroup = vim.api.nvim_create_augroup("CudaCommentString", { clear = true })
+vim.api.nvim_create_autocmd("FileType", {
+    pattern = "cuda",
+    group = cudaCommentGroup,
+    command = [[setlocal commentstring=//\ %s]]
+})
+
 -- Moving lines of code
 vim.keymap.set("n", "<a-j>", ":m .+1<CR>==")
 vim.keymap.set("n", "<a-k>", ":m .-2<CR>==")

@@ -32,7 +32,7 @@ require("lazy").setup({
             local configs = require("nvim-treesitter.configs")
 
             configs.setup({
-                ensure_installed = { "c", "cpp", "cmake", "lua", "vim", "python", "typescript", "tsx", "bash", "javascript", "rust" },
+                ensure_installed = { "cuda", "c", "cpp", "cmake", "lua", "vim", "python", "typescript", "tsx", "bash", "javascript", "rust" },
                 sync_install = false,
                 highlight = { enable = true },
 --                indent = { enable = true },  
@@ -109,8 +109,6 @@ require("lazy").setup({
             local lsp_zero = require('lsp-zero')
 
             lsp_zero.on_attach(function(client, bufnr)
-                -- see :help lsp-zero-keybindings
-                -- to learn the available actions
                 lsp_zero.default_keymaps({buffer = bufnr})
             end)
 
