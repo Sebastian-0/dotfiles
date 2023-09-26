@@ -30,7 +30,7 @@ if [ -z "$(which i3)" ]; then
     echo "Installing packages..."
     if [ "$(is_ubuntu)" = "true" ]; then
         # Ubuntu
-        sudo apt-get install -y i3 feh wmctrl scrot picom
+        sudo apt-get install -y i3 feh wmctrl scrot picom dunst
 
         # Build i3lock-color
         sudo apt-get install autoconf gcc make pkg-config libpam0g-dev libcairo2-dev libfontconfig1-dev libxcb-composite0-dev libev-dev libx11-xcb-dev libxcb-xkb-dev libxcb-xinerama0-dev libxcb-randr0-dev libxcb-image0-dev libxcb-util-dev libxcb-xrm-dev libxkbcommon-dev libxkbcommon-x11-dev libjpeg-dev
@@ -49,7 +49,7 @@ if [ -z "$(which i3)" ]; then
         fi
     else
         # Manjaro
-        sudo pacman -S --needed --noconfirm i3 feh wmctrl picom yay
+        sudo pacman -S --needed --noconfirm i3 feh wmctrl picom yay dunst
         sudo yay -S --noconfirm --ask 4 --useask --answerclean All --answerdiff None i3lock-color
     fi
     echo "Log into an i3 session and relaunch this script to continue installation!"
@@ -126,6 +126,7 @@ exec_always setxkbmap -layout se -variant swerty
 exec_always picom -f
 exec feh --bg-scale --zoom fill /home/intuicell/Repositories/dotfiles/background.jpg
 exec yakuake
+exec --no-startup-id dunst
 
 # Borders
 default_border pixel 3
