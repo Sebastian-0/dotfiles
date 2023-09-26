@@ -18,7 +18,7 @@ fi
 echo "Vim installation"
 sudo snap install --classic nvim
 if [ "$(is_ubuntu)" = "true" ]; then
-    sudo apt-get install -y ripgrep xclip fd-find
+    sudo apt-get install -y ripgrep xclip fd-find python3-venv
 else
     sudo pacman -S --needed ripgrep xclip fd
 fi
