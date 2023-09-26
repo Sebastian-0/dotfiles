@@ -119,6 +119,25 @@ echo "Configure i3..."
 if [ -z "$(grep "Plasma compatibility improvements" ~/.config/i3/config)" ]; then
     sed -i 's/i3lock/\/home\/intuicell\/.config\/i3\/scripts\/lock.sh/g' ~/.config/i3/config
     sed -i 's/i3-sensible-terminal/konsole/g' ~/.config/i3/config
+    sed -i 's/bindsym $mod+h split h/bindsym $mod+b split h/g' ~/.config/i3/config
+
+    sed -i 's/bindsym $mod+j focus left/bindsym $mod+h focus left/g' ~/.config/i3/config
+    sed -i 's/bindsym $mod+k focus down/bindsym $mod+j focus down/g' ~/.config/i3/config
+    sed -i 's/bindsym $mod+l focus up/bindsym $mod+k focus up/g' ~/.config/i3/config
+    sed -i 's/bindsym $mod+odiaeresis focus right/bindsym $mod+l focus right/g' ~/.config/i3/config
+    sed -i 's/bindsym $mod+semicolon focus right/bindsym $mod+l focus right/g' ~/.config/i3/config
+
+    sed -i 's/bindsym $mod+Shift+j focus left/bindsym $mod+Shift+h focus left/g' ~/.config/i3/config
+    sed -i 's/bindsym $mod+Shift+k focus down/bindsym $mod+Shift+j focus down/g' ~/.config/i3/config
+    sed -i 's/bindsym $mod+Shift+l focus up/bindsym $mod+Shift+k focus up/g' ~/.config/i3/config
+    sed -i 's/bindsym $mod+Shift+odiaeresis focus right/bindsym $mod+Shift+l focus right/g' ~/.config/i3/config
+    sed -i 's/bindsym $mod+Shift+semicolon focus right/bindsym $mod+Shift+l focus right/g' ~/.config/i3/config
+
+    sed -i 's/bindsym j resize shrink width 10 px or 10 ppt/bindsym h resize shrink width 10 px or 10 ppt/g' ~/.config/i3/config
+    sed -i 's/bindsym k resize grow height 10 px or 10 ppt/bindsym j resize grow height 10 px or 10 ppt/g' ~/.config/i3/config
+    sed -i 's/bindsym l resize shrink height 10 px or 10 ppt/bindsym k resize shrink height 10 px or 10 ppt/g' ~/.config/i3/config
+    sed -i 's/bindsym semicolon resize grow width 10 px or 10 ppt/bindsym l resize grow width 10 px or 10 ppt/g' ~/.config/i3/config
+    sed -i 's/bindsym odiaeresis resize grow width 10 px or 10 ppt/bindsym l resize grow width 10 px or 10 ppt/g' ~/.config/i3/config
     cat <<-EOF >> ~/.config/i3/config
 
 # Execute programs
