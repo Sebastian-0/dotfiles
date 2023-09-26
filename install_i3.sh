@@ -49,7 +49,8 @@ if [ -z "$(which i3)" ]; then
         fi
     else
         # Manjaro
-        sudo pacman -Syu && sudo pacman -S i3 feh i3-dmenu-desktop morc_menu wmctrl picom
+        sudo pacman -S --needed --noconfirm i3 feh wmctrl picom yay
+        sudo yay -S --noconfirm --ask 4 --useask --answerclean All --answerdiff None i3lock-color
     fi
     echo "Log into an i3 session and relaunch this script to continue installation!"
     exit
