@@ -163,7 +163,7 @@ exec --no-startup-id dunst
 default_border pixel 3
 
 # Colors                border  backgr. text    indicator child_border
-client.focused          #4c7899 #e65c00 #ffffff #2e9ef4   #e65c00
+client.focused          #4c7899 #430194 #ffffff #2e9ef4   #430194
 client.focused_inactive #333333 #5f676a #ffffff #484e50   #5f676a
 client.unfocused        #333333 #222222 #888888 #292d2e   #222222
 client.urgent           #2f343a #900000 #ffffff #900000   #900000
