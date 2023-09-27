@@ -24,9 +24,18 @@ else
 fi
 
 echo "Install FiraCode nerd font..."
-git clone --filter=blob:none --sparse https://github.com/ryanoasis/nerd-fonts.git
-cd nerd-fonts
-git sparse-checkout add patched-fonts/FiraCode
-./install.sh FiraCode
-cd ..
-rm -rf nerd-fonts
+if [ ! -d ~/.local/share/fonts/NerdFonts ]; then
+    git clone --filter=blob:none --sparse https://github.com/ryanoasis/nerd-fonts.git
+    cd nerd-fonts
+    git sparse-checkout add patched-fonts/FiraCode
+    ./install.sh FiraCode
+    cd ..
+    rm -rf nerd-fonts
+fi
+
+echo "Install Catppuccin theme for Konsole..."
+if [ ! -f ~/.local/share/konsole/Catppuccin-Mocha.colorscheme ]; then
+    git clone --depth 1 https://github.com/catppuccin/konsole.git
+    cp konsole/*.colorscheme ~/.local/share/konsole/
+    rm -rf konsole
+fi
