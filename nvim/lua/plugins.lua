@@ -34,8 +34,8 @@ require("lazy").setup({
             configs.setup({
                 ensure_installed = { "cuda", "c", "cpp", "cmake", "lua", "vim", "python", "typescript", "tsx", "bash", "javascript", "rust" },
                 sync_install = false,
-                highlight = { enable = true },
 --                indent = { enable = true },  
+                highlight = { enable = true, disable = {"lua"} }, -- Lua is super slow on my home computer, a bug in treesitter?
             })
         end
     },
