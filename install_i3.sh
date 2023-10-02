@@ -41,6 +41,21 @@ if [ -z "$(which i3)" ]; then
         cd ..
         rm -rf i3lock-color
 
+        # Clipmenu
+        sudo apt-get install -y xsel
+
+        git clone https://github.com/cdown/clipnotify.git
+        cd clipnotify
+        sudo make install
+        cd ..
+        sudo rm -rf clipnotify
+
+        git clone https://github.com/cdown/clipmenu.git
+        cd clipmenu
+        sudo make install
+        cd ..
+        sudo rm -rf clipmenu
+
         # Older Ubuntu
         if [ -n "$(grep "22.04" /etc/os-release)" ]; then
             sudo add-apt-repository ppa:regolith-linux/release
@@ -49,9 +64,13 @@ if [ -z "$(which i3)" ]; then
         fi
     else
         # Manjaro
-        sudo pacman -S --needed --noconfirm i3 feh wmctrl picom yay dunst rofi
+        sudo pacman -S --needed --noconfirm i3 feh wmctrl picom yay dunst rofi clipmenu
         sudo yay -S --noconfirm --ask 4 --useask --answerclean All --answerdiff None i3lock-color
     fi
+
+    echo "Launch clipmenud service..."
+    systemctl enable --user clipmenud.service
+    systemctl start --user clipmenud.service
 
     echo "Install rofi themes..."
     git clone --depth=1 https://github.com/adi1090x/rofi.git
@@ -132,6 +151,7 @@ if [ -z "$(grep "Plasma compatibility improvements" ~/.config/i3/config)" ]; the
     sed -i 's/i3-sensible-terminal/konsole/g' ~/.config/i3/config
     sed -i 's/bindsym $mod+d exec --no-startup-id dmenu_run/bindsym $mod+d exec --no-startup-id ~/.config/rofi/launchers/type-4/launcher.sh/g' ~/.config/i3/config
     sed -i 's/bindsym $mod+h split h/bindsym $mod+b split h/g' ~/.config/i3/config
+    sed -i 's/bindsym $mod+v split v/bindsym $mod+g split v/g' ~/.config/i3/config
 
     sed -i 's/bindsym $mod+j focus left/bindsym $mod+h focus left/g' ~/.config/i3/config
     sed -i 's/bindsym $mod+k focus down/bindsym $mod+j focus down/g' ~/.config/i3/config
@@ -179,6 +199,7 @@ gaps outer 0
 bindsym \$mod+Shift+S exec spectacle
 bindsym \$mod+Ctrl+L exec $HOME/.config/i3/scripts/lock.sh
 bindsym \$mod+N exec dunstctl history-pop
+bindsym \$mod+V exec "CM_LAUNCHER=rofi clipmenu -i -theme $HOME/.config/rofi/launchers/type-4/style-1.rasi -theme-str 'window {width: 1000px;} listview {scrollbar: true;} scrollbar {margin: 0px 0px 0px 10px;}'"
 bindsym \$mod+X exec ~/.config/rofi/powermenu/type-1/powermenu.sh
 
 # Misc
