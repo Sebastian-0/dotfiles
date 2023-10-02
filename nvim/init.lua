@@ -24,17 +24,24 @@ vim.g.netrw_list_hide = "\\(^\\|\\s\\s\\)\\zs\\.\\S\\+" -- Hide all dotfiles by 
 --vim.g.netrw_browsex_viewer = "xdg-open" -- Controls what happens when pressing x over files, for some reason not working...
 
 -- Return to last position
-local returnGroup = vim.api.nvim_create_augroup("ReturnToLast", { clear = true })
 vim.api.nvim_create_autocmd("BufReadPost", {
-    group = returnGroup,
+    group = vim.api.nvim_create_augroup("ReturnToLast", { clear = true }),
     command = [[if line("'\"") > 1 && line("'\"") <= line("$") | execute "normal! g'\"" | endif]]
 })
 
--- Register comment character for CUDA files
-local cudaCommentGroup = vim.api.nvim_create_augroup("CudaCommentString", { clear = true })
+
+-- Stop automatic comments
 vim.api.nvim_create_autocmd("FileType", {
+   group = vim.api.nvim_create_augroup("NoAutoComment", { clear = true }),
+   callback = function()
+       vim.opt.formatoptions:remove("o")
+   end
+})
+
+-- Register comment character for CUDA files
+vim.api.nvim_create_autocmd("FileType", {
+    group = vim.api.nvim_create_augroup("CudaCommentString", { clear = true }),
     pattern = "cuda",
-    group = cudaCommentGroup,
     command = [[setlocal commentstring=//\ %s]]
 })
 
