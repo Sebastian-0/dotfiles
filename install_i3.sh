@@ -149,7 +149,7 @@ echo "Configure i3..."
 if [ -z "$(grep "Plasma compatibility improvements" ~/.config/i3/config)" ]; then
     sed -i 's/i3lock/\/home\/intuicell\/.config\/i3\/scripts\/lock.sh/g' ~/.config/i3/config
     sed -i 's/i3-sensible-terminal/konsole/g' ~/.config/i3/config
-    sed -i 's/bindsym $mod+d exec --no-startup-id dmenu_run/bindsym $mod+d exec --no-startup-id ~/.config/rofi/launchers/type-4/launcher.sh/g' ~/.config/i3/config
+    sed -i 's/bindsym $mod+d exec --no-startup-id dmenu_run/bindsym $mod+d exec --no-startup-id ~\/.config\/rofi\/launchers\/type-4\/launcher.sh/g' ~/.config/i3/config
     sed -i 's/bindsym $mod+h split h/bindsym $mod+b split h/g' ~/.config/i3/config
     sed -i 's/bindsym $mod+v split v/bindsym $mod+g split v/g' ~/.config/i3/config
 
@@ -159,11 +159,11 @@ if [ -z "$(grep "Plasma compatibility improvements" ~/.config/i3/config)" ]; the
     sed -i 's/bindsym $mod+odiaeresis focus right/bindsym $mod+l focus right/g' ~/.config/i3/config
     sed -i 's/bindsym $mod+semicolon focus right/bindsym $mod+l focus right/g' ~/.config/i3/config
 
-    sed -i 's/bindsym $mod+Shift+j focus left/bindsym $mod+Shift+h focus left/g' ~/.config/i3/config
-    sed -i 's/bindsym $mod+Shift+k focus down/bindsym $mod+Shift+j focus down/g' ~/.config/i3/config
-    sed -i 's/bindsym $mod+Shift+l focus up/bindsym $mod+Shift+k focus up/g' ~/.config/i3/config
-    sed -i 's/bindsym $mod+Shift+odiaeresis focus right/bindsym $mod+Shift+l focus right/g' ~/.config/i3/config
-    sed -i 's/bindsym $mod+Shift+semicolon focus right/bindsym $mod+Shift+l focus right/g' ~/.config/i3/config
+    sed -i 's/bindsym $mod+Shift+j move left/bindsym $mod+Shift+h move left/g' ~/.config/i3/config
+    sed -i 's/bindsym $mod+Shift+k move down/bindsym $mod+Shift+j move down/g' ~/.config/i3/config
+    sed -i 's/bindsym $mod+Shift+l move up/bindsym $mod+Shift+k move up/g' ~/.config/i3/config
+    sed -i 's/bindsym $mod+Shift+odiaeresis move right/bindsym $mod+Shift+l move right/g' ~/.config/i3/config
+    sed -i 's/bindsym $mod+Shift+semicolon move right/bindsym $mod+Shift+l move right/g' ~/.config/i3/config
 
     sed -i 's/bindsym j resize shrink width 10 px or 10 ppt/bindsym h resize shrink width 10 px or 10 ppt/g' ~/.config/i3/config
     sed -i 's/bindsym k resize grow height 10 px or 10 ppt/bindsym j resize grow height 10 px or 10 ppt/g' ~/.config/i3/config
@@ -173,7 +173,7 @@ if [ -z "$(grep "Plasma compatibility improvements" ~/.config/i3/config)" ]; the
     cat <<-EOF >> ~/.config/i3/config
 
 # Execute programs
-exec_always --no-startup-idsetxkbmap -layout se -variant swerty
+exec_always --no-startup-id setxkbmap -layout se -variant swerty
 exec_always --no-startup-id picom -f
 exec --no-startup-id feh --bg-scale --zoom fill $PWD/i3/background.jpg
 exec --no-startup-id yakuake
