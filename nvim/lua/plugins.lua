@@ -1,13 +1,13 @@
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
-  vim.fn.system({
-    "git",
-    "clone",
-    "--filter=blob:none",
-    "https://github.com/folke/lazy.nvim.git",
-    "--branch=stable", -- latest stable release
-    lazypath,
-  })
+    vim.fn.system({
+        "git",
+        "clone",
+        "--filter=blob:none",
+        "https://github.com/folke/lazy.nvim.git",
+        "--branch=stable", -- latest stable release
+        lazypath,
+    })
 end
 vim.opt.rtp:prepend(lazypath)
 
@@ -34,8 +34,8 @@ require("lazy").setup({
             configs.setup({
                 ensure_installed = { "cuda", "c", "cpp", "cmake", "lua", "vim", "python", "typescript", "tsx", "bash", "javascript", "rust" },
                 sync_install = false,
---                indent = { enable = true },  
                 highlight = { enable = true, disable = {"lua"} }, -- Lua is super slow on my home computer, a bug in treesitter?
+                -- indent = { enable = true },
             })
         end
     },
@@ -51,12 +51,12 @@ require("lazy").setup({
                         enabled = true,
                         -- style = "nvchad"
                     }
-                }
-        --         custom_highlights = function(colors)
-        --             return {
-        --                 CursorColumn = { bg = colors.surface0 }
-        --             }
-        --         end
+                },
+                -- custom_highlights = function(colors)
+                --     return {
+                --         CursorColumn = { bg = colors.surface0 }
+                --     }
+                -- end
             }
         end
     },
