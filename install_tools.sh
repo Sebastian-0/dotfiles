@@ -9,19 +9,21 @@ is_ubuntu() {
     fi
 }
 
+echo "Install git & yakuake..."
 if [ "$(is_ubuntu)" = "true" ]; then
     sudo apt-get install -y git gitk yakuake # fonts-firacode
 else
     sudo pacman -S --needed git tk yakuake # ttf-fira-code
 fi
 
-echo "Vim installation"
+echo "Install Neovim..."
 sudo snap install --classic nvim
 if [ "$(is_ubuntu)" = "true" ]; then
     sudo apt-get install -y ripgrep xclip fd-find python3-venv
 else
     sudo pacman -S --needed ripgrep xclip fd
 fi
+git config --global core.editor "nvim"
 
 echo "Install FiraCode nerd font..."
 if [ ! -d ~/.local/share/fonts/NerdFonts ]; then
