@@ -175,7 +175,7 @@ if [ -z "$(grep "Plasma compatibility improvements" ~/.config/i3/config)" ]; the
 # Execute programs
 exec_always --no-startup-idsetxkbmap -layout se -variant swerty
 exec_always --no-startup-id picom -f
-exec --no-startup-id feh --bg-scale --zoom fill /home/intuicell/Repositories/dotfiles/background.jpg
+exec --no-startup-id feh --bg-scale --zoom fill $PWD/i3/background.jpg
 exec --no-startup-id yakuake
 exec --no-startup-id dunst
 
