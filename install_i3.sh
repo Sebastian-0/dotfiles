@@ -178,6 +178,7 @@ gaps outer 0
 # Keybinds
 bindsym \$mod+Shift+S exec spectacle
 bindsym \$mod+Ctrl+L exec $HOME/.config/i3/scripts/lock.sh
+bindsym \$mod+N exec dunstctl history-pop
 bindsym \$mod+X exec ~/.config/rofi/powermenu/type-1/powermenu.sh
 
 # Misc
