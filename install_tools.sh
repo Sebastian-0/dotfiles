@@ -9,11 +9,11 @@ is_ubuntu() {
     fi
 }
 
-echo "Install git & yakuake..."
+echo "Install git, yakuake & calc..."
 if [ "$(is_ubuntu)" = "true" ]; then
-    sudo apt-get install -y git gitk yakuake # fonts-firacode
+    sudo apt-get install -y git gitk yakuake calc # fonts-firacode
 else
-    sudo pacman -S --needed git tk yakuake # ttf-fira-code
+    sudo pacman -S --needed git tk yakuake calc # ttf-fira-code
 fi
 
 echo "Install Neovim..."
