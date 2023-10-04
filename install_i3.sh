@@ -30,7 +30,7 @@ if [ -z "$(which i3)" ]; then
     echo "Installing packages..."
     if [ "$(is_ubuntu)" = "true" ]; then
         # Ubuntu
-        sudo apt-get install -y i3 feh wmctrl scrot picom dunst rofi pulseaudio-utils playerctl xbacklight
+        sudo apt-get install -y i3 feh wmctrl scrot picom dunst rofi pulseaudio-utils playerctl xbacklight polybar
 
         # Build i3lock-color
         sudo apt-get install autoconf gcc make pkg-config libpam0g-dev libcairo2-dev libfontconfig1-dev libxcb-composite0-dev libev-dev libx11-xcb-dev libxcb-xkb-dev libxcb-xinerama0-dev libxcb-randr0-dev libxcb-image0-dev libxcb-util-dev libxcb-xrm-dev libxkbcommon-dev libxkbcommon-x11-dev libjpeg-dev
@@ -64,7 +64,7 @@ if [ -z "$(which i3)" ]; then
         fi
     else
         # Manjaro
-        sudo pacman -S --needed --noconfirm i3 feh wmctrl picom yay dunst rofi clipmenu
+        sudo pacman -S --needed --noconfirm i3 feh wmctrl picom yay dunst rofi clipmenu playerctl xorg-xbacklight polybar
         sudo yay -S --noconfirm --ask 4 --useask --answerclean All --answerdiff None i3lock-color
     fi
 
@@ -81,6 +81,10 @@ if [ -z "$(which i3)" ]; then
     sed -i 's/@import .*/@import "~\/.config\/rofi\/colors\/catppuccin.rasi"/g' ~/.config/rofi/launchers/type-4/shared/colors.rasi
     sed -i 's/@import .*/@import "~\/.config\/rofi\/colors\/catppuccin.rasi"/g' ~/.config/rofi/powermenu/type-1/shared/colors.rasi
     sed -i "s/theme='style-1'/theme='style-3'/g" ~/.config/rofi/powermenu/type-1/powermenu.sh
+
+    echo "Install Polybar theme..."
+    mkdir ~/.config/polybar
+    cp -r polybar/* ~/.config/polybar/
 
     echo "Log into an i3 session and relaunch this script to continue installation!"
     exit
@@ -170,9 +174,12 @@ if [ -z "$(grep "Plasma compatibility improvements" ~/.config/i3/config)" ]; the
     sed -i 's/bindsym l resize shrink height 10 px or 10 ppt/bindsym k resize shrink height 10 px or 10 ppt/g' ~/.config/i3/config
     sed -i 's/bindsym semicolon resize grow width 10 px or 10 ppt/bindsym l resize grow width 10 px or 10 ppt/g' ~/.config/i3/config
     sed -i 's/bindsym odiaeresis resize grow width 10 px or 10 ppt/bindsym l resize grow width 10 px or 10 ppt/g' ~/.config/i3/config
+
+    sed -zi 's/bar {\n.*\n}//g' ~/.config/i3/config
     cat <<-EOF >> ~/.config/i3/config
 
 # Execute programs
+exec_always --no-startup-id $HOME/.config/polybar/launch.sh
 exec_always --no-startup-id setxkbmap -layout se -variant swerty
 exec_always --no-startup-id picom -f -i 0.95
 exec --no-startup-id feh --bg-scale --zoom fill $PWD/i3/background.jpg
