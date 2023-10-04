@@ -30,7 +30,7 @@ if [ -z "$(which i3)" ]; then
     echo "Installing packages..."
     if [ "$(is_ubuntu)" = "true" ]; then
         # Ubuntu
-        sudo apt-get install -y i3 feh wmctrl scrot picom dunst rofi
+        sudo apt-get install -y i3 feh wmctrl scrot picom dunst rofi pulseaudio-utils
 
         # Build i3lock-color
         sudo apt-get install autoconf gcc make pkg-config libpam0g-dev libcairo2-dev libfontconfig1-dev libxcb-composite0-dev libev-dev libx11-xcb-dev libxcb-xkb-dev libxcb-xinerama0-dev libxcb-randr0-dev libxcb-image0-dev libxcb-util-dev libxcb-xrm-dev libxkbcommon-dev libxkbcommon-x11-dev libjpeg-dev
