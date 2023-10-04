@@ -30,7 +30,7 @@ if [ -z "$(which i3)" ]; then
     echo "Installing packages..."
     if [ "$(is_ubuntu)" = "true" ]; then
         # Ubuntu
-        sudo apt-get install -y i3 feh wmctrl scrot picom dunst rofi pulseaudio-utils
+        sudo apt-get install -y i3 feh wmctrl scrot picom dunst rofi pulseaudio-utils playerctl xbacklight
 
         # Build i3lock-color
         sudo apt-get install autoconf gcc make pkg-config libpam0g-dev libcairo2-dev libfontconfig1-dev libxcb-composite0-dev libev-dev libx11-xcb-dev libxcb-xkb-dev libxcb-xinerama0-dev libxcb-randr0-dev libxcb-image0-dev libxcb-util-dev libxcb-xrm-dev libxkbcommon-dev libxkbcommon-x11-dev libjpeg-dev
@@ -201,6 +201,16 @@ bindsym \$mod+Ctrl+L exec $HOME/.config/i3/scripts/lock.sh
 bindsym \$mod+N exec dunstctl history-pop
 bindsym \$mod+V exec "CM_LAUNCHER=rofi clipmenu -i -theme $HOME/.config/rofi/launchers/type-4/style-1.rasi -theme-str 'window {width: 1000px;} listview {scrollbar: true;} scrollbar {margin: 0px 0px 0px 10px;}'"
 bindsym \$mod+X exec ~/.config/rofi/powermenu/type-1/powermenu.sh
+
+# Media player controls
+bindsym XF86AudioPlay exec playerctl play-pause
+bindsym XF86AudioPause exec playerctl play-pause
+bindsym XF86AudioNext exec playerctl next
+bindsym XF86AudioPrev exec playerctl previous
+
+# Sreen brightness controls
+bindsym XF86MonBrightnessUp exec xbacklight -inc 20
+bindsym XF86MonBrightnessDown exec xbacklight -dec 20
 
 # Misc
 focus_follows_mouse no
