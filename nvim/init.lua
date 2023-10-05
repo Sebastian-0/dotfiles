@@ -38,10 +38,10 @@ vim.api.nvim_create_autocmd("FileType", {
    end
 })
 
--- Register comment character for CUDA files
+-- Set comment character for certain file types
 vim.api.nvim_create_autocmd("FileType", {
-    group = vim.api.nvim_create_augroup("CudaCommentString", { clear = true }),
-    pattern = "cuda",
+    group = vim.api.nvim_create_augroup("CommentString", { clear = true }),
+    pattern = {"c", "cpp", "cuda"},
     command = [[setlocal commentstring=//\ %s]]
 })
 

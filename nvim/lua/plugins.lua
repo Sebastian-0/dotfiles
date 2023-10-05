@@ -32,7 +32,7 @@ require("lazy").setup({
             local configs = require("nvim-treesitter.configs")
 
             configs.setup({
-                ensure_installed = { "cuda", "c", "cpp", "cmake", "lua", "vim", "python", "typescript", "tsx", "bash", "javascript", "rust" },
+                ensure_installed = { "cuda", "c", "cpp", "cmake", "lua", "vim", "python", "typescript", "tsx", "bash", "javascript", "rust", "java" },
                 sync_install = false,
                 highlight = { enable = true, disable = {"lua"} }, -- Lua is super slow on my home computer, a bug in treesitter?
                 -- indent = { enable = true },
@@ -108,7 +108,7 @@ require("lazy").setup({
         config = function()
             local lsp_zero = require('lsp-zero')
 
-            lsp_zero.on_attach(function(client, bufnr)
+            lsp_zero.on_attach(function(_, bufnr)
                 lsp_zero.default_keymaps({buffer = bufnr})
             end)
 
