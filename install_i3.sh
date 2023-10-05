@@ -182,7 +182,7 @@ if [ -z "$(grep "Plasma compatibility improvements" ~/.config/i3/config)" ]; the
 exec_always --no-startup-id $HOME/.config/polybar/launch.sh
 exec_always --no-startup-id setxkbmap -layout se -variant swerty
 exec_always --no-startup-id picom -f -i 0.95
-exec --no-startup-id feh --bg-scale --zoom fill $PWD/i3/background.jpg
+exec --no-startup-id $PWD/i3/wallpaper/cycle.sh
 exec --no-startup-id yakuake
 exec --no-startup-id dunst
 
