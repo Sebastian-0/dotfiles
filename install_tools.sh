@@ -16,6 +16,17 @@ else
     sudo pacman -S --needed git tk yakuake calc # ttf-fira-code
 fi
 
+echo "Install btop..."
+if [ "$(is_ubuntu)" = "true" ]; then
+    sudo apt-get install -y btop
+else
+    sudo pacman -S --needed btop
+fi
+git clone https://github.com/catppuccin/btop
+mkdir -p ~/.config/btop/themes
+cp -r btop/themes/* ~/.config/btop/themes/
+rm -rf btop
+
 echo "Install Neovim..."
 sudo snap install --classic nvim
 if [ "$(is_ubuntu)" = "true" ]; then
