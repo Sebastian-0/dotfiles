@@ -41,6 +41,10 @@ print_folder() {
     fi
 }
 
+# Layout aliases
+alias layout_swerty='setxkbmap -layout se -variant swerty'
+alias layout_se='setxkbmap -layout se'
+
 # Add git aliases
 alias gip='git pull'
 alias gipu='git push'
