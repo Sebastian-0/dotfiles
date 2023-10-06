@@ -78,9 +78,10 @@ if [ -z "$(which i3)" ]; then
     ./setup.sh
     cd ..
     rm -rf rofi
-    sed -i 's/@import .*/@import "~\/.config\/rofi\/colors\/catppuccin.rasi"/g' ~/.config/rofi/launchers/type-4/shared/colors.rasi
-    sed -i 's/@import .*/@import "~\/.config\/rofi\/colors\/catppuccin.rasi"/g' ~/.config/rofi/powermenu/type-1/shared/colors.rasi
+    sed -i 's|@import .*|@import "~/.config/rofi/colors/catppuccin.rasi"|g' ~/.config/rofi/launchers/type-4/shared/colors.rasi
+    sed -i 's|@import .*|@import "~/.config/rofi/colors/catppuccin.rasi"|g' ~/.config/rofi/powermenu/type-1/shared/colors.rasi
     sed -i "s/theme='style-1'/theme='style-3'/g" ~/.config/rofi/powermenu/type-1/powermenu.sh
+    sed -i "s|\si3lock|$HOME/.config/i3/scripts/lock.sh|g" ~/.config/rofi/powermenu/type-1/powermenu.sh
 
     echo "Install Polybar theme..."
     mkdir ~/.config/polybar
@@ -151,9 +152,9 @@ fi
 # TODO Replace fixed path with $HOME and subtitution for / to \/
 echo "Configure i3..."
 if [ -z "$(grep "Plasma compatibility improvements" ~/.config/i3/config)" ]; then
-    sed -i 's/i3lock/\/home\/intuicell\/.config\/i3\/scripts\/lock.sh/g' ~/.config/i3/config
+    sed -i "s|i3lock|$HOME/.config/i3/scripts/lock.sh|g" ~/.config/i3/config
     sed -i 's/i3-sensible-terminal/konsole/g' ~/.config/i3/config
-    sed -i 's/bindsym $mod+d exec --no-startup-id dmenu_run/bindsym $mod+d exec --no-startup-id ~\/.config\/rofi\/launchers\/type-4\/launcher.sh/g' ~/.config/i3/config
+    sed -i 's|bindsym $mod+d exec --no-startup-id dmenu_run|bindsym $mod+d exec --no-startup-id ~/.config/rofi/launchers/type-4/launcher.sh|g' ~/.config/i3/config
     sed -i 's/bindsym $mod+h split h/bindsym $mod+b split h/g' ~/.config/i3/config
     sed -i 's/bindsym $mod+v split v/bindsym $mod+g split v/g' ~/.config/i3/config
 
