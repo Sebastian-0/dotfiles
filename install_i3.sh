@@ -58,9 +58,16 @@ if [ -z "$(which i3)" ]; then
 
         # Older Ubuntu
         if [ -n "$(grep "22.04" /etc/os-release)" ]; then
-            sudo add-apt-repository ppa:regolith-linux/release
-            sudo apt update
-            sudo apt install i3-gaps
+            echo "Manually build i3-gaps..."
+            sudo apt-get install -y libcairo2-dev libpango1.0-dev libyajl-dev libxcb-icccm4-dev libxcb-keysyms1-dev libxcb-cursor-dev libstartup-notification0-dev xmlto meson asciidoc
+            gicl https://github.com/Airblader/i3 i3-gaps
+            cd i3-gaps
+            git checkout gaps
+            meson -Ddocs=true -Dmans=true ../build
+            meson compile -C ../build
+            sudo meson install -C ../build
+            cd ..
+            rm -rf build i3-gaps
         fi
     else
         # Manjaro
