@@ -30,9 +30,9 @@ rm -rf btop
 echo "Install Neovim..."
 sudo snap install --classic nvim
 if [ "$(is_ubuntu)" = "true" ]; then
-    sudo apt-get install -y ripgrep xclip fd-find python3-venv
+    sudo apt-get install -y ripgrep xclip fd-find python3-venv npm
 else
-    sudo pacman -S --needed ripgrep xclip fd
+    sudo pacman -S --needed ripgrep xclip fd npm
 fi
 git config --global core.editor "nvim"
 
