@@ -154,6 +154,7 @@ i3lock \
 --date-str="%A, %Y-%m-%d"    \
 --keylayout 1                \
 EOF
+    chmod u+x ~/.config/i3/scripts/lock.sh
 fi
 
 # TODO Replace fixed path with $HOME and subtitution for / to \/
