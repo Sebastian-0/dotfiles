@@ -53,6 +53,12 @@ vim.keymap.set("i", "<a-k>", "<Esc>:m .-2<CR>==gi")
 vim.keymap.set("v", "<a-j>", ":m '>+1<CR>gv=gv")
 vim.keymap.set("v", "<a-k>", ":m '<-2<CR>gv=gv")
 
+-- Center view when jumping
+-- vim.keymap.set("n", "<C-d>", "<C-d>zz")  -- These doesn't work with neoscroll enabled...
+-- vim.keymap.set("n", "<c-u>", "<C-u>zz")
+vim.keymap.set("n", "n", "nzzzv")
+vim.keymap.set("n", "N", "Nzzzv")
+
 -- Make Y copy rest of line
 vim.keymap.set("n", "Y", "y$")
 
