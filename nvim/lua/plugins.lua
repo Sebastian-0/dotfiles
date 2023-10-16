@@ -98,6 +98,9 @@ require("lazy").setup({
         "ryanoasis/vim-devicons",
     },
     {
+        "lambdalisue/suda.vim"
+    },
+    {
         'VonHeikemen/lsp-zero.nvim',
         branch = 'v3.x',
         dependencies = {
