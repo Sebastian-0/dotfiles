@@ -33,7 +33,7 @@ if [ -z "$(which i3)" ]; then
         sudo apt-get install -y i3 feh wmctrl scrot picom dunst rofi pulseaudio-utils playerctl xbacklight polybar
 
         # Build i3lock-color
-        sudo apt-get install autoconf gcc make pkg-config libpam0g-dev libcairo2-dev libfontconfig1-dev libxcb-composite0-dev libev-dev libx11-xcb-dev libxcb-xkb-dev libxcb-xinerama0-dev libxcb-randr0-dev libxcb-image0-dev libxcb-util-dev libxcb-xrm-dev libxkbcommon-dev libxkbcommon-x11-dev libjpeg-dev
+        sudo apt-get install -y autoconf gcc make pkg-config libpam0g-dev libcairo2-dev libfontconfig1-dev libxcb-composite0-dev libev-dev libx11-xcb-dev libxcb-xkb-dev libxcb-xinerama0-dev libxcb-randr0-dev libxcb-image0-dev libxcb-util-dev libxcb-xrm-dev libxkbcommon-dev libxkbcommon-x11-dev libjpeg-dev
 
         git clone https://github.com/Raymo111/i3lock-color.git
         cd i3lock-color
@@ -60,7 +60,7 @@ if [ -z "$(which i3)" ]; then
         if [ -n "$(grep "22.04" /etc/os-release)" ]; then
             echo "Manually build i3-gaps..."
             sudo apt-get install -y libcairo2-dev libpango1.0-dev libyajl-dev libxcb-icccm4-dev libxcb-keysyms1-dev libxcb-cursor-dev libstartup-notification0-dev xmlto meson asciidoc
-            gicl https://github.com/Airblader/i3 i3-gaps
+            git clone https://github.com/Airblader/i3 i3-gaps
             cd i3-gaps
             git checkout gaps
             meson -Ddocs=true -Dmans=true ../build
