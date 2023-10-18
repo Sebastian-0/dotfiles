@@ -98,27 +98,11 @@ if [ -z "$(which i3)" ]; then
     exit
 fi
 
-echo "Creating session entry..."
-cat <<EOF > plasma-i3.desktop
-[Desktop Entry]
-Type=XSession
-Exec=env KDEWM=/usr/bin/i3 /usr/bin/startplasma-x11
-DesktopNames=KDE
-Name=Plasma with i3
-Comment=Plasma with i3
-EOF
-sudo mv plasma-i3.desktop /usr/share/xsessions/plasma-i3.desktop
-
-if [ "$(is_at_least_version 5.25)" = "true" ]; then
-    kwriteconfig5 --file startkderc --group General --key systemdBoot false
-fi
-
 echo "Configure i3lock..."
 if [ ! -d ~/.config/i3/scripts ]; then
     cp -r i3/scripts ~/.config/i3/scripts
 fi
 
-# TODO Replace fixed path with $HOME and subtitution for / to \/
 echo "Configure i3..."
 if [ -z "$(grep "Plasma compatibility improvements" ~/.config/i3/config)" ]; then
     sed -i "s|i3lock|$HOME/.config/i3/scripts/lock.sh|g" ~/.config/i3/config
