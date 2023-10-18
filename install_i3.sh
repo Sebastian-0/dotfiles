@@ -71,7 +71,7 @@ if [ -z "$(which i3)" ]; then
         fi
     else
         # Manjaro
-        sudo pacman -S --needed --noconfirm i3 feh wmctrl picom yay dunst rofi clipmenu playerctl xorg-xbacklight polybar
+        sudo pacman -S --needed --noconfirm i3 feh wmctrl picom yay dunst rofi clipmenu playerctl xorg-xbacklight polybar scrot
         sudo yay -S --noconfirm --ask 4 --useask --answerclean All --answerdiff None i3lock-color
     fi
 
@@ -114,47 +114,8 @@ if [ "$(is_at_least_version 5.25)" = "true" ]; then
 fi
 
 echo "Configure i3lock..."
-if [ ! -f ~/.config/i3/scripts/lock.sh ]; then
-    mkdir ~/.config/i3/scripts
-    cat <<-'EOF' >> ~/.config/i3/scripts/lock.sh
-#!/bin/sh
-
-BLANK='#00000000'
-CLEAR='#ffffff22'
-DEFAULT='#00897bE6'
-TEXT='#00897bE6'
-WRONG='#880000bb'
-VERIFYING='#00564dE6'
-
-i3lock \
---insidever-color=$CLEAR     \
---ringver-color=$VERIFYING   \
-\
---insidewrong-color=$CLEAR   \
---ringwrong-color=$WRONG     \
-\
---inside-color=$BLANK        \
---ring-color=$DEFAULT        \
---line-color=$BLANK          \
---separator-color=$DEFAULT   \
-\
---verif-color=$TEXT          \
---wrong-color=$TEXT          \
---time-color=$TEXT           \
---date-color=$TEXT           \
---layout-color=$TEXT         \
---keyhl-color=$WRONG         \
---bshl-color=$WRONG          \
-\
---screen 1                   \
---blur 9                     \
---clock                      \
---indicator                  \
---time-str="%H:%M:%S"        \
---date-str="%A, %Y-%m-%d"    \
---keylayout 1                \
-EOF
-    chmod u+x ~/.config/i3/scripts/lock.sh
+if [ ! -d ~/.config/i3/scripts ]; then
+    cp -r i3/scripts ~/.config/i3/scripts
 fi
 
 # TODO Replace fixed path with $HOME and subtitution for / to \/
