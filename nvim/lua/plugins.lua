@@ -83,9 +83,6 @@ require("lazy").setup({
         opts = {
             stop_eof = false,
             easing_function = "quadratic",
-            post_hook=function ()
-                vim.api.nvim_feedkeys("zz", "m", true)
-            end
         }
     },
     {
