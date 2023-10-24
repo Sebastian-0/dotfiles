@@ -105,6 +105,7 @@ require("lazy").setup({
             'williamboman/mason-lspconfig.nvim',
             'neovim/nvim-lspconfig',
             'hrsh7th/nvim-cmp',
+            'hrsh7th/cmp-path',
             'hrsh7th/cmp-nvim-lsp',
             'L3MON4D3/LuaSnip',
         },
@@ -137,6 +138,11 @@ require("lazy").setup({
             local luasnip = require('luasnip')
             local cmp = require('cmp')
             cmp.setup({
+                sources = cmp.config.sources({
+                    { name = "nvim_lsp" },
+                    { name = "luasnip" },
+                    { name = 'path' }
+                }),
                 mapping = cmp.mapping.preset.insert({
                     ["<Tab>"] = cmp.mapping(function(fallback)
                         if cmp.visible() then
