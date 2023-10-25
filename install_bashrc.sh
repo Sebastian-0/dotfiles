@@ -5,3 +5,5 @@ git config --global core.autocrlf input
 
 printf "\n\n" >> ~/.bashrc
 printf ". \"$(pwd)/.bash_aliases\"" >> ~/.bashrc
+
+cp .inputrc ~/.inputrc
