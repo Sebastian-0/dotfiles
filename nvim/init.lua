@@ -62,5 +62,9 @@ vim.keymap.set("n", "N", "Nzzzv")
 -- Make Y copy rest of line
 vim.keymap.set("n", "Y", "y$")
 
+-- Extra save and quit commands
+vim.api.nvim_create_user_command("Q", "q", {})
+vim.api.nvim_create_user_command("W", "w", {})
+
 -- Plugins
 require("plugins")
