@@ -32,10 +32,10 @@ vim.api.nvim_create_autocmd("BufReadPost", {
 
 -- Stop automatic comments
 vim.api.nvim_create_autocmd("FileType", {
-   group = vim.api.nvim_create_augroup("NoAutoComment", { clear = true }),
-   callback = function()
-       vim.opt.formatoptions:remove("ro")
-   end
+    group = vim.api.nvim_create_augroup("NoAutoComment", { clear = true }),
+    callback = function()
+        vim.opt.formatoptions:remove({"o", "r"})
+    end
 })
 
 -- Set comment character for certain file types
