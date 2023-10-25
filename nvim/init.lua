@@ -34,7 +34,7 @@ vim.api.nvim_create_autocmd("BufReadPost", {
 vim.api.nvim_create_autocmd("FileType", {
    group = vim.api.nvim_create_augroup("NoAutoComment", { clear = true }),
    callback = function()
-       vim.opt.formatoptions:remove("o")
+       vim.opt.formatoptions:remove("ro")
    end
 })
 
