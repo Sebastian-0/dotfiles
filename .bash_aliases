@@ -1,5 +1,8 @@
 # Don't put duplicate lines or lines starting with space in the history.
 HISTCONTROL=ignoreboth
+HISTSIZE=4096
+HISTFILESIZE=4096
+shopt -s histappend
 
 # ls aliases
 alias ll='ls -alF'
