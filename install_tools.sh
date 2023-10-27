@@ -9,11 +9,11 @@ is_ubuntu() {
     fi
 }
 
-echo "Install git, yakuake & calc..."
+echo "Install git, yakuake, calc & exa/eza..."
 if [ "$(is_ubuntu)" = "true" ]; then
-    sudo apt-get install -y git gitk yakuake calc # fonts-firacode
+    sudo apt-get install -y git gitk yakuake calc exa # fonts-firacode
 else
-    sudo pacman -S --needed git tk yakuake calc # ttf-fira-code
+    sudo pacman -S --needed git tk yakuake calc eza # ttf-fira-code
 fi
 
 echo "Install btop..."

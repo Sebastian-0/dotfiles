@@ -5,9 +5,17 @@ HISTFILESIZE=4096
 shopt -s histappend
 
 # ls aliases
-alias ll='ls -alF'
-alias la='ls -A'
-alias l='ls -CF'
+if [ "$(which exa)" ] || [ "$(which eza)" ]; then
+    if [ "$(which eza)" ]; then
+        alias exa='eza'
+    fi
+    alias ls='exa'
+    alias ll='exa -haal --git'
+    alias lt='exa -hlT --git'
+else
+    alias ll='ls -alF'
+    alias l='ls -CF'
+fi
 
 # Misc aliases
 if [ "$(which nvim)" ]; then
