@@ -22,6 +22,7 @@ vim.g.netrw_altv = 1
 vim.g.netrw_winsize = 75
 vim.g.netrw_list_hide = "\\(^\\|\\s\\s\\)\\zs\\.\\S\\+" -- Hide all dotfiles by default
 --vim.g.netrw_browsex_viewer = "xdg-open" -- Controls what happens when pressing x over files, for some reason not working...
+vim.g.netrw_bufsettings = "noma nomod nobl nowrap ro number relativenumber"
 
 -- Return to last position
 vim.api.nvim_create_autocmd("BufReadPost", {
