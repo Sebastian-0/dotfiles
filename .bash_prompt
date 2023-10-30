@@ -59,7 +59,7 @@ function prompt() {
     fi
     time="\[$R$COL_TIME\]($timer_show) \t"
     host="\[$R$COL_HOST\][\u@\h]"
-    dir="\[$R$COL_DIR\]\W"
+    dir="\[$R$COL_DIR\]\w"
     prompt="\[$R\]\$"
     PS1="\n┌$ret $time $host $dir\n$prompt "
 }
