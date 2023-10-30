@@ -98,6 +98,10 @@ require("lazy").setup({
         "lambdalisue/suda.vim"
     },
     {
+        "Vimjas/vim-python-pep8-indent",
+        ft = "python"
+    },
+    {
         'VonHeikemen/lsp-zero.nvim',
         branch = 'v3.x',
         dependencies = {
