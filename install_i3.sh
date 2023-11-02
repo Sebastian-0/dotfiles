@@ -102,6 +102,12 @@ echo "Configure i3lock..."
 if [ ! -d ~/.config/i3/scripts ]; then
     cp -r i3/scripts ~/.config/i3/scripts
 fi
+if [ -f /usr/NX/etc/node.cfg ]; then
+    echo "Patching NoMachine with lock script..."
+    sed -i "s|#UserScriptAfterSessionClose \"\"|UserScriptAfterSessionClose \"$HOME/.config/i3/scripts/lock.sh\"|g" /usr/NX/etc/node.cfg
+else
+    echo "NoMachine not installed, can't patch!"
+fi
 
 echo "Configure i3..."
 if [ -z "$(grep "Plasma compatibility improvements" ~/.config/i3/config)" ]; then
