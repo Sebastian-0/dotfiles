@@ -136,7 +136,8 @@ require("lazy").setup({
                     'pylsp',
                     'clangd',
                     'lua_ls',
-                    'bashls'
+                    'bashls',
+                    'cmake'
                 },
                 handlers = {
                     lsp_zero.default_setup,
