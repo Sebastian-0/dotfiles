@@ -144,6 +144,16 @@ require("lazy").setup({
                 },
             })
 
+            require("lspconfig").rust_analyzer.setup {
+                settings = {
+                    ["rust-analyzer"] = {
+                        checkOnSave = {
+                            command = "clippy",
+                        },
+                    },
+                }
+            }
+
             require("lspconfig").pylsp.setup {
                 settings = {
                     pylsp = {
