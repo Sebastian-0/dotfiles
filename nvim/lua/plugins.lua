@@ -142,6 +142,19 @@ require("lazy").setup({
                     lsp_zero.default_setup,
                 },
             })
+
+            require("lspconfig").pylsp.setup {
+                settings = {
+                    pylsp = {
+                        plugins = {
+                            pycodestyle = {
+                                ignore = {'E501'},
+                            }
+                        }
+                    }
+                }
+            }
+
             local has_words_before = function()
                 unpack = unpack or table.unpack
                 local line, col = unpack(vim.api.nvim_win_get_cursor(0))
