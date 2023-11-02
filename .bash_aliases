@@ -3,6 +3,7 @@ HISTCONTROL=ignoreboth
 HISTSIZE=4096
 HISTFILESIZE=4096
 shopt -s histappend
+EDITOR=vim
 
 # ls aliases
 if [ "$(which exa)" ] || [ "$(which eza)" ]; then
