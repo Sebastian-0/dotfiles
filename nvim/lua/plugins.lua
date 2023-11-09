@@ -15,7 +15,7 @@ vim.opt.rtp:prepend(lazypath)
 require("lazy").setup({
     {
         'nvim-telescope/telescope.nvim',
-        tag = '0.1.3',
+        branch = '0.1.x',
         dependencies = { 'nvim-lua/plenary.nvim' },
         config = function()
             local builtin = require('telescope.builtin')
@@ -23,6 +23,18 @@ require("lazy").setup({
             vim.keymap.set('n', '<leader>fg', builtin.live_grep, {})
             vim.keymap.set('n', '<leader>fb', builtin.buffers, {})
             vim.keymap.set('n', '<leader>fh', builtin.help_tags, {})
+            vim.keymap.set('n', '<leader>fr', builtin.resume, {})
+
+            require('telescope').setup{
+                pickers = {
+                    find_files = {
+                        find_command = { "rg", "--files", "--hidden", "--glob", "!**/.git/*" }
+                    },
+                    live_grep = {
+                        additional_args = { "--hidden", "--glob", "!**/.git/*" }
+                    }
+                }
+            }
         end
     },
     {
