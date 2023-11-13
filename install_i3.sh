@@ -129,6 +129,9 @@ if [ -z "$(grep "Plasma compatibility improvements" ~/.config/i3/config)" ]; the
     sed -i 's/bindsym semicolon resize grow width 10 px or 10 ppt/bindsym l resize grow width 10 px or 10 ppt/g' ~/.config/i3/config
     sed -i 's/bindsym odiaeresis resize grow width 10 px or 10 ppt/bindsym l resize grow width 10 px or 10 ppt/g' ~/.config/i3/config
 
+    sed -i 's/bindsym XF86AudioRaiseVolume .* +10% .*$/bindsym XF86AudioRaiseVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ +5% \&\& $refresh_i3status/g' ~/.config/i3/config
+    sed -i 's/bindsym XF86AudioLowerVolume .* -10% .*$/bindsym XF86AudioLowerVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ -5% \&\& $refresh_i3status/g' ~/.config/i3/config
+
     sed -zi 's/bar {\n.*\n}//g' ~/.config/i3/config
     cat <<-EOF >> ~/.config/i3/config
 
