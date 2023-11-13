@@ -122,6 +122,12 @@ require("lazy").setup({
         end
     },
     {
+        "folke/neodev.nvim",
+        opts = {},
+        lazy=false,
+        priority=51
+    },
+    {
         'VonHeikemen/lsp-zero.nvim',
         branch = 'v3.x',
         dependencies = {
@@ -178,6 +184,15 @@ require("lazy").setup({
                 }
             }
 
+            require("lspconfig").lua_ls.setup {
+                settings = {
+                    Lua = {
+                        workspace = {
+                            checkThirdParty = false,
+                        }
+                    }
+                }
+            }
             local has_words_before = function()
                 unpack = unpack or table.unpack
                 local line, col = unpack(vim.api.nvim_win_get_cursor(0))
