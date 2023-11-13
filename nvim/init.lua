@@ -35,14 +35,14 @@ vim.api.nvim_create_autocmd("BufReadPost", {
 vim.api.nvim_create_autocmd("FileType", {
     group = vim.api.nvim_create_augroup("NoAutoComment", { clear = true }),
     callback = function()
-        vim.opt.formatoptions:remove({"o", "r"})
+        vim.opt.formatoptions:remove({ "o", "r" })
     end
 })
 
 -- Set comment character for certain file types
 vim.api.nvim_create_autocmd("FileType", {
     group = vim.api.nvim_create_augroup("CommentString", { clear = true }),
-    pattern = {"c", "cpp", "cuda"},
+    pattern = { "c", "cpp", "cuda" },
     command = [[setlocal commentstring=//\ %s]]
 })
 

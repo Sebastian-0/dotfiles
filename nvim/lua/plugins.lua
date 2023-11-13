@@ -25,7 +25,7 @@ require("lazy").setup({
             vim.keymap.set('n', '<leader>fh', builtin.help_tags, {})
             vim.keymap.set('n', '<leader>fr', builtin.resume, {})
 
-            require('telescope').setup{
+            require('telescope').setup {
                 pickers = {
                     find_files = {
                         find_command = { "rg", "--files", "--hidden", "--glob", "!**/.git/*" }
@@ -44,9 +44,10 @@ require("lazy").setup({
             local configs = require("nvim-treesitter.configs")
 
             configs.setup({
-                ensure_installed = { "cuda", "c", "cpp", "cmake", "lua", "vim", "python", "typescript", "tsx", "bash", "javascript", "rust", "java" },
+                ensure_installed = { "cuda", "c", "cpp", "cmake", "lua", "vim", "python", "typescript", "tsx", "bash",
+                    "javascript", "rust", "java" },
                 sync_install = false,
-                highlight = { enable = true, disable = {"lua"} }, -- Lua is super slow on my home computer, a bug in treesitter?
+                highlight = { enable = true, disable = { "lua" } }, -- Lua is super slow on my home computer, a bug in treesitter?
                 -- indent = { enable = true },
             })
         end
@@ -80,13 +81,13 @@ require("lazy").setup({
                 options = {
                     theme = "catppuccin"
                 }, sections = {
-                    lualine_a = {'mode'},
-                    lualine_b = {'branch', 'diff', 'diagnostics'},
-                    lualine_c = {'filename'},
-                    lualine_x = {'os.date("%d %b %H:%M")', 'encoding', 'fileformat', 'filetype'},
-                    lualine_y = {'progress'},
-                    lualine_z = {'location'}
-                },
+                lualine_a = { 'mode' },
+                lualine_b = { 'branch', 'diff', 'diagnostics' },
+                lualine_c = { 'filename' },
+                lualine_x = { 'os.date("%d %b %H:%M")', 'encoding', 'fileformat', 'filetype' },
+                lualine_y = { 'progress' },
+                lualine_z = { 'location' }
+            },
             }
         end
     },
@@ -124,8 +125,8 @@ require("lazy").setup({
     {
         "folke/neodev.nvim",
         opts = {},
-        lazy=false,
-        priority=51
+        lazy = false,
+        priority = 51
     },
     {
         'VonHeikemen/lsp-zero.nvim',
@@ -143,7 +144,7 @@ require("lazy").setup({
             local lsp_zero = require('lsp-zero')
 
             lsp_zero.on_attach(function(_, bufnr)
-                lsp_zero.default_keymaps({buffer = bufnr})
+                lsp_zero.default_keymaps({ buffer = bufnr })
             end)
 
             require('mason').setup({})
@@ -177,7 +178,7 @@ require("lazy").setup({
                     pylsp = {
                         plugins = {
                             pycodestyle = {
-                                ignore = {'E501'},
+                                ignore = { 'E501' },
                             }
                         }
                     }
@@ -196,7 +197,8 @@ require("lazy").setup({
             local has_words_before = function()
                 unpack = unpack or table.unpack
                 local line, col = unpack(vim.api.nvim_win_get_cursor(0))
-                return col ~= 0 and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match("%s") == nil
+                return col ~= 0 and
+                    vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match("%s") == nil
             end
             local luasnip = require('luasnip')
             local cmp = require('cmp')
