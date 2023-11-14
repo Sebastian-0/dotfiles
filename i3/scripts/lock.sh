@@ -67,5 +67,6 @@ i3lock \
 --clock                      \
 --indicator                  \
 -i "$screenshot"             \
+$@
 
 rm "$screenshot"
