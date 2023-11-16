@@ -137,7 +137,16 @@ require("lazy").setup({
                 },
                 filesystem = {
                     hijack_netrw_behavior = "open_default"
-                }
+                },
+                event_handlers = {
+                    {
+                        event = "neo_tree_buffer_enter",
+                        handler = function(_)
+                            vim.opt.relativenumber = true
+                            vim.opt.number = true
+                        end,
+                    }
+                },
             })
             vim.api.nvim_create_user_command("Ex", "Neotree", {}) -- Unclear why this is needed... I thought the hijack setting should deal with this...
         end
