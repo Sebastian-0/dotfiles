@@ -30,7 +30,7 @@ if [ -z "$(which i3)" ]; then
     echo "Installing packages..."
     if [ "$(is_ubuntu)" = "true" ]; then
         # Ubuntu
-        sudo apt-get install -y i3 feh xss-lock wmctrl scrot picom dunst rofi pulseaudio-utils playerctl xbacklight polybar
+        sudo apt-get install -y i3 feh xss-lock wmctrl scrot picom dunst rofi pulseaudio-utils playerctl xbacklight polybar flameshot
 
         # Build i3lock-color
         sudo apt-get install -y autoconf gcc make pkg-config libpam0g-dev libcairo2-dev libfontconfig1-dev libxcb-composite0-dev libev-dev libx11-xcb-dev libxcb-xkb-dev libxcb-xinerama0-dev libxcb-randr0-dev libxcb-image0-dev libxcb-util-dev libxcb-xrm-dev libxkbcommon-dev libxkbcommon-x11-dev libjpeg-dev
@@ -71,7 +71,7 @@ if [ -z "$(which i3)" ]; then
         fi
     else
         # Manjaro
-        sudo pacman -S --needed --noconfirm i3 feh wmctrl picom yay dunst rofi clipmenu playerctl xorg-xbacklight polybar scrot xss-lock
+        sudo pacman -S --needed --noconfirm i3 feh wmctrl picom yay dunst rofi clipmenu playerctl xorg-xbacklight polybar scrot xss-lock flameshot
         sudo yay -S --noconfirm --ask 4 --useask --answerclean All --answerdiff None i3lock-color
     fi
 
@@ -160,7 +160,7 @@ gaps inner 10
 gaps outer 0
 
 # Keybinds
-bindsym \$mod+Shift+S exec spectacle
+bindsym \$mod+Shift+S exec flameshot launcher
 bindsym \$mod+Ctrl+L exec $HOME/.config/i3/scripts/lock.sh
 bindsym \$mod+N exec dunstctl history-pop
 bindsym \$mod+V exec "CM_LAUNCHER=rofi clipmenu -i -theme $HOME/.config/rofi/launchers/type-4/style-1.rasi -theme-str 'window {width: 1000px;} listview {scrollbar: true;} scrollbar {margin: 0px 0px 0px 10px;}'"
