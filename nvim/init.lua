@@ -1,6 +1,6 @@
 vim.opt.relativenumber = true
 vim.opt.number = true
-vim.opt.mouse = "v" -- Enabled for visual mode
+vim.opt.mouse = ""
 vim.opt.cursorline = true
 vim.opt.cursorcolumn = true
 vim.opt.scrolloff = 5
