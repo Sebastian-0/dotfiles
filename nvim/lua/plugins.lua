@@ -31,7 +31,7 @@ require("lazy").setup({
                         find_command = { "rg", "--files", "--hidden", "--glob", "!**/.git/*" }
                     },
                     live_grep = {
-                        additional_args = { "--hidden", "--glob", "!**/.git/*" }
+                        additional_args = { "--hidden", "--glob", "!**/.git/*", "--glob", "!*.lock" }
                     }
                 }
             }
