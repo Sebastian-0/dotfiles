@@ -152,7 +152,7 @@ gaps inner 10
 gaps outer 0
 
 # Keybinds
-bindsym F12 exec tdrop -ma -w 90% -x 5% kitty
+bindsym F12 exec tdrop -ma -w 90% -x 5% -r kitty --class terminal_dropdown
 bindsym \$mod+Shift+S exec flameshot launcher
 bindsym \$mod+Ctrl+L exec $HOME/.config/i3/scripts/lock.sh
 bindsym \$mod+N exec dunstctl history-pop
@@ -171,5 +171,8 @@ bindsym XF86MonBrightnessDown exec xbacklight -dec 20
 
 # Misc
 focus_follows_mouse no
+
+# Window rules
+for_window [class="terminal_dropdown"] floating enable
 EOF
 fi
