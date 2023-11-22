@@ -9,17 +9,6 @@ is_ubuntu() {
     fi
 }
 
-is_at_least_version() {
-    version="$1"
-    plasma_version="$(plasmashell --version | cut -d ' ' -f2)"
-    latest="$(echo -e "$plasma_version\n$version" | sort -V | tail -n1)"
-    if [ "$latest" = "$version" ]; then
-        echo "false"
-    else
-        echo "true"
-    fi
-}
-
 ./install_font.sh
 
 echo "This script installs i3, assuming you are using KDE as the desktop manager on Ubuntu or Manjaro!"
@@ -106,7 +95,7 @@ if [ ! -d ~/.config/i3/scripts ]; then
 fi
 
 echo "Configure i3..."
-if [ -z "$(grep "Plasma compatibility improvements" ~/.config/i3/config)" ]; then
+if [ -z "$(grep "#### Custom configuration ####" ~/.config/i3/config)" ]; then
     sed -i "s|i3lock|$HOME/.config/i3/scripts/lock.sh|g" ~/.config/i3/config
     sed -i 's/i3-sensible-terminal/kitty/g' ~/.config/i3/config
     sed -i 's|bindsym $mod+d exec --no-startup-id dmenu_run|bindsym $mod+d exec --no-startup-id ~/.config/rofi/launchers/type-4/launcher.sh|g' ~/.config/i3/config
@@ -136,6 +125,8 @@ if [ -z "$(grep "Plasma compatibility improvements" ~/.config/i3/config)" ]; the
 
     sed -zi 's/bar {\n.*\n}//g' ~/.config/i3/config
     cat <<-EOF >> ~/.config/i3/config
+
+#### Custom configuration ####
 
 # Execute programs
 exec_always --no-startup-id $HOME/.config/polybar/launch.sh
@@ -181,30 +172,5 @@ bindsym XF86MonBrightnessDown exec xbacklight -dec 20
 
 # Misc
 focus_follows_mouse no
-
-# Plasma compatibility improvements
-for_window [window_role="pop-up"] floating enable
-for_window [window_role="task_dialog"] floating enable
-
-for_window [class="yakuake"] floating enable
-for_window [class="spectacle"] floating enable
-for_window [class="systemsettings"] floating enable
-for_window [class="plasmashell"] floating enable;
-for_window [class="Plasma"] floating enable; border none
-for_window [title="plasma-desktop"] floating enable; border none
-for_window [title="win7"] floating enable; border none
-for_window [class="krunner"] floating enable; border none
-for_window [class="Kmix"] floating enable; border none
-for_window [class="Klipper"] floating enable; border none
-for_window [class="Plasmoidviewer"] floating enable; border none
-for_window [class="(?i)*nextcloud*"] floating disable
-for_window [class="plasmashell" window_type="notification"] border none, move position 70 ppt 81 ppt
-no_focus [class="plasmashell" window_type="notification"]
 EOF
-
-    if [ "$(is_at_least_version 5.27)" = "true" ]; then
-        echo 'for_window [title="Desktop @ QRect.*"] kill; floating enable; border none' >> ~/.config/i3/config
-    else
-        echo 'for_window [title="Desktop — Plasma"] kill; floating enable; border none' >> ~/.config/i3/config
-    fi
 fi
