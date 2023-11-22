@@ -23,14 +23,14 @@ if [ "$(is_ubuntu)" = "true" ]; then
     sudo apt update
     sudo apt install -y eza
 else
-    sudo pacman -S --needed git tk calc eza # ttf-fira-code
+    sudo pacman -S --needed --noconfirm git tk calc eza # ttf-fira-code
 fi
 
 echo "Install btop..."
 if [ "$(is_ubuntu)" = "true" ]; then
     sudo apt-get install -y btop
 else
-    sudo pacman -S --needed btop
+    sudo pacman -S --needed --noconfirm btop
 fi
 git clone https://github.com/catppuccin/btop
 mkdir -p ~/.config/btop/themes

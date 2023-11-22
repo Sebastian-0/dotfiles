@@ -16,7 +16,7 @@ if [ -z "$(which tdrop)" ]; then
     if [ "$(is_ubuntu)" = "true" ]; then
         sudo apt-get install -y xdotool x11-utils
     else
-        sudo pacman -S --needed xorg-xprop xdotool xorg-xwininfo
+        sudo pacman -S --needed --noconfirm xorg-xprop xdotool xorg-xwininfo
     fi
     git clone https://github.com/noctuid/tdrop.git
     cd tdrop
@@ -29,6 +29,6 @@ echo "Install Kitty terminal..."
 if [ "$(is_ubuntu)" = "true" ]; then
     sudo apt-get install -y kitty
 else
-    sudo pacman -S --needed kitty
+    sudo pacman -S --needed --noconfirm kitty
 fi
 cp kitty/kitty.conf ~/.config/kitty/kitty.conf
