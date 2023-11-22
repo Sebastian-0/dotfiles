@@ -9,6 +9,8 @@ is_ubuntu() {
     fi
 }
 
+./install_font.sh
+
 echo "Install Neovim..."
 sudo snap install --classic nvim
 if [ "$(is_ubuntu)" = "true" ]; then

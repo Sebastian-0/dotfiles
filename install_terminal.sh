@@ -9,6 +9,8 @@ is_ubuntu() {
     fi
 }
 
+./install_font.sh
+
 echo "Install yakuake..."
 if [ "$(is_ubuntu)" = "true" ]; then
     sudo apt-get install -y yakuake

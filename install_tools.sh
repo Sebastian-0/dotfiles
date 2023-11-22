@@ -9,6 +9,8 @@ is_ubuntu() {
     fi
 }
 
+./install_font.sh
+
 echo "Install git, calc & exa/eza..."
 if [ "$(is_ubuntu)" = "true" ]; then
     sudo apt-get install -y git gitk calc # fonts-firacode

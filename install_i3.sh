@@ -20,6 +20,8 @@ is_at_least_version() {
     fi
 }
 
+./install_font.sh
+
 echo "This script installs i3, assuming you are using KDE as the desktop manager on Ubuntu or Manjaro!"
 echo ""
 echo "This might be an outdated script, see: https://github.com/heckelson/i3-and-kde-plasma for the latest info!"
