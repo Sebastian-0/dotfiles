@@ -31,4 +31,5 @@ if [ "$(is_ubuntu)" = "true" ]; then
 else
     sudo pacman -S --needed --noconfirm kitty
 fi
+mkdir -p ~/.config/kitty
 cp kitty/kitty.conf ~/.config/kitty/kitty.conf
