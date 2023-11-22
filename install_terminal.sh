@@ -11,16 +11,24 @@ is_ubuntu() {
 
 ./install_font.sh
 
-echo "Install yakuake..."
-if [ "$(is_ubuntu)" = "true" ]; then
-    sudo apt-get install -y yakuake
-else
-    sudo pacman -S --needed yakuake
+echo "Install tdrop..."
+if [ -z "$(which tdrop)" ]; then
+    if [ "$(is_ubuntu)" = "true" ]; then
+        sudo apt-get install -y xdotool x11-utils
+    else
+        sudo pacman -S --needed xorg-xprop xdotool xorg-xwininfo
+    fi
+    git clone https://github.com/noctuid/tdrop.git
+    cd tdrop
+    sudo make install
+    cd ..
+    rm -rf tdrop
 fi
 
-echo "Install Catppuccin theme for Konsole..."
-if [ ! -f ~/.local/share/konsole/Catppuccin-Mocha.colorscheme ]; then
-    git clone --depth 1 https://github.com/catppuccin/konsole.git
-    cp konsole/*.colorscheme ~/.local/share/konsole/
-    rm -rf konsole
+echo "Install Kitty terminal..."
+if [ "$(is_ubuntu)" = "true" ]; then
+    sudo apt-get install -y kitty
+else
+    sudo pacman -S --needed kitty
 fi
+cp kitty/kitty.conf ~/.config/kitty/kitty.conf

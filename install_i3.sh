@@ -108,7 +108,7 @@ fi
 echo "Configure i3..."
 if [ -z "$(grep "Plasma compatibility improvements" ~/.config/i3/config)" ]; then
     sed -i "s|i3lock|$HOME/.config/i3/scripts/lock.sh|g" ~/.config/i3/config
-    sed -i 's/i3-sensible-terminal/konsole/g' ~/.config/i3/config
+    sed -i 's/i3-sensible-terminal/kitty/g' ~/.config/i3/config
     sed -i 's|bindsym $mod+d exec --no-startup-id dmenu_run|bindsym $mod+d exec --no-startup-id ~/.config/rofi/launchers/type-4/launcher.sh|g' ~/.config/i3/config
     sed -i 's/bindsym $mod+h split h/bindsym $mod+b split h/g' ~/.config/i3/config
     sed -i 's/bindsym $mod+v split v/bindsym $mod+g split v/g' ~/.config/i3/config
@@ -162,6 +162,7 @@ gaps inner 10
 gaps outer 0
 
 # Keybinds
+bindsym F12 exec tdrop -ma -w 90% -x 5% kitty
 bindsym \$mod+Shift+S exec flameshot launcher
 bindsym \$mod+Ctrl+L exec $HOME/.config/i3/scripts/lock.sh
 bindsym \$mod+N exec dunstctl history-pop
