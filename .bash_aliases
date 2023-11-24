@@ -3,7 +3,6 @@ HISTCONTROL=ignoreboth
 HISTSIZE=4096
 HISTFILESIZE=4096
 shopt -s histappend
-EDITOR=vim
 
 # ls aliases
 if [ "$(which exa)" ] || [ "$(which eza)" ]; then
@@ -20,9 +19,13 @@ fi
 
 # Misc aliases
 if [ "$(which nvim)" ]; then
+    EDITOR=nvim
+    VISUAL=nvim
 	alias vi='nvim'
 	alias vim='nvim'
 else
+    EDITOR=vim
+    VISUAL=vim
 	alias vi='vim'
 fi
 alias sudo='sudo ' # Needed to make aliases work for sudo
