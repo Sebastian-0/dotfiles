@@ -152,7 +152,7 @@ gaps inner 10
 gaps outer 0
 
 # Keybinds
-bindsym F12 exec tdrop -ma -w 90% -x 5% -r kitty --class terminal_dropdown
+bindsym F12 exec tdrop -ma -w 90% -x 5% kitty --class terminal_dropdown
 bindsym \$mod+Shift+S exec flameshot launcher
 bindsym \$mod+Ctrl+L exec $HOME/.config/i3/scripts/lock.sh
 bindsym \$mod+N exec dunstctl history-pop
