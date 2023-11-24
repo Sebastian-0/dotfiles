@@ -18,13 +18,34 @@
                     "floating": "auto_off",
                     "geometry": {
                         "height": 1392,
-                        "width": 2387,
-                        "x": 1040,
-                        "y": 13
+                        "width": 3414,
+                        "x": 0,
+                        "y": 0
                     },
                     "marks": [],
                     "name": "(ci) worker-1.hw.intuicell.com — terminator",
-                    "percent": null,
+                    "percent": 0.5,
+                    "swallows": [
+                        {
+                            "class": "^Terminator$",
+                            "instance": "^terminator$"
+                        }
+                    ],
+                    "type": "con"
+                },
+                {
+                    "border": "pixel",
+                    "current_border_width": 3,
+                    "floating": "auto_off",
+                    "geometry": {
+                        "height": 688,
+                        "width": 844,
+                        "x": 0,
+                        "y": 0
+                    },
+                    "marks": [],
+                    "name": "(ci) mesh-4.hw.intuicell.com — terminator",
+                    "percent": 0.5,
                     "swallows": [
                         {
                             "class": "^Terminator$",
