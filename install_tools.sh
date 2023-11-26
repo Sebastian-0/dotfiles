@@ -43,7 +43,7 @@ if [ "$(is_ubuntu)" = "true" ]; then
 else
     sudo pacman -S --needed --noconfirm ranger
 fi
-cp -T ranger ~/.config/ranger
+cp -rT ranger ~/.config/ranger
 if [ ! -d ~/.config/ranger/plugins ]; then
     git clone https://github.com/alexanderjeurissen/ranger_devicons ~/.config/ranger/plugins/ranger_devicons
 fi
