@@ -36,3 +36,14 @@ git clone https://github.com/catppuccin/btop
 mkdir -p ~/.config/btop/themes
 cp -r btop/themes/* ~/.config/btop/themes/
 rm -rf btop
+
+echo "Install ranger..."
+if [ "$(is_ubuntu)" = "true" ]; then
+    sudo apt-get install -y ranger
+else
+    sudo pacman -S --needed --noconfirm ranger
+fi
+cp -T ranger ~/.config/ranger
+if [ ! -d ~/.config/ranger/plugins ]; then
+    git clone https://github.com/alexanderjeurissen/ranger_devicons ~/.config/ranger/plugins/ranger_devicons
+fi
