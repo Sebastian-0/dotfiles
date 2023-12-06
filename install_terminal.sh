@@ -14,9 +14,9 @@ is_ubuntu() {
 echo "Install tdrop..."
 if [ -z "$(which tdrop)" ]; then
     if [ "$(is_ubuntu)" = "true" ]; then
-        sudo apt-get install -y xdotool x11-utils
+        sudo apt-get install -y xdotool x11-utils gawk
     else
-        sudo pacman -S --needed --noconfirm xorg-xprop xdotool xorg-xwininfo
+        sudo pacman -S --needed --noconfirm xorg-xprop xdotool xorg-xwininfo gawk
     fi
     git clone https://github.com/noctuid/tdrop.git
     cd tdrop

@@ -21,7 +21,7 @@ if [ -z "$(which i3)" ]; then
     echo "Installing packages..."
     if [ "$(is_ubuntu)" = "true" ]; then
         # Ubuntu
-        sudo apt-get install -y i3 feh xss-lock wmctrl scrot picom dunst rofi pulseaudio-utils playerctl xbacklight polybar flameshot
+        sudo apt-get install -y i3 feh xss-lock wmctrl scrot picom dunst rofi pulseaudio-utils playerctl xbacklight polybar flameshot imagemagick
 
         # Build i3lock-color
         sudo apt-get install -y autoconf gcc make pkg-config libpam0g-dev libcairo2-dev libfontconfig1-dev libxcb-composite0-dev libev-dev libx11-xcb-dev libxcb-xkb-dev libxcb-xinerama0-dev libxcb-randr0-dev libxcb-image0-dev libxcb-util-dev libxcb-xrm-dev libxkbcommon-dev libxkbcommon-x11-dev libjpeg-dev
@@ -33,7 +33,7 @@ if [ -z "$(which i3)" ]; then
         rm -rf i3lock-color
 
         # Clipmenu
-        sudo apt-get install -y xsel
+        sudo apt-get install -y xsel libxcomposite-dev
 
         git clone https://github.com/cdown/clipnotify.git
         cd clipnotify
@@ -62,7 +62,7 @@ if [ -z "$(which i3)" ]; then
         fi
     else
         # Manjaro
-        sudo pacman -S --needed --noconfirm i3 feh wmctrl picom yay dunst rofi clipmenu playerctl xorg-xbacklight polybar scrot xss-lock flameshot
+        sudo pacman -S --needed --noconfirm i3 feh wmctrl picom yay dunst rofi clipmenu playerctl xorg-xbacklight polybar scrot xss-lock flameshot imagemagick
         sudo yay -S --noconfirm --ask 4 --useask --answerclean All --answerdiff None i3lock-color
     fi
 
