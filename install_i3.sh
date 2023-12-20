@@ -21,7 +21,7 @@ if [ -z "$(which i3)" ]; then
     echo "Installing packages..."
     if [ "$(is_ubuntu)" = "true" ]; then
         # Ubuntu
-        sudo apt-get install -y i3 feh xss-lock wmctrl scrot picom dunst rofi pulseaudio-utils playerctl brightnessctl polybar flameshot imagemagick
+        sudo apt-get install -y i3 feh xss-lock wmctrl scrot picom dunst rofi pulseaudio-utils playerctl brightnessctl polybar flameshot imagemagick yad libsass1
 
         # Build i3lock-color
         sudo apt-get install -y autoconf gcc make pkg-config libpam0g-dev libcairo2-dev libfontconfig1-dev libxcb-composite0-dev libev-dev libx11-xcb-dev libxcb-xkb-dev libxcb-xinerama0-dev libxcb-randr0-dev libxcb-image0-dev libxcb-util-dev libxcb-xrm-dev libxkbcommon-dev libxkbcommon-x11-dev libjpeg-dev
@@ -61,8 +61,8 @@ if [ -z "$(which i3)" ]; then
             rm -rf build i3-gaps
         fi
     else
-        # Manjaro
-        sudo pacman -S --needed --noconfirm i3 feh wmctrl picom yay dunst rofi clipmenu playerctl brightnessctl polybar scrot xss-lock flameshot imagemagick
+        # Manjaro (libsass is needed by GTK theming tool)
+        sudo pacman -S --needed --noconfirm i3 feh wmctrl picom yay dunst rofi clipmenu playerctl brightnessctl polybar scrot xss-lock flameshot imagemagick yad libsass
         sudo yay -S --noconfirm --ask 4 --useask --answerclean All --answerdiff None i3lock-color
     fi
 
@@ -84,9 +84,21 @@ if [ -z "$(which i3)" ]; then
     sed -i "s/theme='style-1'/theme='style-3'/g" ~/.config/rofi/powermenu/type-1/powermenu.sh
     sed -i "s|\si3lock|$HOME/.config/i3/scripts/lock.sh|g" ~/.config/rofi/powermenu/type-1/powermenu.sh
 
-    echo "Install Polybar theme..."
+    echo "Install Polybar configuration..."
     mkdir ~/.config/polybar
     cp -r polybar/* ~/.config/polybar/
+
+    echo "Install GTK theme..."
+    (
+        git clone --recurse-submodules git@github.com:catppuccin/gtk.git
+        cd gtk
+        virtualenv -p python3 venv  # to be created only once and only if you need a virtual env
+        source venv/bin/activate
+        pip install -r requirements.txt
+        ./install.py mocha
+        cd -
+        rm -rf gtk
+    )
 
     echo "Log into an i3 session and relaunch this script to continue installation!"
     exit
