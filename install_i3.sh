@@ -189,5 +189,6 @@ focus_follows_mouse no
 
 # Window rules
 for_window [class="terminal_dropdown"] floating enable
+for_window [title="yad-calendar"] floating enable
 EOF
 fi
