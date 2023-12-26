@@ -70,6 +70,8 @@ if [ -z "$(which i3)" ]; then
     sudo chmod +s /usr/bin/brightnessctl
 
     echo "Launch clipmenud service..."
+    mkdir -p ~/.config/environment.d/
+    cp i3/clipmenu/clipmenud.conf ~/.config/environment.d/
     systemctl enable --user clipmenud.service
     systemctl start --user clipmenud.service
 
