@@ -17,7 +17,7 @@ else
     alias l='ls -CF'
 fi
 
-# Misc aliases
+# Vim aliases
 if [ "$(which nvim)" ]; then
     EDITOR=nvim
     VISUAL=nvim
@@ -28,6 +28,14 @@ else
     VISUAL=vim
 	alias vi='vim'
 fi
+
+# Apt aliases
+if [ "$(which nvim)" ]; then
+    alias apt=nala
+    alias apt-get=nala
+fi
+
+# Misc aliases
 alias sudo='sudo ' # Needed to make aliases work for sudo
 alias ip='ip --color'
 
