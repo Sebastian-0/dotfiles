@@ -25,7 +25,7 @@ if [ "$1" = "--calendar" ]; then
     GTK_THEME="Catppuccin-Mocha-Standard-Blue-Dark" yad --calendar \
         --undecorated --fixed --close-on-unfocus --no-buttons \
         --width="$YAD_WIDTH" --height="$YAD_HEIGHT" --posx="$X_POS" --posy="$Y_POS" \
-        --title="yad-calendar" >/dev/null &
+        --title="yad-calendar" --show-weeks >/dev/null &
     exit 0
 fi
 
