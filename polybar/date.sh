@@ -9,6 +9,7 @@ POLYBAR_HEIGHT=75
 
 if [ "$1" = "--calendar" ]; then
     if [ "$(xdotool getwindowfocus getwindowname)" = "yad-calendar" ]; then
+        xdotool windowkill "$(xdotool getwindowfocus)"
         exit 0
     fi
 
