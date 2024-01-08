@@ -37,8 +37,8 @@ if [ "$1" = "--prev-icon" ]; then
 fi
 
 function metadata() {
-    artist="$(playerctl metadata artist)"
-    title="$(playerctl metadata title)"
+    local artist="$(playerctl metadata artist)"
+    local title="$(playerctl metadata title)"
     if [ -n "$artist" ]; then
         echo "$artist - $title"
     else
@@ -47,8 +47,18 @@ function metadata() {
 }
 
 if [ "$player_status" = "Playing" ]; then
-    echo "$(metadata)" > /tmp/polybar_music
-    echo "%{F#FFFFFF}$(metadata)%{F-}"
+    meta="$(metadata)"
+    echo "$meta" > /tmp/polybar_music
+
+    # Split the title (metadata) into two parts based on the seeker position.
+    # Underline the first part, but not the second.
+    length="$(playerctl metadata --format "{{ mpris:length }}")"
+    position="$(playerctl metadata --format "{{ position }}")"
+    let progress_chars=${#meta}*position/length
+    bef=${meta:0:$progress_chars}
+    aft=${meta:$progress_chars}
+
+    echo "%{F#FFFFFF}%{u$COLOR_PRIMARY}%{+u}$bef%{-u}$aft%{F-}"
 elif [ "$player_status" = "Paused" ]; then
     echo "%{F$COLOR_DISABLED}$(cat /tmp/polybar_music)%{F-}"
 else
