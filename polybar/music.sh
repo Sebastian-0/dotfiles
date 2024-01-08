@@ -60,7 +60,11 @@ if [ "$player_status" = "Playing" ]; then
 
     echo "%{F#FFFFFF}%{u$COLOR_PRIMARY}%{+u}$bef%{-u}$aft%{F-}"
 elif [ "$player_status" = "Paused" ]; then
-    echo "%{F$COLOR_DISABLED}$(cat /tmp/polybar_music)%{F-}"
+    if [ -f /tmp/polybar_music ]; then
+        echo "%{F$COLOR_DISABLED}$(cat /tmp/polybar_music)%{F-}"
+    else
+        echo "%{F$COLOR_DISABLED}Music paused%{F-}"
+    fi
 else
     echo "No music is playing"
 fi
