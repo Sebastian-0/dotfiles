@@ -7,6 +7,6 @@ git clone https://gitlab.com/volian/nala.git
 cd nala
 sudo make install
 cd -
-rm -rf nala
+sudo rm -rf nala
 
 sudo ln -s /usr/local/bin/nala /usr/bin/nala

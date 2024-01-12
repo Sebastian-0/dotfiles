@@ -30,7 +30,7 @@ else
 fi
 
 # Apt aliases
-if [ "$(which nvim)" ]; then
+if [ "$(which nala)" ]; then
     alias apt=nala
     alias apt-get=nala
 fi
