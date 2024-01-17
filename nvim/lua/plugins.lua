@@ -200,7 +200,8 @@ require("lazy").setup({
                     'clangd',
                     'lua_ls',
                     'bashls',
-                    'cmake'
+                    'cmake',
+                    'dockerls'
                 },
                 handlers = {
                     lsp_zero.default_setup,
