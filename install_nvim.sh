@@ -13,14 +13,18 @@ is_ubuntu() {
 
 echo "Install Neovim..."
 sudo snap install --classic nvim
+npm="npm"
+if [ "$(which npm)" ]; then
+    npm=
+fi
 if [ "$(is_ubuntu)" = "true" ]; then
-    sudo apt-get install -y ripgrep xclip fd-find python3-venv npm
+    sudo apt-get install -y ripgrep xclip fd-find python3-venv $npm
     sudo update-alternatives --install /usr/bin/editor editor $(which nvim) 100
     if [ -f ~/.selected_editor ]; then
         echo SELECTED_EDITOR="\"$(which nvim)\"" > ~/.selected_editor
     fi
 else
-    sudo pacman -S --needed --noconfirm ripgrep xclip fd npm
+    sudo pacman -S --needed --noconfirm ripgrep xclip fd $npm
 fi
 git config --global core.editor "nvim"
 
