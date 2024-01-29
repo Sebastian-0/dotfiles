@@ -12,7 +12,7 @@ if [ ! -f remote_server/pass ]; then
 
 function remote_server_workspace() (
     cd "$PWD"
-    ./launch_server_workspace.sh
+    ./launch_server_workspace.sh \$@
 )
 EOF
 fi
