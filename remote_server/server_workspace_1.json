@@ -1,0 +1,16 @@
+{
+    "layout": "split",
+    "nodes": [
+
+        {
+            "name": "~ : bash — terminator",
+            "swallows": [
+                {
+                    "class": "^Terminator$",
+                    "instance": "^terminator$"
+                }
+            ]
+        }
+    ]
+}
+

@@ -1,9 +1,6 @@
 #!/bin/bash
 set -euo pipefail
-if [ ! -f remote_server/pass ]; then
-    read -sp "Enter remote pwd: " PASS
-    echo "$PASS" > remote_server/pass
-    chmod 600 remote_server/pass
+if [ -z "$(grep remote_server_workspace ~/.bashrc)" ]; then
     echo "Installing terminator..."
     sudo apt-get install -y terminator
     cp remote_server/terminator_config ~/.config/terminator/config
