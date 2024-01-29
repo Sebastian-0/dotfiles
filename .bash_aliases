@@ -101,6 +101,8 @@ alias gisp='git stash pop'
 
 alias girc='git rebase --continue'
 
+alias gisw='git switch'
+
 gitk_background() {
     \gitk "$@" &
 }
