@@ -134,6 +134,9 @@ require("lazy").setup({
             require("neo-tree").setup({
                 window = {
                     position = "current",
+                    mappings = {
+                        ["l"] = "open"
+                    }
                 },
                 filesystem = {
                     hijack_netrw_behavior = "open_default"
