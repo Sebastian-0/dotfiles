@@ -21,7 +21,7 @@ if [ -z "$(which i3)" ]; then
     echo "Installing packages..."
     if [ "$(is_ubuntu)" = "true" ]; then
         # Ubuntu
-        sudo apt-get install -y i3 feh xss-lock wmctrl scrot picom dunst rofi pulseaudio-utils playerctl brightnessctl polybar flameshot imagemagick yad libsass1
+        sudo apt-get install -y i3 feh xss-lock wmctrl scrot picom dunst rofi pulseaudio-utils playerctl brightnessctl polybar flameshot imagemagick yad libsass1 python3-virtualenv
 
         # Build i3lock-color
         sudo apt-get install -y autoconf gcc make pkg-config libpam0g-dev libcairo2-dev libfontconfig1-dev libxcb-composite0-dev libev-dev libx11-xcb-dev libxcb-xkb-dev libxcb-xinerama0-dev libxcb-randr0-dev libxcb-image0-dev libxcb-util-dev libxcb-xrm-dev libxkbcommon-dev libxkbcommon-x11-dev libjpeg-dev
@@ -62,7 +62,7 @@ if [ -z "$(which i3)" ]; then
         fi
     else
         # Manjaro (libsass is needed by GTK theming tool)
-        sudo pacman -S --needed --noconfirm i3 feh wmctrl picom yay dunst rofi clipmenu playerctl brightnessctl polybar scrot xss-lock flameshot imagemagick yad libsass
+        sudo pacman -S --needed --noconfirm i3 feh wmctrl picom yay dunst rofi clipmenu playerctl brightnessctl polybar scrot xss-lock flameshot imagemagick yad libsass python-virtualenv
         sudo yay -S --noconfirm --ask 4 --useask --answerclean All --answerdiff None i3lock-color
     fi
 
@@ -97,7 +97,7 @@ if [ -z "$(which i3)" ]; then
         virtualenv -p python3 venv  # to be created only once and only if you need a virtual env
         source venv/bin/activate
         pip install -r requirements.txt
-        ./install.py mocha
+        python3 install.py mocha
         cd -
         rm -rf gtk
     )
