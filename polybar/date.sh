@@ -41,7 +41,7 @@ DATE=""
 if [ -f "$MARKER" ]; then
     DATE="$(date +"%Y-%m-%d %H:%M:%S")"
 else
-    DATE="$(date +"%H:%M")"
+    DATE="%{F#afccfa}瑞典 $(TZ='Europe/Stockholm' date +"%H:%M")%{F-} %{F#f2c2c2}中国 $(TZ='Asia/Shanghai' date +"%H:%M")%{F-}"
 fi
 echo "%{F$COLOR_PRIMARY} %{F-} $DATE"
 
