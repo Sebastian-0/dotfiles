@@ -1,0 +1,122 @@
+{
+    "layout": "split",
+    "nodes": [
+        {
+            "layout": "splitv",
+            "percent": 0.25,
+            "nodes": [
+                {
+                    "name": "(ci) mesh-6.hw.intuicell.com — terminator",
+                    "swallows": [
+                        {
+                            "class": "^Terminator$",
+                            "instance": "^terminator$"
+                        }
+                    ]
+                }
+            ]
+        },
+
+
+        {
+            "layout": "splitv",
+            "percent": 0.25,
+            "nodes": [
+                {
+                    "name": "(ci) worker-1.hw.intuicell.com — terminator",
+                    "swallows": [
+                        {
+                            "class": "^Terminator$",
+                            "instance": "^terminator$"
+                        }
+                    ]
+                },
+                {
+                    "name": "(ci) mesh-4.hw.intuicell.com — terminator",
+                    "swallows": [
+                        {
+                            "class": "^Terminator$",
+                            "instance": "^terminator$"
+                        }
+                    ]
+                }
+            ]
+        },
+
+        {
+            "layout": "splitv",
+            "percent": 0.25,
+            "nodes": [
+                {
+                    "name": "~ : bash — terminator",
+                    "swallows": [
+                        {
+                            "class": "^Terminator$",
+                            "instance": "^terminator$"
+                        }
+                    ]
+                },
+                {
+                    "name": "(ci) mesh-3.hw.intuicell.com — terminator",
+                    "swallows": [
+                        {
+                            "class": "^Terminator$",
+                            "instance": "^terminator$"
+                        }
+                    ]
+                }
+            ]
+        },
+
+        {
+            "layout": "splitv",
+            "percent": 0.25,
+            "nodes": [
+                {
+                    "name": "(ci) worker-4.hw.intuicell.com — terminator",
+                    "swallows": [
+                        {
+                            "class": "^Terminator$",
+                            "instance": "^terminator$"
+                        }
+                    ]
+                },
+                {
+                    "name": "(ci) mesh-2.hw.intuicell.com — terminator",
+                    "swallows": [
+                        {
+                            "class": "^Terminator$",
+                            "instance": "^terminator$"
+                        }
+                    ]
+                }
+            ]
+        },
+
+        {
+            "layout": "splitv",
+            "percent": 0.25,
+            "nodes": [
+                {
+                    "name": "~ : bash — terminator",
+                    "swallows": [
+                        {
+                            "class": "^Terminator$",
+                            "instance": "^terminator$"
+                        }
+                    ]
+                },
+                {
+                    "name": "(ci) mesh-1.hw.intuicell.com — terminator",
+                    "swallows": [
+                        {
+                            "class": "^Terminator$",
+                            "instance": "^terminator$"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
+
