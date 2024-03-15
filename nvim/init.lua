@@ -24,12 +24,11 @@ vim.g.netrw_list_hide = "\\(^\\|\\s\\s\\)\\zs\\.\\S\\+" -- Hide all dotfiles by 
 --vim.g.netrw_browsex_viewer = "xdg-open" -- Controls what happens when pressing x over files, for some reason not working...
 vim.g.netrw_bufsettings = "noma nomod nobl nowrap ro number relativenumber"
 
--- Return to last position
+-- Return to previous position when opening a file
 vim.api.nvim_create_autocmd("BufReadPost", {
     group = vim.api.nvim_create_augroup("ReturnToLast", { clear = true }),
     command = [[if line("'\"") > 1 && line("'\"") <= line("$") | execute "normal! g'\"" | endif]]
 })
-
 
 -- Stop automatic comments
 vim.api.nvim_create_autocmd("FileType", {
@@ -66,6 +65,9 @@ vim.keymap.set("n", "Y", "y$")
 -- Extra save and quit commands
 vim.api.nvim_create_user_command("Q", "q", {})
 vim.api.nvim_create_user_command("W", "w", {})
+
+-- Close current buffer but leave window open
+vim.api.nvim_create_user_command("BD", "bp|sp|bn|bd", {})
 
 -- Plugins
 require("plugins")
