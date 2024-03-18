@@ -108,7 +108,7 @@ require("lazy").setup({
         "ryanoasis/vim-devicons",
     },
     {
-        "lambdalisue/suda.vim"
+        "lambdalisue/suda.vim",
     },
     {
         "Vimjas/vim-python-pep8-indent",
@@ -167,6 +167,13 @@ require("lazy").setup({
                     vim.keymap.set('n', '<leader>hd', gs.diffthis)
                 end
             })
+        end
+    },
+    {
+        "rhysd/git-messenger.vim",
+        init = function()
+            vim.g.git_messenger_no_default_mappings = true
+            vim.keymap.set('n', '<leader>hb', ':GitMessenger<CR>')
         end
     },
     {
