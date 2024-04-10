@@ -44,7 +44,7 @@ function timer_stop {
     elif ((ms > 0)); then
         timer_show=${ms}.$((us / 100))ms
     else
-        timer_show=${us}us
+        timer_show=${us}µs
     fi
     unset timer_start
 }
