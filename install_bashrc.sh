@@ -1,9 +1,15 @@
-set -x
+#!/bin/bash
+set -eou pipefail
+
 git config --global pull.rebase true
 git config --global core.editor "vim"
 git config --global core.autocrlf input
 git config --global rerere.enabled true
 git config --global column.ui auto
+git config --global gpg.format ssh
+echo "Note: git signing must be enabled manually with:"
+echo "> git config --global user.signingkey path/to/ssh/key.pub"
+echo "> git config --global commit.gpgsign true"
 
 ./install_font.sh
 
