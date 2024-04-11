@@ -26,6 +26,14 @@ else
     sudo pacman -S --needed --noconfirm git tk calc eza # ttf-fira-code
 fi
 
+echo "Install fzf"
+# Note that key bindings are registered separately in .bashrc
+if [ "$(is_ubuntu)" = "true" ]; then
+    sudo apt install -y fzf
+else
+    sudo pacman -S --needed --noconfirm fzf
+fi
+
 echo "Install btop..."
 if [ "$(is_ubuntu)" = "true" ]; then
     sudo apt-get install -y btop

@@ -155,3 +155,17 @@ gii() {
         start_agent;
     fi
 }
+
+# Set up fzf key bindings and fuzzy completion
+if [ -f /usr/share/doc/fzf/examples/key-bindings.bash ]; then
+    . /usr/share/doc/fzf/examples/key-bindings.bash
+fi
+if [ -f /usr/share/bash-completion/completions/fzf ]; then
+    . /usr/share/bash-completion/completions/fzf
+fi
+if [ -f /usr/share/fzf/key-bindings.bash ]; then
+    . /usr/share/fzf/key-bindings.bash
+fi
+if [ -f /usr/share/fzf/completions.bash ]; then
+    . /usr/share/fzf/completions.bash
+fi
