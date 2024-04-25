@@ -44,7 +44,7 @@ if [ -z "$(grep zoxide ~/.bashrc)" ]; then
     cat <<EOF >> ~/.bashrc
 # cd aliases
 if [ "$(which zoxide)" ]; then
-    eval "$(zoxide init bash --cmd cd)"
+    eval "\$(zoxide init bash --cmd cd)"
 fi
 EOF
 fi
