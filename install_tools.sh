@@ -34,6 +34,21 @@ else
     sudo pacman -S --needed --noconfirm fzf
 fi
 
+echo "Install zoxide"
+if [ "$(is_ubuntu)" = "true" ]; then
+    curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash
+else
+    sudo pacman -S --needed --noconfirm zoxide
+fi
+if [ -z "$(grep zoxide ~/.bashrc)" ]; then
+    cat <<EOF >> ~/.bashrc
+# cd aliases
+if [ "$(which zoxide)" ]; then
+    eval "$(zoxide init bash --cmd cd)"
+fi
+EOF
+fi
+
 echo "Install btop..."
 if [ "$(is_ubuntu)" = "true" ]; then
     sudo apt-get install -y btop
