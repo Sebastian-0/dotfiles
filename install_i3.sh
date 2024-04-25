@@ -145,6 +145,10 @@ if [ -z "$(grep "#### Custom configuration ####" ~/.config/i3/config)" ]; then
 
 #### Custom configuration ####
 
+# Move focused workspace between monitors
+bindsym $mod+Ctrl+greater move workspace to output right
+bindsym $mod+Ctrl+less move workspace to output left
+
 # Execute programs
 exec_always --no-startup-id $HOME/.config/polybar/launch.sh
 exec_always --no-startup-id setxkbmap -layout se -variant swerty
