@@ -173,6 +173,7 @@ require("lazy").setup({
         "rhysd/git-messenger.vim",
         init = function()
             vim.g.git_messenger_no_default_mappings = true
+            vim.g.git_messenger_always_into_popup = true
             vim.keymap.set('n', '<leader>hb', ':GitMessenger<CR>')
         end
     },
