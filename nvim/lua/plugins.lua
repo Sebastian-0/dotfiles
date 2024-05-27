@@ -15,8 +15,13 @@ vim.opt.rtp:prepend(lazypath)
 require("lazy").setup({
     {
         'nvim-telescope/telescope.nvim',
-        branch = '0.1.x',
-        dependencies = { 'nvim-lua/plenary.nvim' },
+        version = '0.1.x',
+        dependencies = {
+            {
+                'nvim-lua/plenary.nvim',
+                version = '0.1.4'
+            }
+        },
         config = function()
             local builtin = require('telescope.builtin')
             vim.keymap.set('n', '<leader>ff', builtin.find_files, {})
@@ -39,6 +44,7 @@ require("lazy").setup({
     },
     {
         "nvim-treesitter/nvim-treesitter",
+        version = '0.9.x',
         build = ":TSUpdate",
         config = function()
             local configs = require("nvim-treesitter.configs")
@@ -75,7 +81,13 @@ require("lazy").setup({
     },
     {
         'nvim-lualine/lualine.nvim',
-        dependencies = { 'nvim-tree/nvim-web-devicons' },
+        commit='0a5a668',
+        dependencies = {
+            {
+                'nvim-tree/nvim-web-devicons',
+                commit = 'b77921f'
+            }
+        },
         config = function()
             require("lualine").setup {
                 options = {
@@ -93,6 +105,7 @@ require("lazy").setup({
     },
     {
         "karb94/neoscroll.nvim",
+        commit = 'af764ab',
         opts = {
             stop_eof = false,
             easing_function = "quadratic",
@@ -100,23 +113,27 @@ require("lazy").setup({
     },
     {
         "terrortylor/nvim-comment",
+        commit = 'e9ac16a',
         config = function()
             require("nvim_comment").setup()
         end
     },
     {
         "ryanoasis/vim-devicons",
+        version = '0.11.x',
     },
     {
         "lambdalisue/suda.vim",
+        version = "1.2.x"
     },
     {
         "Vimjas/vim-python-pep8-indent",
+        commit = '60ba5e1',
         ft = "python"
     },
     {
         "kylechui/nvim-surround",
-        version = "*", -- Use for stability; omit to use `main` branch for the latest features
+        version = "2.1.x",
         event = "VeryLazy",
         config = function()
             require("nvim-surround").setup({})
@@ -126,9 +143,18 @@ require("lazy").setup({
         "nvim-neo-tree/neo-tree.nvim",
         branch = "v3.x",
         dependencies = {
-            "nvim-lua/plenary.nvim",
-            "nvim-tree/nvim-web-devicons",
-            "MunifTanjim/nui.nvim",
+            {
+                'nvim-lua/plenary.nvim',
+                version = '0.1.4'
+            },
+            {
+                'nvim-tree/nvim-web-devicons',
+                commit = 'b77921f'
+            },
+            {
+                "MunifTanjim/nui.nvim",
+                version = '0.3.x'
+            }
         },
         config = function()
             require("neo-tree").setup({
@@ -156,6 +182,7 @@ require("lazy").setup({
     },
     {
         "lewis6991/gitsigns.nvim",
+        version = "0.8.x",
         config = function()
             require('gitsigns').setup({
                 current_line_blame = true,
@@ -171,6 +198,7 @@ require("lazy").setup({
     },
     {
         "rhysd/git-messenger.vim",
+        commit = '8a61bdf',
         init = function()
             vim.g.git_messenger_no_default_mappings = true
             vim.g.git_messenger_always_into_popup = true
@@ -179,6 +207,7 @@ require("lazy").setup({
     },
     {
         "folke/neodev.nvim",
+        version = "2.5.x",
         opts = {},
         lazy = false,
         priority = 51
@@ -187,13 +216,34 @@ require("lazy").setup({
         'VonHeikemen/lsp-zero.nvim',
         branch = 'v3.x',
         dependencies = {
-            'williamboman/mason.nvim',
-            'williamboman/mason-lspconfig.nvim',
-            'neovim/nvim-lspconfig',
-            'hrsh7th/nvim-cmp',
-            'hrsh7th/cmp-path',
-            'hrsh7th/cmp-nvim-lsp',
-            'L3MON4D3/LuaSnip',
+            {
+                'williamboman/mason.nvim',
+                version = '1.10.x'
+            },
+            {
+                'williamboman/mason-lspconfig.nvim',
+                version = '1.29.x'
+            },
+            {
+                'neovim/nvim-lspconfig',
+                version = '0.1.8'
+            },
+            {
+                'hrsh7th/nvim-cmp',
+                commit = '5260e5e'
+            },
+            {
+                'hrsh7th/cmp-path',
+                commit = '91ff86c'
+            },
+            {
+                'hrsh7th/cmp-nvim-lsp',
+                commit = '39e2eda'
+            },
+            {
+                'L3MON4D3/LuaSnip',
+                version = '2.3.x'
+            },
         },
         config = function()
             local lsp_zero = require('lsp-zero')
