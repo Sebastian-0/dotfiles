@@ -83,6 +83,7 @@ alias layout_se='setxkbmap -layout se'
 alias gip='git pull'
 alias gipu='git push'
 alias gipuf='git push --force-with-lease'
+alias gipud='git push -d origin '
 
 alias gis='git status'
 
