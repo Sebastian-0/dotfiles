@@ -20,6 +20,13 @@ vim.keymap.set({"n", "i", "v"}, "<2-LeftMouse>", "<nop>")
 vim.keymap.set({"n", "i", "v"}, "<RightMouse>", "<nop>")
 vim.keymap.set({"n", "i", "v"}, "<2-RightMouse>", "<nop>")
 
+-- Increase performance of searches (https://github.com/neovim/neovim/issues/23590#issuecomment-1911925029)
+vim.api.nvim_create_autocmd("ColorScheme", {
+    group = vim.api.nvim_create_augroup("SearchSpeedup", { clear = true }),
+    command = [[hi! link CurSearch Search]]
+})
+
+-- Leader
 vim.g.mapleader = " "
 vim.keymap.set("n", " ", "")
 
