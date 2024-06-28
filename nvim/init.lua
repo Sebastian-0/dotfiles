@@ -1,6 +1,6 @@
 vim.opt.relativenumber = true
 vim.opt.number = true
-vim.opt.mouse = "a"
+vim.opt.mouse = ""
 vim.opt.cursorline = true
 -- vim.opt.cursorcolumn = true -- Produces very laggy scrolling
 vim.opt.scrolloff = 5
@@ -13,12 +13,6 @@ vim.opt.wildmode = "longest,list"
 vim.opt.ignorecase = true
 --vim.opt.signcolumn = "yes" -- Could also set this to "number"
 --vim.opt.completeopt = "menu" -- I don't notice the difference...
-
--- Block mouse clicks, need to do it like this to conserve scroll behaviour of mouse=a
-vim.keymap.set({"n", "i", "v"}, "<LeftMouse>", "<nop>")
-vim.keymap.set({"n", "i", "v"}, "<2-LeftMouse>", "<nop>")
-vim.keymap.set({"n", "i", "v"}, "<RightMouse>", "<nop>")
-vim.keymap.set({"n", "i", "v"}, "<2-RightMouse>", "<nop>")
 
 -- Increase performance of searches (https://github.com/neovim/neovim/issues/23590#issuecomment-1911925029)
 vim.api.nvim_create_autocmd("ColorScheme", {
