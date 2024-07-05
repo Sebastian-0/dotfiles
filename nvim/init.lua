@@ -76,5 +76,58 @@ vim.api.nvim_create_user_command("W", "w", {})
 -- Close current buffer but leave window open
 vim.api.nvim_create_user_command("BD", "bp|sp|bn|bd", {})
 
+-- Format on save implementation
+local function run_formatter(args)
+    table.insert(args, vim.fn.expand('%'))
+    local function wrap()
+        return vim.system(args):wait()
+    end
+    local ok, res = pcall(wrap)
+    if not ok then
+        print("Formatter", args[1], "not installed")
+    else
+        if res.code ~= 0 then
+            print("Formatting failed!")
+            print(res.stdout)
+            print(res.stderr)
+            print("-> Return code:", res.code)
+        end
+    end
+end
+
+vim.api.nvim_create_user_command('RunFormatter', function(opts)
+    local ext = vim.fn.expand("%:e")
+    if ext == nil or ext == '' then
+        return
+    end
+    if string.find("*.py", ext) then
+        run_formatter({"black", "--quiet"})
+        vim.cmd("edit")
+    elseif string.find("*.h,*.cc,*.cpp,*.c,*.cu,*.ino,*.vert,*.frag", ext) then
+        run_formatter({"clang-format", "-i"})
+        vim.cmd("edit")
+    elseif string.find("*.js,*.ts", ext) then
+        run_formatter({"yarn", ":format"})
+        vim.cmd("edit")
+    end
+end, {})
+
+-- TODO The proper way to implement format on save is to use BufWritePre and
+--      edit the buffer in place. Then we need to access the buffer in a general
+--      way that works for all formatters. Maybe take inspiration from:
+--      /usr/share/clang/clang-format-14/clang-format.py
+--      Probably we need to write the buffer to another file, then format, and
+--      then read the file and overwrite the vim buffer.
+vim.api.nvim_create_autocmd(
+    "BufWritePost",
+    {
+        pattern = "*",
+        group = vim.api.nvim_create_augroup("AutoFormat", { clear = true }),
+        callback = function()
+            vim.cmd("RunFormatter")
+        end,
+    }
+)
+
 -- Plugins
 require("plugins")
