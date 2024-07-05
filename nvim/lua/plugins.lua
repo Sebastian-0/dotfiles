@@ -53,7 +53,7 @@ require("lazy").setup({
                 ensure_installed = { "cuda", "c", "cpp", "cmake", "lua", "vim", "python", "typescript", "tsx", "bash",
                     "javascript", "rust", "java", "yaml" },
                 sync_install = false,
-                highlight = { enable = true, disable = { "lua" } }, -- Lua is super slow on my home computer, a bug in treesitter?
+                highlight = { enable = true, additional_vim_regex_highlighting = { "python" } }, -- Python regex highlight is a fix for https://github.com/nvim-treesitter/nvim-treesitter/discussions/1951
                 -- indent = { enable = true },
             })
         end
