@@ -84,6 +84,7 @@ alias gip='git pull'
 alias gipu='git push'
 alias gipuf='git push --force-with-lease'
 alias gipud='git push -d origin '
+alias gipuu='git push -u origin '
 
 alias gis='git status'
 
@@ -104,6 +105,8 @@ alias gisp='git stash pop'
 alias girc='git rebase --continue'
 
 alias gisw='git switch'
+alias gich='git checkout'
+alias gichp='git checkout -p'
 
 gitk_background() {
     \gitk "$@" &
