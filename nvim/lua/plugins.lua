@@ -272,9 +272,11 @@ require("lazy").setup({
             require("lspconfig").rust_analyzer.setup {
                 settings = {
                     ["rust-analyzer"] = {
-                        checkOnSave = {
+                        check = {
                             command = "clippy",
-                        },
+                            extraArgs = {"--", "-W", "clippy::pedantic"},
+                            checkOnSave = true,
+                        }
                     },
                 }
             }
@@ -285,7 +287,7 @@ require("lazy").setup({
                         plugins = {
                             pycodestyle = {
                                 ignore = { 'E501' },
-                            }
+                            },
                         }
                     }
                 }
