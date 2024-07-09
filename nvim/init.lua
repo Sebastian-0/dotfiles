@@ -106,8 +106,11 @@ vim.api.nvim_create_user_command('RunFormatter', function(opts)
     elseif string.find("*.h,*.cc,*.cpp,*.c,*.cu,*.ino,*.vert,*.frag", ext) then
         run_formatter({"clang-format", "-i"})
         vim.cmd("edit")
-    elseif string.find("*.js,*.ts", ext) then
+    elseif string.find("*.js,*.ts,*.json,*.jsonc", ext) then
         run_formatter({"yarn", ":format"})
+        vim.cmd("edit")
+    elseif string.find("*.rs", ext) then
+        run_formatter({"cargo", "fmt", "--"})
         vim.cmd("edit")
     end
 end, {})
