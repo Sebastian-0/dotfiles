@@ -169,7 +169,7 @@ client.placeholder      #000000 #0c0c0c #ffffff #000000   #0c0c0c
 client.background       #ffffff
 
 # Gaps
-gaps inner 10
+gaps inner 14
 gaps outer 0
 
 # Keybinds
