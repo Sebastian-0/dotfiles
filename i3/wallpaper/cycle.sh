@@ -26,7 +26,7 @@ if [ ! -d "$target" ]; then
     rm "$target.zip"
 fi
 
-num_img="$(ls -l $target/*.jpg | wc -l)"
+num_img="$(ls -l $target/* | wc -l)"
 
 function next_image() {
     max_minutes=$((24*60))
@@ -49,8 +49,8 @@ do
         img="$(next_image)"
         sleep_time=60
     fi
-    echo "Using image $target-$img.jpg"
-    feh --bg-scale --zoom fill "$target/$target-$img.jpg"
+    echo "Using image $target-$img"
+    feh --bg-scale --zoom fill $target/$target-$img.*
     sleep $sleep_time
     ((++count))
 done
