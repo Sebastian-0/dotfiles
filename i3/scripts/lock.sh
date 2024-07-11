@@ -27,46 +27,38 @@ WRONG='#A54242E6'
 VERIFYING='#7AA2F7E6'
 
 i3lock \
---verif-text=""     \
---wrong-text=""     \
---noinput-text=""   \
---time-str="%H:%M"  \
---date-str=""       \
-\
---time-pos="ix:iy-r-20"     \
---ind-pos="x+w/2:y+h/2-13"  \
-\
---time-font="Fira Code Nerd Font SemBd"  \
---time-size=64                           \
---timeoutline-color=$DARK                \
---timeoutline-width=2                    \
-\
---ring-width=4  \
---radius=105    \
-\
---insidever-color=$BLANK     \
---ringver-color=$VERIFYING   \
-\
---insidewrong-color=$BLANK   \
---ringwrong-color=$WRONG     \
-\
---inside-color=$BLANK        \
---ring-color=$BLANK          \
---line-color=$BLANK          \
---separator-color=$BLANK     \
-\
---verif-color=$TEXT          \
---wrong-color=$TEXT          \
---time-color=$TEXT           \
---date-color=$TEXT           \
---layout-color=$TEXT         \
---keyhl-color=$DARK          \
---bshl-color=$WRONG          \
-\
---screen 1                   \
---clock                      \
---indicator                  \
--i "$screenshot"             \
-$@
+    --verif-text="" \
+    --wrong-text="" \
+    --noinput-text="" \
+    --time-str="%H:%M" \
+    --date-str="" \
+    --time-pos="ix:iy-r-20" \
+    --ind-pos="x+w/2:y+h/2-13" \
+    --time-font="Fira Code Nerd Font SemBd" \
+    --time-size=64 \
+    --timeoutline-color=$DARK \
+    --timeoutline-width=2 \
+    --ring-width=4 \
+    --radius=105 \
+    --insidever-color=$BLANK \
+    --ringver-color=$VERIFYING \
+    --insidewrong-color=$BLANK \
+    --ringwrong-color=$WRONG \
+    --inside-color=$BLANK \
+    --ring-color=$BLANK \
+    --line-color=$BLANK \
+    --separator-color=$BLANK \
+    --verif-color=$TEXT \
+    --wrong-color=$TEXT \
+    --time-color=$TEXT \
+    --date-color=$TEXT \
+    --layout-color=$TEXT \
+    --keyhl-color=$DARK \
+    --bshl-color=$WRONG \
+    --screen 1 \
+    --clock \
+    --indicator \
+    -i "$screenshot" \
+    $@
 
 rm "$screenshot"

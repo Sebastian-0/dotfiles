@@ -18,10 +18,10 @@ fi
 target="Ghibli"
 
 while true; do
-    images=( $(ls "$target" | shuf) )
-    for img in ${images[@]}; do
+    images=($(find "$target" | shuf))
+    for img in "${images[@]}"; do
         echo "Using image $img"
-        feh --bg-scale --zoom fill "$target/$img"
-        sleep $((30*60))
+        feh --bg-scale --zoom fill "$img"
+        sleep $((30 * 60))
     done
 done

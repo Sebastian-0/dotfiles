@@ -41,7 +41,7 @@ else
     sudo pacman -S --needed --noconfirm zoxide
 fi
 if [ -z "$(grep zoxide ~/.bashrc)" ]; then
-    cat <<EOF >> ~/.bashrc
+    cat << EOF >> ~/.bashrc
 # cd aliases
 if [ "$(which zoxide)" ]; then
     eval "\$(zoxide init bash --cmd cd)"

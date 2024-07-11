@@ -7,9 +7,9 @@ chmod 600 pass
 
 sudo apt-get install -y terminator
 mkdir ~/.config/terminator
-cp terminator_config ~/.config/terminator/config 
+cp terminator_config ~/.config/terminator/config
 
-cat <<EOF >> ~/.bashrc
+cat << EOF >> ~/.bashrc
 
 function remote_server_workspace() (
     cd $PWD

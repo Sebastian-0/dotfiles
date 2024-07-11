@@ -4,8 +4,8 @@ set -euo pipefail
 dir="$PWD"
 
 cleanup() {
-  echo "Cleaning up..."
-  rm -f /tmp/remote_pass
+    echo "Cleaning up..."
+    rm -f /tmp/remote_pass
 }
 trap cleanup EXIT
 

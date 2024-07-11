@@ -29,19 +29,18 @@ fi
 num_img="$(ls -l $target/* | wc -l)"
 
 function next_image() {
-    max_minutes=$((24*60))
-    minutes=$(( $(date "+10#%H * 60 + 10#%M") ))
-    image=$((num_img * minutes/max_minutes + 1))
+    max_minutes=$((24 * 60))
+    minutes=$(($(date "+10#%H * 60 + 10#%M")))
+    image=$((num_img * minutes / max_minutes + 1))
     echo $image
 }
 
 function next_image_dbg() {
-    echo "$((count%num_img+1))"
+    echo "$((count % num_img + 1))"
 }
 
 count=0
-while true
-do
+while true; do
     if [ "$debug" = "true" ]; then
         img="$(next_image_dbg)"
         sleep_time=3

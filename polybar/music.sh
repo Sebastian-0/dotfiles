@@ -55,7 +55,7 @@ if [ "$player_status" = "Playing" ]; then
     length="$(playerctl metadata --format "{{ mpris:length }}")"
     position="$(playerctl metadata --format "{{ position }}")"
     # Strange calculation due to rounding, we want the progress bar to start empty and end full
-    let progress_chars=(${#meta}*position+length/2)/length
+    let progress_chars=(${#meta} * position + length / 2)/length
     bef=${meta:0:$progress_chars}
     aft=${meta:$progress_chars}
 

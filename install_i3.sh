@@ -94,7 +94,7 @@ if [ -z "$(which i3)" ]; then
     (
         git clone --recurse-submodules git@github.com:catppuccin/gtk.git
         cd gtk
-        virtualenv -p python3 venv  # to be created only once and only if you need a virtual env
+        virtualenv -p python3 venv # to be created only once and only if you need a virtual env
         source venv/bin/activate
         pip install -r requirements.txt
         python3 install.py mocha
@@ -141,7 +141,7 @@ if [ -z "$(grep "#### Custom configuration ####" ~/.config/i3/config)" ]; then
     sed -i 's/bindsym XF86AudioLowerVolume .* -10% .*$/bindsym XF86AudioLowerVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ -5% \&\& $refresh_i3status/g' ~/.config/i3/config
 
     sed -zi 's/bar {\n.*\n}//g' ~/.config/i3/config
-    cat <<-EOF >> ~/.config/i3/config
+    cat <<- EOF >> ~/.config/i3/config
 
 #### Custom configuration ####
 

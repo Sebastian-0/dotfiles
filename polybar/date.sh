@@ -15,17 +15,17 @@ if [ "$1" = "--calendar" ]; then
 
     YAD_WIDTH=400
     YAD_HEIGHT=220
-    
+
     eval "$(xdotool getmouselocation --shell)"
     eval "$(xdotool getdisplaygeometry --shell)"
 
-    X_POS="$((WIDTH-YAD_WIDTH-10))"
-    Y_POS="$((HEIGHT-YAD_HEIGHT-POLYBAR_HEIGHT-10))"
-    
+    X_POS="$((WIDTH - YAD_WIDTH - 10))"
+    Y_POS="$((HEIGHT - YAD_HEIGHT - POLYBAR_HEIGHT - 10))"
+
     GTK_THEME="Catppuccin-Mocha-Standard-Blue-Dark" yad --calendar \
         --undecorated --fixed --close-on-unfocus --no-buttons \
         --width="$YAD_WIDTH" --height="$YAD_HEIGHT" --posx="$X_POS" --posy="$Y_POS" \
-        --title="yad-calendar" --show-weeks >/dev/null &
+        --title="yad-calendar" --show-weeks > /dev/null &
     exit 0
 fi
 
@@ -44,4 +44,3 @@ else
     DATE="%{F#afccfa}瑞典 $(TZ='Europe/Stockholm' date +"%H:%M")%{F-} %{F#f2c2c2}中国 $(TZ='Asia/Shanghai' date +"%H:%M")%{F-}"
 fi
 echo "%{F$COLOR_PRIMARY} %{F-} $DATE"
-
