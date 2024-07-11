@@ -112,6 +112,9 @@ vim.api.nvim_create_user_command('RunFormatter', function(opts)
     elseif string.find("*.rs", ext) then
         run_formatter({"cargo", "fmt", "--"})
         vim.cmd("edit")
+    elseif string.find("*.sh", ext) then
+        run_formatter({"shfmt", "--indent", "4", "--space-redirects", "--case-indent", "--binary-next-line", "--language-dialect", "bash", "--write"})
+        vim.cmd("edit")
     end
 end, {})
 
@@ -121,6 +124,9 @@ end, {})
 --      /usr/share/clang/clang-format-14/clang-format.py
 --      Probably we need to write the buffer to another file, then format, and
 --      then read the file and overwrite the vim buffer.
+--
+--      We also want to support files with shebangs and no extension, e.g. detect
+--      /.../sh and /.../python and map to an appropriate language
 vim.api.nvim_create_autocmd(
     "BufWritePost",
     {
