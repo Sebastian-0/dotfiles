@@ -87,8 +87,7 @@ vim.api.nvim_create_user_command("W", "w", {})
 vim.api.nvim_create_user_command("BD", "bp|sp|bn|bd", {})
 
 -- Format on save implementation
-local function run_formatter(args)
-    local path = vim.fn.expand('%')
+local function run_formatter(path, args)
     for i = 1,#args do
         if args[i] == "%" then
             args[i] = path
@@ -111,31 +110,76 @@ local function run_formatter(args)
 end
 
 vim.api.nvim_create_user_command('RunFormatter', function(opts)
-    local ext = vim.fn.expand("%:e")
+    local buffer = 0
+    if opts.args then
+        local res = tonumber(opts.args)
+        if res then
+            buffer = res
+        else
+            print("Invalid argument, should be a buffer number:", opts.args)
+            print(" ") -- Extra line in case output is swallowed by prompt
+            return
+        end
+    end
+    local buf = vim.api.nvim_buf_get_name(buffer)
+    local ext = buf:match("%.([^%.]+)$")
     if ext == nil or ext == '' then
         return
     end
-    if string.find("*.py", ext) then
-        run_formatter({"black", "--quiet", "%"})
-        vim.cmd("edit")
-    elseif string.find("*.h,*.cc,*.cpp,*.c,*.cu,*.ino,*.vert,*.frag", ext) then
-        run_formatter({"clang-format", "-i", "%"})
-        vim.cmd("edit")
-    elseif string.find("*.js,*.ts,*.json,*.jsonc", ext) then
-        run_formatter({"yarn", ":format", "%"})
-        vim.cmd("edit")
-    elseif string.find("*.rs", ext) then
-        run_formatter({"cargo", "fmt", "--", "%"})
-        vim.cmd("edit")
-    elseif string.find("*.sh", ext) then
-        -- run_formatter({"shfmt", "--indent", "4", "--space-redirects", "--case-indent", "--binary-next-line", "--language-dialect", "bash", "--write", "%"})
-        run_formatter({"shfmt", "--i", "4", "-sr", "-ci", "-bn", "-ln", "bash", "-w", "%"}) -- Required for old version of shfmt...
-        vim.cmd("edit")
-    elseif string.find("*.xml", ext) then
-        run_formatter({"python3", vim.fn.stdpath("config") .. "/format_xml.py", "--input", "%", "--output", "%"})
-        vim.cmd("edit")
+
+    -- Create a temporary file and write buffer contents
+    local file_name = os.tmpname()
+    local file, err = io.open(file_name, "w+")
+    if file then
+        local lines = vim.api.nvim_buf_get_lines(buffer, 0, -1, true)
+        for idx = 1,#lines do
+            local success, err = file:write(lines[idx] .. "\n") -- NOTE: This assumes \n and not \r\n
+            if not success then
+                print("Failed to write to file " .. file_name .. ", reason: " .. err)
+                print(" ") -- Extra line in case output is swallowed by prompt
+            end
+        end
+        file:close()
+    else
+        print("Failed to open file for writing " .. file_name .. ", reason: " .. err)
+        print(" ") -- Extra line in case output is swallowed by prompt
     end
-end, {})
+
+    -- Run formatter on the temporary file
+    if string.find("*.py", ext) then
+        run_formatter(file_name, {"black", "--quiet", "%"})
+    elseif string.find("*.h,*.cc,*.cpp,*.c,*.cu,*.ino,*.vert,*.frag", ext) then
+        run_formatter(file_name, {"clang-format", "-i", "%"})
+    elseif string.find("*.js,*.ts,*.json,*.jsonc", ext) then
+        run_formatter(file_name, {"yarn", ":format", "%"})
+    elseif string.find("*.rs", ext) then
+        run_formatter(file_name, {"cargo", "fmt", "--", "%"})
+    elseif string.find("*.sh", ext) then
+        -- run_formatter(file_name, {"shfmt", "--indent", "4", "--space-redirects", "--case-indent", "--binary-next-line", "--language-dialect", "bash", "--write"})
+        run_formatter(file_name, {"shfmt", "--i", "4", "-sr", "-ci", "-bn", "-ln", "bash", "-w", "%"}) -- Required for old version of shfmt...
+    elseif string.find("*.xml", ext) then
+        run_formatter(file_name, {"python3", vim.fn.stdpath("config") .. "/format_xml.py", "--input", "%", "--output", "%"})
+    end
+
+    -- Copy temporary file back into buffer
+    file, err = io.open(file_name, "r")
+    if file then
+        local lines = {}
+        for line in file:lines() do
+            table.insert(lines, line)
+        end
+        vim.api.nvim_buf_set_lines(buffer, 0, -1, true, lines)
+        file:close()
+        local success, err = os.remove(file_name)
+        if not success then
+            print("Failed to delete temp file " .. file_name .. ", reason: " .. err)
+            print(" ") -- Extra line in case output is swallowed by prompt
+        end
+    else
+        print("Failed to open file for reading " .. file_name .. ", reason: " .. err)
+        print(" ") -- Extra line in case output is swallowed by prompt
+    end
+end, { nargs='?'})
 
 -- TODO The proper way to implement format on save is to use BufWritePre and
 --      edit the buffer in place. Then we need to access the buffer in a general
@@ -147,12 +191,12 @@ end, {})
 --      We also want to support files with shebangs and no extension, e.g. detect
 --      /.../sh and /.../python and map to an appropriate language
 vim.api.nvim_create_autocmd(
-    "BufWritePost",
+    "BufWritePre",
     {
         pattern = "*",
         group = vim.api.nvim_create_augroup("AutoFormat", { clear = true }),
-        callback = function()
-            vim.cmd("RunFormatter")
+        callback = function(args)
+            vim.cmd( {cmd = "RunFormatter", args = {tostring(args.buf)}})
         end,
     }
 )
