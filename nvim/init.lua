@@ -128,7 +128,8 @@ vim.api.nvim_create_user_command('RunFormatter', function(opts)
         run_formatter({"cargo", "fmt", "--", "%"})
         vim.cmd("edit")
     elseif string.find("*.sh", ext) then
-        run_formatter({"shfmt", "--indent", "4", "--space-redirects", "--case-indent", "--binary-next-line", "--language-dialect", "bash", "--write", "%"})
+        -- run_formatter({"shfmt", "--indent", "4", "--space-redirects", "--case-indent", "--binary-next-line", "--language-dialect", "bash", "--write", "%"})
+        run_formatter({"shfmt", "--i", "4", "-sr", "-ci", "-bn", "-ln", "bash", "-w", "%"}) -- Required for old version of shfmt...
         vim.cmd("edit")
     end
 end, {})
