@@ -52,6 +52,16 @@ vim.api.nvim_create_autocmd("FileType", {
     command = [[setlocal commentstring=//\ %s]]
 })
 
+-- Add column showing maximum width for commit bodies
+vim.api.nvim_create_autocmd("FileType", {
+    group = vim.api.nvim_create_augroup("GitCommitBodyMarker", { clear = true }),
+    pattern = "gitcommit",
+    callback = function ()
+        vim.opt.textwidth = 72
+        vim.opt.colorcolumn = "73"
+    end
+})
+
 -- Moving lines of code
 vim.keymap.set("n", "<a-j>", ":m .+1<CR>==")
 vim.keymap.set("n", "<a-k>", ":m .-2<CR>==")
