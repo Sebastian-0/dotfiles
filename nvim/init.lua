@@ -88,7 +88,12 @@ vim.api.nvim_create_user_command("BD", "bp|sp|bn|bd", {})
 
 -- Format on save implementation
 local function run_formatter(args)
-    table.insert(args, vim.fn.expand('%'))
+    local path = vim.fn.expand('%')
+    for i = 1,#args do
+        if args[i] == "%" then
+            args[i] = path
+        end
+    end
     local function wrap()
         return vim.system(args):wait()
     end
@@ -111,19 +116,19 @@ vim.api.nvim_create_user_command('RunFormatter', function(opts)
         return
     end
     if string.find("*.py", ext) then
-        run_formatter({"black", "--quiet"})
+        run_formatter({"black", "--quiet", "%"})
         vim.cmd("edit")
     elseif string.find("*.h,*.cc,*.cpp,*.c,*.cu,*.ino,*.vert,*.frag", ext) then
-        run_formatter({"clang-format", "-i"})
+        run_formatter({"clang-format", "-i", "%"})
         vim.cmd("edit")
     elseif string.find("*.js,*.ts,*.json,*.jsonc", ext) then
-        run_formatter({"yarn", ":format"})
+        run_formatter({"yarn", ":format", "%"})
         vim.cmd("edit")
     elseif string.find("*.rs", ext) then
-        run_formatter({"cargo", "fmt", "--"})
+        run_formatter({"cargo", "fmt", "--", "%"})
         vim.cmd("edit")
     elseif string.find("*.sh", ext) then
-        run_formatter({"shfmt", "--indent", "4", "--space-redirects", "--case-indent", "--binary-next-line", "--language-dialect", "bash", "--write"})
+        run_formatter({"shfmt", "--indent", "4", "--space-redirects", "--case-indent", "--binary-next-line", "--language-dialect", "bash", "--write", "%"})
         vim.cmd("edit")
     end
 end, {})
