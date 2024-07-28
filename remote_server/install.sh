@@ -6,7 +6,7 @@ echo $PASS > pass
 chmod 600 pass
 
 sudo apt-get install -y terminator
-mkdir ~/.config/terminator
+mkdir -p ~/.config/terminator
 cp terminator_config ~/.config/terminator/config
 
 cat << EOF >> ~/.bashrc

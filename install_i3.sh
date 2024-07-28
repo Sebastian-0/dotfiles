@@ -62,12 +62,12 @@ if [ -z "$(which i3)" ]; then
         fi
     else
         # Manjaro (libsass is needed by GTK theming tool)
-        sudo pacman -S --needed --noconfirm i3 feh wmctrl picom yay dunst rofi clipmenu playerctl brightnessctl polybar scrot xss-lock flameshot imagemagick yad libsass python-virtualenv
+        sudo pacman -S --needed --noconfirm i3-wm feh wmctrl picom yay dunst rofi clipmenu playerctl brightnessctl polybar scrot xss-lock flameshot imagemagick yad libsass python-virtualenv
         sudo yay -S --noconfirm --ask 4 --useask --answerclean All --answerdiff None i3lock-color
     fi
 
     echo "Add sudo privileges to brightnessctl..."
-    sudo chmod +s /usr/bin/brightnessctl
+    sudo chmod +s "$(which brightnessctl)"
 
     echo "Launch clipmenud service..."
     mkdir -p ~/.config/environment.d/
@@ -87,15 +87,15 @@ if [ -z "$(which i3)" ]; then
     sed -i "s|\si3lock|$HOME/.config/i3/scripts/lock.sh|g" ~/.config/rofi/powermenu/type-1/powermenu.sh
 
     echo "Install Polybar configuration..."
-    mkdir ~/.config/polybar
+    mkdir -p ~/.config/polybar
     cp -r polybar/* ~/.config/polybar/
 
     echo "Install GTK theme..."
     (
-        git clone --recurse-submodules git@github.com:catppuccin/gtk.git
+        git clone --recurse-submodules https://github.com/catppuccin/gtk
         cd gtk
-        virtualenv -p python3 venv # to be created only once and only if you need a virtual env
-        source venv/bin/activate
+        python3 -m venv venv
+        . venv/bin/activate
         pip install -r requirements.txt
         python3 install.py mocha
         cd -
