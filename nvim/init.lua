@@ -113,18 +113,20 @@ end
 
 vim.api.nvim_create_user_command('RunFormatter', function(opts)
     local buffer = 0
+    local ext = nil
     if opts.args then
         local res = tonumber(opts.args)
         if res then
             buffer = res
         else
-            print("Invalid argument, should be a buffer number:", opts.args)
-            print(" ") -- Extra line in case output is swallowed by prompt
-            return
+            ext = opts.args
         end
     end
-    local buf = vim.api.nvim_buf_get_name(buffer)
-    local ext = buf:match("%.([^%.]+)$")
+    if ext == nil then
+        local buf = vim.api.nvim_buf_get_name(buffer)
+        local ext = buf:match("%.([^%.]+)$")
+    end
+
     if ext == nil or ext == '' then
         return
     end
