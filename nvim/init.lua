@@ -99,12 +99,14 @@ local function run_formatter(path, args)
     local ok, res = pcall(wrap)
     if not ok then
         print("Formatter", args[1], "not installed")
+        print(" ")
     else
         if res.code ~= 0 then
             print("Formatting failed!")
             print(res.stdout)
             print(res.stderr)
             print("-> Return code:", res.code)
+            print(" ")
         end
     end
 end
@@ -156,7 +158,7 @@ vim.api.nvim_create_user_command('RunFormatter', function(opts)
         run_formatter(file_name, {"cargo", "fmt", "--", "%"})
     elseif string.find("*.sh", ext) then
         -- run_formatter(file_name, {"shfmt", "--indent", "4", "--space-redirects", "--case-indent", "--binary-next-line", "--language-dialect", "bash", "--write"})
-        run_formatter(file_name, {"shfmt", "--i", "4", "-sr", "-ci", "-bn", "-ln", "bash", "-w", "%"}) -- Required for old version of shfmt...
+        run_formatter(file_name, {"shfmt", "-i", "4", "-sr", "-ci", "-bn", "-ln", "bash", "-w", "%"}) -- Required for old version of shfmt...
     elseif string.find("*.xml", ext) then
         run_formatter(file_name, {"python3", vim.fn.stdpath("config") .. "/format_xml.py", "--input", "%", "--output", "%"})
     end
