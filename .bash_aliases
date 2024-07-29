@@ -21,12 +21,12 @@ fi
 if [ "$(which nvim)" ]; then
     EDITOR=nvim
     VISUAL=nvim
-	alias vi='nvim'
-	alias vim='nvim'
+    alias vi='nvim'
+    alias vim='nvim'
 else
     EDITOR=vim
     VISUAL=vim
-	alias vi='vim'
+    alias vi='vim'
 fi
 
 # Apt aliases
@@ -42,7 +42,7 @@ alias ip='ip --color'
 function mkcd() {
     if [ "$#" -eq 1 ]; then
         mkdir "$1"
-        if [ "$?" = 0 ] ; then
+        if [ "$?" = 0 ]; then
             cd "$1"
         fi
     else
@@ -153,10 +153,10 @@ gii() {
     if [ -f "${SSH_ENV}" ]; then
         . "${SSH_ENV}" > /dev/null
         ps -ef | grep "${SSH_AGENT_PID}" | grep ssh-agent$ > /dev/null || {
-           start_agent;
+            start_agent
         }
     else
-        start_agent;
+        start_agent
     fi
 }
 
