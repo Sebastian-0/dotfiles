@@ -12,7 +12,7 @@ is_ubuntu() {
 ./install_font.sh
 
 echo "Install tdrop..."
-if [ -z "$(which tdrop)" ]; then
+if ! which tdrop >&/dev/null; then
     if [ "$(is_ubuntu)" = "true" ]; then
         sudo apt-get install -y xdotool x11-utils gawk
     else

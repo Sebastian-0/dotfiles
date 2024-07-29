@@ -17,7 +17,7 @@ echo "This might be an outdated script, see: https://github.com/heckelson/i3-and
 echo ""
 read -p "Press enter to start..."
 
-if [ -z "$(which i3)" ]; then
+if ! which i3 >&/dev/null; then
     echo "Installing packages..."
     if [ "$(is_ubuntu)" = "true" ]; then
         # Ubuntu

@@ -5,8 +5,8 @@ HISTFILESIZE=4096
 shopt -s histappend
 
 # ls aliases
-if [ "$(which exa)" ] || [ "$(which eza)" ]; then
-    if [ "$(which eza)" ]; then
+if which exa >&/dev/null || which eza >&/dev/null; then
+    if which eza >&/dev/null; then
         alias exa='eza'
     fi
     alias ls='exa'
@@ -18,7 +18,7 @@ else
 fi
 
 # Vim aliases
-if [ "$(which nvim)" ]; then
+if which nvim >&/dev/null; then
     EDITOR=nvim
     VISUAL=nvim
     alias vi='nvim'
@@ -30,7 +30,7 @@ else
 fi
 
 # Apt aliases
-if [ "$(which nala)" ]; then
+if which nala >&/dev/null; then
     alias apt=nala
     alias apt-get=nala
 fi
