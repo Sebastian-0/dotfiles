@@ -122,9 +122,10 @@ vim.api.nvim_create_user_command('RunFormatter', function(opts)
             ext = opts.args
         end
     end
+    local buf = vim.api.nvim_buf_get_name(buffer)
+    local name = buf:match("/([^/]+)$")
     if ext == nil then
-        local buf = vim.api.nvim_buf_get_name(buffer)
-        local ext = buf:match("%.([^%.]+)$")
+        ext = buf:match("%.([^%.]+)$")
     end
 
     if ext == nil or ext == '' then
@@ -132,7 +133,7 @@ vim.api.nvim_create_user_command('RunFormatter', function(opts)
     end
 
     -- Create a temporary file and write buffer contents
-    local file_name = os.tmpname()
+    local file_name = os.tmpname() .. "." .. name
     local file, err = io.open(file_name, "w+")
     if file then
         local lines = vim.api.nvim_buf_get_lines(buffer, 0, -1, true)
@@ -174,13 +175,14 @@ vim.api.nvim_create_user_command('RunFormatter', function(opts)
         end
         vim.api.nvim_buf_set_lines(buffer, 0, -1, true, lines)
         file:close()
-        local success, err = os.remove(file_name)
-        if not success then
-            print("Failed to delete temp file " .. file_name .. ", reason: " .. err)
-            print(" ") -- Extra line in case output is swallowed by prompt
-        end
     else
         print("Failed to open file for reading " .. file_name .. ", reason: " .. err)
+        print(" ") -- Extra line in case output is swallowed by prompt
+    end
+
+    local success, err = os.remove(file_name)
+    if not success then
+        print("Failed to delete temp file " .. file_name .. ", reason: " .. err)
         print(" ") -- Extra line in case output is swallowed by prompt
     end
 end, { nargs='?'})
