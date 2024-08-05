@@ -94,6 +94,7 @@ alias giap='git add -p'
 
 alias gicl='git clone'
 alias gica='git commit --amend'
+alias gicanv='git commit --no-verify --amend'
 
 alias gil='git log'
 alias gitk='gitk_background'
@@ -129,6 +130,16 @@ gic() {
         git commit -m "$1"
     elif [ "$#" -eq 2 ]; then
         git commit -m "$1" -m "$2"
+    else
+        echo "Missing message parameter!"
+    fi
+}
+
+gicnv() {
+    if [ "$#" -eq 1 ]; then
+        git commit --no-verify -m "$1"
+    elif [ "$#" -eq 2 ]; then
+        git commit --no-verify -m "$1" -m "$2"
     else
         echo "Missing message parameter!"
     fi
