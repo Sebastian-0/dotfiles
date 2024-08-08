@@ -1,18 +1,12 @@
 #!/bin/bash
 set -euo pipefail
 
-is_ubuntu() {
-    if [ -n "$(grep "Ubuntu" /etc/os-release)" ]; then
-        echo "true"
-    else
-        echo "false"
-    fi
-}
+. utils.sh
 
 ./install_font.sh
 
 echo "Install git, calc & exa/eza..."
-if [ "$(is_ubuntu)" = "true" ]; then
+if is_ubuntu; then
     sudo apt-get install -y git gitk calc # fonts-firacode
 
     # Install eza from official repo
@@ -22,25 +16,34 @@ if [ "$(is_ubuntu)" = "true" ]; then
     sudo chmod 644 /etc/apt/keyrings/gierens.gpg /etc/apt/sources.list.d/gierens.list
     sudo apt update
     sudo apt install -y eza
-else
+elif is_arch; then
     sudo pacman -S --needed --noconfirm git tk calc eza # ttf-fira-code
+else
+    echo "Unsupported OS!"
+    exit 1
 fi
 
 echo "Install fzf"
 # Note that key bindings are registered separately in .bashrc
-if [ "$(is_ubuntu)" = "true" ]; then
+if is_ubuntu; then
     sudo apt install -y fzf
-else
+elif is_arch; then
     sudo pacman -S --needed --noconfirm fzf
+else
+    echo "Unsupported OS!"
+    exit 1
 fi
 
 echo "Install zoxide"
-if [ "$(is_ubuntu)" = "true" ]; then
+if is_ubuntu; then
     curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash
-else
+elif is_arch; then
     sudo pacman -S --needed --noconfirm zoxide
+else
+    echo "Unsupported OS!"
+    exit 1
 fi
-if [ -z "$(grep zoxide ~/.bashrc)" ]; then
+if grep -q zoxide ~/.bashrc; then
     cat << EOF >> ~/.bashrc
 # cd aliases
 if which zoxide >&/dev/null; then
@@ -50,10 +53,13 @@ EOF
 fi
 
 echo "Install btop..."
-if [ "$(is_ubuntu)" = "true" ]; then
+if is_ubuntu; then
     sudo apt-get install -y btop
-else
+elif is_arch; then
     sudo pacman -S --needed --noconfirm btop
+else
+    echo "Unsupported OS!"
+    exit 1
 fi
 git clone https://github.com/catppuccin/btop
 mkdir -p ~/.config/btop/themes

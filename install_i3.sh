@@ -1,13 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-is_ubuntu() {
-    if [ -n "$(grep "Ubuntu" /etc/os-release)" ]; then
-        echo "true"
-    else
-        echo "false"
-    fi
-}
+. utils.sh
 
 ./install_font.sh
 
@@ -17,7 +11,7 @@ read -rp "Press enter to start..."
 
 if ! which i3 >&/dev/null; then
     echo "Installing packages..."
-    if [ "$(is_ubuntu)" = "true" ]; then
+    if is_ubuntu; then
         sudo apt-get install -y i3 feh xss-lock wmctrl scrot picom dunst rofi pulseaudio-utils playerctl brightnessctl polybar flameshot imagemagick yad libsass1 python3-virtualenv
 
         # Build i3lock-color
@@ -45,7 +39,7 @@ if ! which i3 >&/dev/null; then
         sudo rm -rf clipmenu
 
         # Older Ubuntu
-        if [ -n "$(grep "22.04" /etc/os-release)" ]; then
+        if grep -q "22.04" /etc/os-release; then
             echo "Manually build i3-gaps..."
             sudo apt-get install -y libcairo2-dev libpango1.0-dev libyajl-dev libxcb-icccm4-dev libxcb-keysyms1-dev libxcb-cursor-dev libstartup-notification0-dev xmlto meson asciidoc
             git clone https://github.com/Airblader/i3 i3-gaps
@@ -57,10 +51,13 @@ if ! which i3 >&/dev/null; then
             cd ..
             rm -rf build i3-gaps
         fi
-    else
+    elif is_arch; then
         # Manjaro (libsass is needed by GTK theming tool)
         sudo pacman -S --needed --noconfirm i3-wm feh wmctrl picom yay dunst rofi clipmenu playerctl brightnessctl polybar scrot xss-lock flameshot imagemagick yad libsass python-virtualenv
         sudo yay -S --noconfirm --ask 4 --useask --answerclean All --answerdiff None i3lock-color
+    else
+        echo "Unsupported OS!"
+        exit 1
     fi
 
     echo "Add sudo privileges to brightnessctl..."

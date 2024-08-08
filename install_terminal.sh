@@ -1,13 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-is_ubuntu() {
-    if [ -n "$(grep "Ubuntu" /etc/os-release)" ]; then
-        echo "true"
-    else
-        echo "false"
-    fi
-}
+. utils.sh
 
 ./install_font.sh
 
@@ -26,12 +20,15 @@ if ! which tdrop >&/dev/null; then
 fi
 
 echo "Install Kitty terminal..."
-if [ "$(is_ubuntu)" = "true" ]; then
+if is_ubuntu; then
     curl -L https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin
     sudo ln -s ~/.local/kitty.app/bin/kitten /usr/bin/kitten
     sudo ln -s ~/.local/kitty.app/bin/kitty /usr/bin/kitty
-else
+elif is_arch; then
     sudo pacman -S --needed --noconfirm kitty
+else
+    echo "Unsupported OS!"
+    exit 1
 fi
 
 echo "Copy Kitty configuration..."

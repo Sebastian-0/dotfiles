@@ -1,18 +1,15 @@
 #!/bin/bash
 set -euo pipefail
 
-is_ubuntu() {
-    if [ -n "$(grep "Ubuntu" /etc/os-release)" ]; then
-        echo "true"
-    else
-        echo "false"
-    fi
-}
+. utils.sh
 
-if [ "$(is_ubuntu)" = "true" ]; then
+if is_ubuntu; then
     sudo apt-get install -y ufw
-else
+elif is_arch; then
     sudo pacman -S --needed --noconfirm ufw
+else
+    echo "Unsupported OS!"
+    exit 1
 fi
 
 sudo ufw default deny incoming
