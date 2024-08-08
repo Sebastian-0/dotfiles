@@ -11,7 +11,7 @@ is_arch() {
 symlink_config() {
     if [ $# -ne 1 ]; then
         echo "You must specify a config folder name to link!"
-        exit 1
+        return 1
     fi
     local name=$1
     if [ ! -L "$HOME/.config/$name" ]; then
