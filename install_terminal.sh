@@ -32,12 +32,4 @@ else
 fi
 
 echo "Copy Kitty configuration..."
-if [ ! -L ~/.config/kitty ]; then
-    if [ -e ~/.config/kitty ]; then
-        echo "WARNING: The folder ~/.config/kitty exists! Continuing will delete it."
-        echo ""
-        read -rp "Press enter to continue..."
-    fi
-    rm -rf ~/.config/kitty
-    ln -s "$PWD/kitty" ~/.config/kitty
-fi
+symlink_config kitty

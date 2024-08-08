@@ -96,23 +96,7 @@ if ! which i3 >&/dev/null; then
 fi
 
 echo "Configure i3..."
-if [ ! -L ~/.config/i3 ]; then
-    if [ -e ~/.config/i3 ]; then
-        echo "WARNING: The folder ~/.config/i3 exists! Continuing will delete it."
-        echo ""
-        read -rp "Press enter to continue..."
-    fi
-    rm -rf ~/.config/i3
-    ln -s "$PWD/i3" ~/.config/i3
-fi
+symlink_config i3
 
-echo "Install Polybar configuration..."
-if [ ! -L ~/.config/polybar ]; then
-    if [ -e ~/.config/polybar ]; then
-        echo "WARNING: The folder ~/.config/polybar exists! Continuing will delete it."
-        echo ""
-        read -rp "Press enter to continue..."
-    fi
-    rm -rf ~/.config/polybar
-    ln -s "$PWD/polybar" ~/.config/polybar
-fi
+echo "Configure polybar..."
+symlink_config polybar

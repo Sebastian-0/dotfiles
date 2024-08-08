@@ -26,12 +26,4 @@ fi
 git config --global core.editor "nvim"
 
 echo "Copy configuration..."
-if [ ! -L ~/.config/nvim ]; then
-    if [ -e ~/.config/nvim ]; then
-        echo "WARNING: The folder ~/.config/nvim exists! Continuing will delete it."
-        echo ""
-        read -rp "Press enter to continue..."
-    fi
-    rm -rf ~/.config/nvim
-    ln -s "$PWD/nvim" ~/.config/nvim
-fi
+symlink_config nvim
