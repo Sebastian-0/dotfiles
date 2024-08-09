@@ -33,6 +33,9 @@ fi
 if which nala >&/dev/null; then
     alias apt=nala
     alias apt-get=nala
+elif which apt-fast >&/dev/null; then
+    alias apt=apt-fast
+    alias apt-get=apt-fast
 fi
 
 # Misc aliases
