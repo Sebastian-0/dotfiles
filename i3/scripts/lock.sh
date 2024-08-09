@@ -6,7 +6,7 @@ sleep 0.5
 # - https://thenounproject.com/icon/geometry-1484969/
 
 screenshot="/tmp/screen.png"
-icon="$HOME/Repositories/dotfiles/i3/lock_icon.png"
+icon="$HOME/.config/i3/lock_icon.png"
 
 scrot "$screenshot"
 
