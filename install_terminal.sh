@@ -22,8 +22,8 @@ fi
 echo "Install Kitty terminal..."
 if is_ubuntu; then
     curl -L https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin
-    sudo ln -s ~/.local/kitty.app/bin/kitten /usr/bin/kitten
-    sudo ln -s ~/.local/kitty.app/bin/kitty /usr/bin/kitty
+    sudo ln -fs ~/.local/kitty.app/bin/kitten /usr/bin/kitten
+    sudo ln -fs ~/.local/kitty.app/bin/kitty /usr/bin/kitty
 elif is_arch; then
     sudo pacman -S --needed --noconfirm kitty
 else
