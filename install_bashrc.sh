@@ -1,8 +1,12 @@
 #!/bin/bash
 set -eou pipefail
+if which nvim > /dev/null; then
+    git config --global core.editor "nvim"
+else
+    git config --global core.editor "vim"
+fi
 
 git config --global pull.rebase true
-git config --global core.editor "vim"
 git config --global core.autocrlf input
 git config --global rerere.enabled true
 git config --global column.ui auto

@@ -24,8 +24,8 @@ if ! which nvim >&/dev/null; then
         echo "Unsupported OS!"
         exit 1
     fi
-    git config --global core.editor "nvim"
 fi
 
 echo "Configure nvim..."
 symlink_config nvim
+git config --global core.editor "nvim"
