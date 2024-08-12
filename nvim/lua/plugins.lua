@@ -254,13 +254,13 @@ require("lazy").setup({
             require('mason').setup({})
             require('mason-lspconfig').setup({
                 ensure_installed = {
-                    'tsserver',
+                    'clangd',
+                    'cmake',
                     'rust_analyzer',
                     'pylsp',
-                    'clangd',
                     'lua_ls',
+                    'tsserver',
                     'bashls',
-                    'cmake',
                     'dockerls'
                 },
                 handlers = {
