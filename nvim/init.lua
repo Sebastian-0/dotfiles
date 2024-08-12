@@ -111,6 +111,16 @@ local function run_formatter(path, args)
     end
 end
 
+function file_exists(name)
+   local f=io.open(name,"r")
+   if f~=nil then
+       io.close(f)
+       return true
+   else
+       return false
+   end
+end
+
 vim.api.nvim_create_user_command('RunFormatter', function(opts)
     local buffer = 0
     local ext = nil
@@ -154,7 +164,11 @@ vim.api.nvim_create_user_command('RunFormatter', function(opts)
     if string.find("*.py", ext) then
         run_formatter(file_name, {"black", "--quiet", "%"})
     elseif string.find("*.h,*.cc,*.cpp,*.c,*.cu,*.ino,*.vert,*.frag", ext) then
-        run_formatter(file_name, {"clang-format", "-style=file:.clang-format", "-i", "%"})
+        if file_exists(".clang-format") then
+            run_formatter(file_name, {"clang-format", "-style=file:.clang-format", "-i", "%"})
+        else
+            run_formatter(file_name, {"clang-format", "-i", "%"})
+        end
     elseif string.find("*.js,*.ts,*.json,*.jsonc", ext) then
         run_formatter(file_name, {"yarn", ":format", "%"})
     elseif string.find("*.rs", ext) then
