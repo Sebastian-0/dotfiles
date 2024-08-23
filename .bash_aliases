@@ -174,16 +174,49 @@ gii() {
     fi
 }
 
+# Auto-completion for aliases
+# TODO Auto-generate These type of functions. List with 'alias -p'.
+# - Substitute 1 with amount of args to git
+# - Substitute 'git stash' with actual command
+# - Substitute 'gisw' with actual aliases
+# - If necessary take inspiration from: https://superuser.com/a/437508
+#
+# To find existing auto-completions for a command run `complete -p <command>`
+# If they don't exist you can force-load them with `_completion_loader`
+_completion_loader git
+
+function _alias_completion::gisw {
+    ((COMP_CWORD += 1))
+    COMP_WORDS=(git switch ${COMP_WORDS[@]:1})
+    ((COMP_POINT -= ${#COMP_LINE}))
+    COMP_LINE=${COMP_LINE/gisw/git switch}
+    ((COMP_POINT += ${#COMP_LINE}))
+    __git_wrap__git_main
+}
+complete -o bashdefault -o default -o nospace -F _alias_completion::gisw gisw
+
+function _alias_completion::gich {
+    ((COMP_CWORD += 1))
+    COMP_WORDS=(git checkout ${COMP_WORDS[@]:1})
+    ((COMP_POINT -= ${#COMP_LINE}))
+    COMP_LINE=${COMP_LINE/gich/git checkout}
+    ((COMP_POINT += ${#COMP_LINE}))
+    __git_wrap__git_main
+}
+complete -o bashdefault -o default -o nospace -F _alias_completion::gich gich
+
 # Set up fzf key bindings and fuzzy completion
 if [ -f /usr/share/doc/fzf/examples/key-bindings.bash ]; then
     . /usr/share/doc/fzf/examples/key-bindings.bash
 fi
-if [ -f /usr/share/bash-completion/completions/fzf ]; then
-    . /usr/share/bash-completion/completions/fzf
-fi
 if [ -f /usr/share/fzf/key-bindings.bash ]; then
     . /usr/share/fzf/key-bindings.bash
 fi
-if [ -f /usr/share/fzf/completions.bash ]; then
-    . /usr/share/fzf/completions.bash
-fi
+# NOTE: Disable completions because they have little gain and mess up autocomplete for
+# my git aliases.
+# if [ -f /usr/share/bash-completion/completions/fzf ]; then
+#     . /usr/share/bash-completion/completions/fzf
+# fi
+# if [ -f /usr/share/fzf/completions.bash ]; then
+#     . /usr/share/fzf/completions.bash
+# fi
