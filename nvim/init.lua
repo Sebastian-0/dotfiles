@@ -45,10 +45,17 @@ vim.api.nvim_create_autocmd("FileType", {
     end
 })
 
+-- Set filetype for glsl
+vim.api.nvim_create_autocmd({"BufRead", "BufNewFile"}, {
+    group = vim.api.nvim_create_augroup("GlslLangType", { clear = true }),
+    pattern = { "*.frag", "*.vert", "*.fs", "*.vs" },
+    command = [[set filetype=glsl]]
+})
+
 -- Set comment character for certain file types
 vim.api.nvim_create_autocmd("FileType", {
     group = vim.api.nvim_create_augroup("CommentString", { clear = true }),
-    pattern = { "c", "cpp", "cuda" },
+    pattern = { "c", "cpp", "cuda", "glsl" },
     command = [[setlocal commentstring=//\ %s]]
 })
 
@@ -163,7 +170,7 @@ vim.api.nvim_create_user_command('RunFormatter', function(opts)
     -- Run formatter on the temporary file
     if string.find("*.py", ext) then
         run_formatter(file_name, {"black", "--quiet", "%"})
-    elseif string.find("*.h,*.cc,*.cpp,*.c,*.cu,*.ino,*.vert,*.frag", ext) then
+    elseif string.find("*.h,*.cc,*.cpp,*.c,*.cu,*.hpp,*.vs,*.fs,*.vert,*.frag", ext) then
         if file_exists(".clang-format") then
             run_formatter(file_name, {"clang-format", "-style=file:.clang-format", "-i", "%"})
         else

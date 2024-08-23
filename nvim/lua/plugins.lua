@@ -50,7 +50,7 @@ require("lazy").setup({
             local configs = require("nvim-treesitter.configs")
 
             configs.setup({
-                ensure_installed = { "cuda", "c", "cpp", "c_sharp", "cmake", "dockerfile", "lua", "vim", "python", "typescript", "tsx", "bash", "javascript", "rust", "java", "yaml" },
+                ensure_installed = { "cuda", "c", "cpp", "c_sharp", "cmake", "dockerfile", "lua", "vim", "python", "typescript", "tsx", "bash", "javascript", "rust", "java", "yaml", "glsl" },
                 sync_install = false,
                 highlight = { enable = true, additional_vim_regex_highlighting = { "python" } }, -- Python regex highlight is a fix for https://github.com/nvim-treesitter/nvim-treesitter/discussions/1951
                 -- indent = { enable = true },
@@ -261,7 +261,8 @@ require("lazy").setup({
                     'lua_ls',
                     'tsserver',
                     'bashls',
-                    'dockerls'
+                    'dockerls',
+                    'glslls'
                 },
                 handlers = {
                     lsp_zero.default_setup,
