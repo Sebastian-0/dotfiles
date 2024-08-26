@@ -190,7 +190,7 @@ require("lazy").setup({
                 },
                 on_attach = function(_)
                     local gs = package.loaded.gitsigns
-                    vim.keymap.set('n', '<leader>hd', gs.diffthis)
+                    vim.keymap.set('n', '<leader>gd', gs.diffthis)
                 end
             })
         end
@@ -201,7 +201,7 @@ require("lazy").setup({
         init = function()
             vim.g.git_messenger_no_default_mappings = true
             vim.g.git_messenger_always_into_popup = true
-            vim.keymap.set('n', '<leader>hb', ':GitMessenger<CR>')
+            vim.keymap.set('n', '<leader>gh', ':GitMessenger<CR>')
         end
     },
     {
