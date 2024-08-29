@@ -185,6 +185,16 @@ gii() {
 # If they don't exist you can force-load them with `_completion_loader`
 _completion_loader git
 
+function _alias_completion::gil {
+    ((COMP_CWORD += 1))
+    COMP_WORDS=(git switch ${COMP_WORDS[@]:1})
+    ((COMP_POINT -= ${#COMP_LINE}))
+    COMP_LINE=${COMP_LINE/gil/git log}
+    ((COMP_POINT += ${#COMP_LINE}))
+    __git_wrap__git_main
+}
+complete -o bashdefault -o default -o nospace -F _alias_completion::gil gil
+
 function _alias_completion::gisw {
     ((COMP_CWORD += 1))
     COMP_WORDS=(git switch ${COMP_WORDS[@]:1})
