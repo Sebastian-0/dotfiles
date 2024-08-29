@@ -243,6 +243,7 @@ for_window [class="terminal_dropdown"] floating enable
 for_window [title="yad-calendar"] floating enable
 for_window [class="org.remmina.Remmina"] floating enable
 for_window [class="Intui"] floating enable
+for_window [class="tuxedo-control-center"] floating enable
 
 # Plasma compatibility improvements
 for_window [window_role="pop-up"] floating enable
