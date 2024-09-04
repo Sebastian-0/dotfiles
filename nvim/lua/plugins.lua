@@ -1,6 +1,6 @@
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
-if not vim.loop.fs_stat(lazypath) then
-    vim.fn.system({
+if not (vim.uv or vim.loop).fs_stat(lazypath) then
+    local out = vim.fn.system({
         "git",
         "clone",
         "--filter=blob:none",
@@ -8,6 +8,15 @@ if not vim.loop.fs_stat(lazypath) then
         "--branch=stable", -- latest stable release
         lazypath,
     })
+    if vim.v.shell_error ~= 0 then
+        vim.api.nvim_echo({
+            { "Failed to clone lazy.nvim:\n", "ErrorMsg" },
+            { out, "WarningMsg" },
+            { "\nPress any key to exit..." },
+        }, true, {})
+        vim.fn.getchar()
+        os.exit(1)
+    end
 end
 vim.opt.rtp:prepend(lazypath)
 
@@ -80,7 +89,7 @@ require("lazy").setup({
     },
     {
         'nvim-lualine/lualine.nvim',
-        commit='0a5a668',
+        commit='b431d22',
         dependencies = {
             {
                 'nvim-tree/nvim-web-devicons',
@@ -132,7 +141,7 @@ require("lazy").setup({
     },
     {
         "kylechui/nvim-surround",
-        version = "2.1.x",
+        version = "2.3.x",
         event = "VeryLazy",
         config = function()
             require("nvim-surround").setup({})
@@ -148,7 +157,7 @@ require("lazy").setup({
             },
             {
                 'nvim-tree/nvim-web-devicons',
-                commit = 'b77921f'
+                commit = '3722e3d'
             },
             {
                 "MunifTanjim/nui.nvim",
@@ -181,7 +190,7 @@ require("lazy").setup({
     },
     {
         "lewis6991/gitsigns.nvim",
-        version = "0.8.x",
+        version = "0.9.x",
         config = function()
             require('gitsigns').setup({
                 current_line_blame = true,
@@ -197,7 +206,7 @@ require("lazy").setup({
     },
     {
         "rhysd/git-messenger.vim",
-        commit = '8a61bdf',
+        commit = '188da08',
         init = function()
             vim.g.git_messenger_no_default_mappings = true
             vim.g.git_messenger_always_into_popup = true
@@ -205,15 +214,17 @@ require("lazy").setup({
         end
     },
     {
-        "folke/neodev.nvim",
-        version = "2.5.x",
-        opts = {},
-        lazy = false,
-        priority = 51
+        "folke/lazydev.nvim",
+        version = "1.8.0",
+        ft = "lua",
+        config = function()
+            require("lazydev").setup()
+        end
+
     },
     {
         'VonHeikemen/lsp-zero.nvim',
-        branch = 'v3.x',
+        branch = 'v4.x',
         dependencies = {
             {
                 'williamboman/mason.nvim',
@@ -221,7 +232,7 @@ require("lazy").setup({
             },
             {
                 'williamboman/mason-lspconfig.nvim',
-                version = '1.29.x'
+                version = '1.30.x'
             },
             {
                 'neovim/nvim-lspconfig',
@@ -229,7 +240,7 @@ require("lazy").setup({
             },
             {
                 'hrsh7th/nvim-cmp',
-                commit = '5260e5e'
+                commit = 'ae644fe'
             },
             {
                 'hrsh7th/cmp-path',
@@ -247,9 +258,16 @@ require("lazy").setup({
         config = function()
             local lsp_zero = require('lsp-zero')
 
-            lsp_zero.on_attach(function(_, bufnr)
-                lsp_zero.default_keymaps({ buffer = bufnr })
-            end)
+            local lsp_attach = function(_, bufnr)
+                lsp_zero.default_keymaps({buffer = bufnr})
+            end
+
+            lsp_zero.extend_lspconfig({
+                capabilities = require('cmp_nvim_lsp').default_capabilities(),
+                lsp_attach = lsp_attach,
+                float_border = 'rounded',
+                sign_text = true,
+            })
 
             require('mason').setup({})
             require('mason-lspconfig').setup({
@@ -349,7 +367,13 @@ require("lazy").setup({
                     end, { "i", "s" }),
                     ['<CR>'] = cmp.mapping.confirm({ select = true }),
                     ['<C-Space>'] = cmp.mapping.complete(),
-                })
+                }),
+                snippet = { -- I don't know when this is useful...
+                    expand = function(args)
+                        require('luasnip').lsp_expand(args.body)
+                    end,
+                },
+
             })
         end
     },
