@@ -139,44 +139,31 @@ require("lazy").setup({
         end
     },
     {
-        "nvim-neo-tree/neo-tree.nvim",
-        branch = "v3.x",
-        dependencies = {
-            {
-                'nvim-lua/plenary.nvim',
-                version = '0.1.4'
-            },
-            {
-                'nvim-tree/nvim-web-devicons',
-                commit = 'b77921f'
-            },
-            {
-                "MunifTanjim/nui.nvim",
-                version = '0.3.x'
-            }
+        "mikavilpas/yazi.nvim",
+        tag = "v6.0.4",
+        event = "VeryLazy",
+        opts = {
+            open_for_directories = true,
         },
-        config = function()
-            require("neo-tree").setup({
-                window = {
-                    position = "current",
-                    mappings = {
-                        ["l"] = "open"
-                    }
-                },
-                filesystem = {
-                    hijack_netrw_behavior = "open_default"
-                },
-                event_handlers = {
-                    {
-                        event = "neo_tree_buffer_enter",
-                        handler = function(_)
-                            vim.opt.relativenumber = true
-                            vim.opt.number = true
-                        end,
-                    }
-                },
-            })
-            vim.api.nvim_create_user_command("Ex", "Neotree", {}) -- Unclear why this is needed... I thought the hijack setting should deal with this...
+        keys = {
+            {
+                "<leader>yf",
+                "<cmd>Yazi<cr>",
+                desc = "Open yazi at the current file",
+            },
+            {
+                "<leader>yw",
+                "<cmd>Yazi cwd<cr>",
+                desc = "Open the file manager in nvim's working directory" ,
+            },
+            {
+                "<leader>yy",
+                "<cmd>Yazi toggle<cr>",
+                desc = "Resume the last yazi session",
+            },
+        },
+        init = function()
+            vim.api.nvim_create_user_command("Ex", "Yazi toggle", {})
         end
     },
     {
