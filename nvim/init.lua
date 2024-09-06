@@ -69,6 +69,11 @@ vim.api.nvim_create_autocmd("FileType", {
     end
 })
 
+-- Managing diagnostics
+vim.keymap.set('n', 'gl', '<cmd>lua vim.diagnostic.open_float()<cr>', {desc = 'Open diagnostics in floating'})
+vim.keymap.set('n', '[d', '<cmd>lua vim.diagnostic.goto_prev()<cr>', {desc = 'Go to previous diagnostic'})
+vim.keymap.set('n', ']d', '<cmd>lua vim.diagnostic.goto_next()<cr>', {desc = 'Go to next diagnostic'})
+
 -- Moving lines of code
 vim.keymap.set("n", "<a-j>", ":m .+1<CR>==")
 vim.keymap.set("n", "<a-k>", ":m .-2<CR>==")
