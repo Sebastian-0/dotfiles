@@ -53,7 +53,8 @@ require("lazy").setup({
     },
     {
         "nvim-treesitter/nvim-treesitter",
-        version = '0.9.x',
+        -- version = '0.9.x',
+        commit = '0345294',
         build = ":TSUpdate",
         config = function()
             local configs = require("nvim-treesitter.configs")
