@@ -91,6 +91,10 @@ vim.keymap.set("n", "N", "Nzzzv")
 -- Make Y copy rest of line
 vim.keymap.set("n", "Y", "y$")
 
+-- Move up/down visual editor lines (when lines are auto wrapped)
+vim.keymap.set("n", "j", "gj")
+vim.keymap.set("n", "k", "gk")
+
 -- Extra save and quit commands
 vim.api.nvim_create_user_command("Q", "q", {})
 vim.api.nvim_create_user_command("W", "w", {})
