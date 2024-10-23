@@ -105,9 +105,9 @@ require("lazy").setup({
                     theme = "catppuccin"
                 }, sections = {
                 lualine_a = { 'mode' },
-                lualine_b = { 'branch', 'diff', 'diagnostics' },
+                lualine_b = { 'diff', 'diagnostics' },
                 lualine_c = { 'filename' },
-                lualine_x = { 'os.date("%d %b %H:%M")', 'encoding', 'fileformat', 'filetype' },
+                lualine_x = { 'os.date("%d %b %H:%M")', 'encoding', 'fileformat', {'filetype', icon_only = true} },
                 lualine_y = { 'progress' },
                 lualine_z = { 'location' }
             },
