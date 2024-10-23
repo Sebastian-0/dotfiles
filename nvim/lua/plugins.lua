@@ -24,7 +24,8 @@ vim.opt.rtp:prepend(lazypath)
 require("lazy").setup({
     {
         'nvim-telescope/telescope.nvim',
-        version = '0.1.x',
+        -- version = '0.1.x',
+        commit = 'df534c3',
         dependencies = {
             {
                 'nvim-lua/plenary.nvim',
