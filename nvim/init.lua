@@ -82,6 +82,13 @@ vim.keymap.set("i", "<a-k>", "<Esc>:m .-2<CR>==gi")
 vim.keymap.set("v", "<a-j>", ":m '>+1<CR>gv=gv")
 vim.keymap.set("v", "<a-k>", ":m '<-2<CR>gv=gv")
 
+vim.keymap.set("n", "<a-down>", "<a-j>", {remap = true})
+vim.keymap.set("n", "<a-up>", "<a-k>", {remap = true})
+vim.keymap.set("i", "<a-down>", "<a-j>", {remap = true})
+vim.keymap.set("i", "<a-up>", "<a-k>", {remap = true})
+vim.keymap.set("v", "<a-down>", "<a-j>", {remap = true})
+vim.keymap.set("v", "<a-up>", "<a-k>", {remap = true})
+
 -- Center view when jumping
 -- vim.keymap.set("n", "<C-d>", "<C-d>zz")  -- These doesn't work with neoscroll enabled...
 -- vim.keymap.set("n", "<c-u>", "<C-u>zz")
