@@ -244,5 +244,13 @@ vim.api.nvim_create_autocmd(
     }
 )
 
+-- TODO: Set different keybinds
+vim.keymap.set('n', '<F6>',  ":JupyterRunFile<CR>")
+vim.keymap.set('n', '<F5>',  ":JupyterSendCell<CR>")
+vim.keymap.set('n', '<F8>',  ":PythonSetBreak<CR>")
+vim.keymap.set('n', '<F9>',  ":JupyterRunFile %:p --verbose --plot <CR>")
+vim.keymap.set('n', '<F10>', ":JupyterCd %:p:h<CR>")
+vim.keymap.set('n', '<F11>', ":JupyterConnect<CR>")
+
 -- Plugins
 require("plugins")

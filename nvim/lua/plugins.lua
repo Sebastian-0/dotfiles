@@ -380,6 +380,9 @@ require("lazy").setup({
             })
         end
     },
+    {
+        'jupyter-vim/jupyter-vim',
+    }
 })
 
 -- Enable theme
