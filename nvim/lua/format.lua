@@ -1,4 +1,6 @@
 
+local debug = false
+
 local function run_formatter(path, args)
     for i = 1,#args do
         if args[i] == "%" then
@@ -23,7 +25,7 @@ local function run_formatter(path, args)
     end
 end
 
-function file_exists(name)
+local function file_exists(name)
    local f=io.open(name,"r")
    if f~=nil then
        io.close(f)
@@ -32,6 +34,36 @@ function file_exists(name)
        return false
    end
 end
+
+local function slice(tbl, start, len)
+    local res = {}
+    for i = start,start+len-1 do
+        table.insert(res, tbl[i])
+    end
+    return res
+end
+
+local function create_edit(new_text, l_start, l_end, c_start, c_end)
+    -- Reduce by one to comply with the LSP spec for text diffs (zero indexed):
+    -- https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#range
+    local line_start = l_start - 1
+    local line_end = l_end - 1
+    local char_start = c_start
+    local char_end = c_end
+    return {
+        newText = new_text,
+        range = {
+            start = {
+                line = line_start,
+                character = char_start,
+            },
+            ["end"] = {
+            line = line_end,
+            character = char_end,
+        },
+    },
+}
+    end
 
 vim.api.nvim_create_user_command('RunFormatter', function(opts)
     local buffer = 0
@@ -55,12 +87,12 @@ vim.api.nvim_create_user_command('RunFormatter', function(opts)
     end
 
     -- Create a temporary file and write buffer contents
+    local orig_lines = vim.api.nvim_buf_get_lines(buffer, 0, -1, true)
     local file_name = os.tmpname() .. "." .. name
     local file, err = io.open(file_name, "w+")
     if file then
-        local lines = vim.api.nvim_buf_get_lines(buffer, 0, -1, true)
-        for idx = 1,#lines do
-            local success, err = file:write(lines[idx] .. "\n") -- NOTE: This assumes \n and not \r\n
+        for idx = 1,#orig_lines do
+            local success, err = file:write(orig_lines[idx] .. "\n") -- NOTE: This assumes \n and not \r\n
             if not success then
                 print("Failed to write to file " .. file_name .. ", reason: " .. err)
                 print(" ") -- Extra line in case output is swallowed by prompt
@@ -70,6 +102,7 @@ vim.api.nvim_create_user_command('RunFormatter', function(opts)
     else
         print("Failed to open file for writing " .. file_name .. ", reason: " .. err)
         print(" ") -- Extra line in case output is swallowed by prompt
+        return
     end
 
     -- Run formatter on the temporary file
@@ -92,35 +125,82 @@ vim.api.nvim_create_user_command('RunFormatter', function(opts)
         run_formatter(file_name, {"python3", vim.fn.stdpath("config") .. "/format_xml.py", "--input", "%", "--output", "%"})
     end
 
-    -- Copy temporary file back into buffer
+    -- Read formatted file
+    local new_lines = {}
     file, err = io.open(file_name, "r")
     if file then
-        local lines = {}
         for line in file:lines() do
-            table.insert(lines, line)
+            table.insert(new_lines, line)
         end
-        vim.api.nvim_buf_set_lines(buffer, 0, -1, true, lines)
+        -- vim.api.nvim_buf_set_lines(buffer, 0, -1, true, new_lines)
         file:close()
     else
         print("Failed to open file for reading " .. file_name .. ", reason: " .. err)
         print(" ") -- Extra line in case output is swallowed by prompt
+        return
     end
 
     local success, err = os.remove(file_name)
     if not success then
         print("Failed to delete temp file " .. file_name .. ", reason: " .. err)
         print(" ") -- Extra line in case output is swallowed by prompt
+        return
     end
+
+    -- Find diffs and apply
+    local orig_text = table.concat(orig_lines, "\n")
+    local new_text = table.concat(new_lines, "\n")
+    local indices = vim.diff(orig_text, new_text, {result_type = 'indices', algorithm = 'histogram'})
+    if debug then
+        local function ptbl(tbl)
+            local str = ""
+            for idx = 1,#tbl do
+                local tmp = tbl[idx]
+                if type(tmp) == "table" then
+                    ptbl(tmp)
+                else
+                    str = str .. tmp .. " "
+                end
+            end
+            print(str)
+        end
+
+        ptbl(indices)
+        print(" ")
+    end
+
+    local edits = {}
+    for _, idx in ipairs(indices) do
+        local o_start, o_len, n_start, n_len = unpack(idx)
+        local new_text = table.concat(slice(new_lines, n_start, n_len), "\n")
+        if o_len == 0 then
+            -- Insertion
+            if o_start < #orig_lines then
+                new_text = new_text .. "\n"
+            end
+            table.insert(edits, create_edit(new_text, o_start + 1, o_start + 1, 0, 0))
+        elseif n_len == 0 then
+            -- Deletion
+            table.insert(edits, create_edit("", o_start, o_start + o_len - 1 + 1, 0, 0))
+        else
+            -- Replacement, could be improved by diffing within the lines too
+            table.insert(edits, create_edit(new_text, o_start, o_start + o_len - 1, 0, orig_lines[o_start + o_len - 1]:len()))
+        end
+    end
+    if debug then
+        for _, edit in ipairs(edits) do
+            print("Edit:")
+            print("- " .. edit.newText)
+            print("- start: " .. edit.range.start.line .. ", "  .. edit.range.start.character)
+            print("- end: " .. edit.range["end"].line .. ", "  .. edit.range["end"].character)
+        end
+        print(" ")
+    end
+
+    vim.lsp.util.apply_text_edits(edits, buffer, "utf-8")
 end, { nargs='?'})
 
--- TODO The proper way to implement format on save is to use BufWritePre and
---      edit the buffer in place. Then we need to access the buffer in a general
---      way that works for all formatters. Maybe take inspiration from:
---      /usr/share/clang/clang-format-14/clang-format.py
---      Probably we need to write the buffer to another file, then format, and
---      then read the file and overwrite the vim buffer.
---
---      We also want to support files with shebangs and no extension, e.g. detect
+-- TODO We also want to support files with shebangs and no extension, e.g. detect
 --      /.../sh and /.../python and map to an appropriate language
 vim.api.nvim_create_autocmd(
     "BufWritePre",
