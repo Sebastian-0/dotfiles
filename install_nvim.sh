@@ -13,7 +13,7 @@ if ! which nvim >&/dev/null; then
         npm=
     fi
     if is_ubuntu; then
-        sudo apt-get install -y ripgrep xclip fd-find python3-venv shellcheck python3-pynvim $npm
+        sudo apt-get install -y --no-install-recommends ripgrep xclip fd-find python3-venv shellcheck python3-pynvim $npm
         sudo update-alternatives --install /usr/bin/editor editor "$(which nvim)" 100
         if [ -f ~/.selected_editor ]; then
             echo SELECTED_EDITOR="\"$(which nvim)\"" > ~/.selected_editor
