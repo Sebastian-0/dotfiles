@@ -43,7 +43,7 @@ else
     echo "Unsupported OS!"
     exit 1
 fi
-if grep -q zoxide ~/.bashrc; then
+if ! grep -q zoxide ~/.bashrc; then
     cat << EOF >> ~/.bashrc
 # cd aliases
 if which zoxide >&/dev/null; then
