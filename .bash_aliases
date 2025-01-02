@@ -42,6 +42,14 @@ fi
 alias sudo='sudo ' # Needed to make aliases work for sudo
 alias ip='ip --color'
 
+# Nmtui color fixes, see:
+# - Colorable objects: https://github.com/mlichvar/newt/blob/ecd43ab512e707f6e7873368871b517ed3206859/newt.c#L234
+# - Possible colors: black, gray, red, brightred, green, brightgreen, brown, yellow, blue,
+#                    brightblue, magenta, brightmagenta, cyan, brightcyan, lightgray, white
+#                    See: https://www.jedsoft.org/slang/doc/html/cslang-8.html
+# - Parsing of colors: https://github.com/NetworkManager/NetworkManager/blob/83d99669f53557aeed2934d0687339ba8adf64d1/src/libnmt-newt/nmt-newt-utils.c#L122
+alias nmtui="NEWT_COLORS='entry=black,white;label=black,white' nmtui"
+
 function mkcd() {
     if [ "$#" -eq 1 ]; then
         mkdir "$1"
