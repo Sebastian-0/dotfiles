@@ -41,6 +41,7 @@ fi
 # Misc aliases
 alias sudo='sudo ' # Needed to make aliases work for sudo
 alias ip='ip --color'
+alias gnome-control-center='env XDG_CURRENT_DESKTOP=GNOME gnome-control-center'
 
 # Nmtui color fixes, see:
 # - Colorable objects: https://github.com/mlichvar/newt/blob/ecd43ab512e707f6e7873368871b517ed3206859/newt.c#L234
