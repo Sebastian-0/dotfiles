@@ -25,7 +25,7 @@ require("lazy").setup({
     {
         'nvim-telescope/telescope.nvim',
         -- version = '0.1.x',
-        commit = 'df534c3',
+        commit = '5899106',
         dependencies = {
             {
                 'nvim-lua/plenary.nvim',
@@ -55,7 +55,7 @@ require("lazy").setup({
     {
         "nvim-treesitter/nvim-treesitter",
         -- version = '0.9.x',
-        commit = '0345294',
+        commit = '5774e7d',
         build = ":TSUpdate",
         config = function()
             local configs = require("nvim-treesitter.configs")
@@ -92,11 +92,11 @@ require("lazy").setup({
     },
     {
         'nvim-lualine/lualine.nvim',
-        commit='b431d22',
+        commit='f4f791f',
         dependencies = {
             {
                 'nvim-tree/nvim-web-devicons',
-                commit = 'b77921f'
+                commit = '1020869'
             }
         },
         config = function()
@@ -116,7 +116,7 @@ require("lazy").setup({
     },
     {
         "karb94/neoscroll.nvim",
-        commit = 'af764ab',
+        commit = 'f957373',
         opts = {
             stop_eof = false,
             easing_function = "quadratic",
@@ -160,7 +160,7 @@ require("lazy").setup({
             },
             {
                 'nvim-tree/nvim-web-devicons',
-                commit = '3722e3d'
+                commit = '1020869'
             },
             {
                 "MunifTanjim/nui.nvim",
@@ -193,7 +193,7 @@ require("lazy").setup({
     },
     {
         "lewis6991/gitsigns.nvim",
-        version = "0.9.x",
+        version = "1.0.x",
         config = function()
             require('gitsigns').setup({
                 current_line_blame = true,
@@ -209,7 +209,7 @@ require("lazy").setup({
     },
     {
         "rhysd/git-messenger.vim",
-        commit = '188da08',
+        commit = 'edc603d',
         init = function()
             vim.g.git_messenger_no_default_mappings = true
             vim.g.git_messenger_always_into_popup = true
@@ -218,7 +218,7 @@ require("lazy").setup({
     },
     {
         "folke/lazydev.nvim",
-        version = "1.8.0",
+        version = "1.9.x",
         ft = "lua",
         config = function()
             require("lazydev").setup()
@@ -231,19 +231,19 @@ require("lazy").setup({
         dependencies = {
             {
                 'williamboman/mason.nvim',
-                version = '1.10.x'
+                version = '1.11.x'
             },
             {
                 'williamboman/mason-lspconfig.nvim',
-                version = '1.30.x'
+                version = '1.32.x'
             },
             {
                 'neovim/nvim-lspconfig',
-                version = '0.1.8'
+                version = '1.6.0'
             },
             {
                 'hrsh7th/nvim-cmp',
-                commit = 'ae644fe'
+                commit = '1250990'
             },
             {
                 'hrsh7th/cmp-path',
@@ -251,7 +251,7 @@ require("lazy").setup({
             },
             {
                 'hrsh7th/cmp-nvim-lsp',
-                commit = '39e2eda'
+                commit = '99290b3'
             },
             {
                 'L3MON4D3/LuaSnip',
@@ -280,10 +280,11 @@ require("lazy").setup({
                     'rust_analyzer',
                     'pylsp',
                     'lua_ls',
-                    'tsserver',
+                    'ts_ls',
                     'bashls',
                     'dockerls',
-                    'glslls'
+                    'glslls',
+                    'html'
                 },
                 handlers = {
                     lsp_zero.default_setup,
