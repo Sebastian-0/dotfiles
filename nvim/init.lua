@@ -95,6 +95,9 @@ vim.keymap.set("v", "<a-up>", "<a-k>", {remap = true})
 vim.keymap.set("n", "n", "nzzzv")
 vim.keymap.set("n", "N", "Nzzzv")
 
+-- Jump back after reindenting
+vim.keymap.set("n", "=ap", "ma =ap `a")
+
 -- Make Y copy rest of line
 vim.keymap.set("n", "Y", "y$")
 
