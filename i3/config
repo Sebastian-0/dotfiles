@@ -200,6 +200,7 @@ exec_always --no-startup-id setxkbmap -layout se -variant swerty
 exec_always --no-startup-id picom -f -i 0.95 --opacity-rule "100:class_g = 'i3lock'"
 exec --no-startup-id $HOME/.config/i3/wallpaper/random.sh
 exec --no-startup-id dunst
+exec --no-startup-id fcitx5
 
 # Borders
 default_border pixel 3
