@@ -4,7 +4,7 @@ set -euo pipefail
 . utils.sh
 
 if is_ubuntu; then
-    sudo apt-get install -y ufw
+    sudo apt-get install -y --no-install-recommends ufw
 elif is_arch; then
     sudo pacman -S --needed --noconfirm ufw
 else

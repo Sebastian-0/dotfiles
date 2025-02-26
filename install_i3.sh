@@ -12,10 +12,10 @@ read -rp "Press enter to start..."
 if ! which i3 >&/dev/null; then
     echo "Installing packages..."
     if is_ubuntu; then
-        sudo apt-get install -y i3 feh xss-lock wmctrl scrot picom dunst rofi pulseaudio-utils playerctl brightnessctl polybar flameshot imagemagick yad libsass1 python3-virtualenv
+        sudo apt-get install -y --no-install-recommends i3 feh xss-lock wmctrl scrot picom dunst rofi pulseaudio-utils playerctl brightnessctl polybar flameshot imagemagick yad libsass1 python3-virtualenv
 
         # Build i3lock-color
-        sudo apt-get install -y autoconf gcc make pkg-config libpam0g-dev libcairo2-dev libfontconfig1-dev libxcb-composite0-dev libev-dev libx11-xcb-dev libxcb-xkb-dev libxcb-xinerama0-dev libxcb-randr0-dev libxcb-image0-dev libxcb-util-dev libxcb-xrm-dev libxkbcommon-dev libxkbcommon-x11-dev libjpeg-dev
+        sudo apt-get install -y --no-install-recommends autoconf gcc make pkg-config libpam0g-dev libcairo2-dev libfontconfig1-dev libxcb-composite0-dev libev-dev libx11-xcb-dev libxcb-xkb-dev libxcb-xinerama0-dev libxcb-randr0-dev libxcb-image0-dev libxcb-util-dev libxcb-xrm-dev libxkbcommon-dev libxkbcommon-x11-dev libjpeg-dev
 
         git clone https://github.com/Raymo111/i3lock-color.git
         cd i3lock-color
@@ -24,7 +24,7 @@ if ! which i3 >&/dev/null; then
         rm -rf i3lock-color
 
         # Clipmenu
-        sudo apt-get install -y xsel libxcomposite-dev
+        sudo apt-get install -y --no-install-recommends xsel libxcomposite-dev
 
         git clone https://github.com/cdown/clipnotify.git
         cd clipnotify
@@ -41,7 +41,7 @@ if ! which i3 >&/dev/null; then
         # Older Ubuntu
         if grep -q "22.04" /etc/os-release; then
             echo "Manually build i3-gaps..."
-            sudo apt-get install -y libcairo2-dev libpango1.0-dev libyajl-dev libxcb-icccm4-dev libxcb-keysyms1-dev libxcb-cursor-dev libstartup-notification0-dev xmlto meson asciidoc
+            sudo apt-get install -y --no-install-recommends libcairo2-dev libpango1.0-dev libyajl-dev libxcb-icccm4-dev libxcb-keysyms1-dev libxcb-cursor-dev libstartup-notification0-dev xmlto meson asciidoc
             git clone https://github.com/Airblader/i3 i3-gaps
             cd i3-gaps
             git checkout gaps
