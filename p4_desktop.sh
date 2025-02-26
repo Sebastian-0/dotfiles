@@ -10,6 +10,7 @@ read -rp "Press enter to continue..."
 ./install_nvim.sh
 ./install_terminal.sh
 ./install_i3.sh
+./install_chinese.sh
 
 echo ""
 echo -e "[\e[1;32mSUCCESS\e[0m] Installation completed successfully!"
