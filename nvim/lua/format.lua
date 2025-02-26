@@ -1,7 +1,8 @@
 
 local debug = false
 
-local function run_formatter(path, args)
+local prev_warned_missing = {}
+local function run_formatter(path, ext, args)
     for i = 1,#args do
         if args[i] == "%" then
             args[i] = path
@@ -12,8 +13,12 @@ local function run_formatter(path, args)
     end
     local ok, res = pcall(wrap)
     if not ok then
-        print("Formatter", args[1], "not installed")
-        print(" ")
+        local key = ext .. args[1]
+        if not prev_warned_missing[key] then
+            print("Formatter", args[1], "not installed")
+            print(" ")
+            prev_warned_missing[key] = true
+        end
     else
         if res.code ~= 0 then
             print("Formatting failed!")
