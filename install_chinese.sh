@@ -4,8 +4,8 @@ set -euo pipefail
 . utils.sh
 
 echo "Install fcitx5..."
-if [ "$(is_ubuntu)" = "true" ]; then
-    sudo apt-get install -y fcitx5 fcitx5-chinese-addons fcitx5-configtool
+if is_ubuntu; then
+    sudo apt-get install -y --no-install-recommends fcitx5 fcitx5-chinese-addons fcitx5-configtool
 else
     sudo pacman -S --needed --noconfirm fcitx5 fcitx5-chinese-addons fcitx5-configtool
 fi

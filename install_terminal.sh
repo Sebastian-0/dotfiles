@@ -7,8 +7,8 @@ set -euo pipefail
 
 echo "Install tdrop..."
 if ! which tdrop >&/dev/null; then
-    if [ "$(is_ubuntu)" = "true" ]; then
-        sudo apt-get install -y xdotool x11-utils gawk
+    if is_ubuntu; then
+        sudo apt-get install -y --no-install-recommends xdotool x11-utils gawk
     else
         sudo pacman -S --needed --noconfirm xorg-xprop xdotool xorg-xwininfo gawk
     fi
