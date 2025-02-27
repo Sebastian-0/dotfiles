@@ -117,7 +117,6 @@ require("lazy").setup({
             }
         end
     },
-    {"karb94/neoscroll.nvim", commit = 'f957373', opts = {stop_eof = false, easing_function = "quadratic"}},
     {
         "terrortylor/nvim-comment",
         commit = 'e9ac16a',
@@ -125,9 +124,6 @@ require("lazy").setup({
             require("nvim_comment").setup()
         end
     },
-    {"ryanoasis/vim-devicons", version = '0.11.x'},
-    {"lambdalisue/suda.vim", version = "1.2.x"},
-    {"Vimjas/vim-python-pep8-indent", commit = '60ba5e1', ft = "python"},
     {
         "kylechui/nvim-surround",
         version = "2.3.x",
@@ -330,6 +326,10 @@ require("lazy").setup({
             })
         end
     },
+    {"karb94/neoscroll.nvim", commit = 'f957373', opts = {stop_eof = false, easing_function = "quadratic"}},
+    {"ryanoasis/vim-devicons", version = '0.11.x'},
+    {"lambdalisue/suda.vim", version = "1.2.x"},
+    {"Vimjas/vim-python-pep8-indent", commit = '60ba5e1', ft = "python"},
     {'jupyter-vim/jupyter-vim'}
 })
 
