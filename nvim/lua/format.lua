@@ -1,9 +1,8 @@
-
 local debug = false
 
 local prev_warned_missing = {}
 local function run_formatter(path, ext, args)
-    for i = 1,#args do
+    for i = 1, #args do
         if args[i] == "%" then
             args[i] = path
         end
@@ -31,18 +30,18 @@ local function run_formatter(path, ext, args)
 end
 
 local function file_exists(name)
-   local f=io.open(name,"r")
-   if f~=nil then
-       io.close(f)
-       return true
-   else
-       return false
-   end
+    local f = io.open(name, "r")
+    if f ~= nil then
+        io.close(f)
+        return true
+    else
+        return false
+    end
 end
 
 local function slice(tbl, start, len)
     local res = {}
-    for i = start,start+len-1 do
+    for i = start, start + len - 1 do
         table.insert(res, tbl[i])
     end
     return res
@@ -57,17 +56,8 @@ local function create_edit(new_text, l_start, l_end, c_start, c_end)
     local char_end = c_end
     return {
         newText = new_text,
-        range = {
-            start = {
-                line = line_start,
-                character = char_start,
-            },
-            ["end"] = {
-            line = line_end,
-            character = char_end,
-        },
-    },
-}
+        range = {start = {line = line_start, character = char_start}, ["end"] = {line = line_end, character = char_end}}
+    }
 end
 
 local function default_formatters(ext)
@@ -86,6 +76,17 @@ local function default_formatters(ext)
     elseif string.find("*.sh", ext) then
         -- return {"shfmt", "--indent", "4", "--space-redirects", "--case-indent", "--binary-next-line", "--language-dialect", "bash", "--write"}
         return {"shfmt", "-i", "4", "-sr", "-ci", "-bn", "-ln", "bash", "-w", "%"} -- Required for old version of shfmt...
+    elseif string.find("*.lua", ext) then
+        return {
+            "lua-format",
+            "--chop-down-table",
+            "--chop-down-kv-table",
+            "--no-keep-simple-function-one-line",
+            "--no-keep-simple-control-block-one-line",
+            "--column-limit=120",
+            "--in-place",
+            "%"
+        }
     elseif string.find("*.xml", ext) then
         return {"python3", vim.fn.stdpath("config") .. "/format_xml.py", "--input", "%", "--output", "%"}
     end
@@ -123,7 +124,7 @@ vim.api.nvim_create_user_command('RunFormatter', function(opts)
     local file_name = os.tmpname() .. "." .. name
     local file, err = io.open(file_name, "w+")
     if file then
-        for idx = 1,#orig_lines do
+        for idx = 1, #orig_lines do
             local success, err = file:write(orig_lines[idx] .. "\n") -- NOTE: This assumes \n and not \r\n
             if not success then
                 print("Failed to write to file " .. file_name .. ", reason: " .. err)
@@ -178,7 +179,7 @@ vim.api.nvim_create_user_command('RunFormatter', function(opts)
     if debug then
         local function ptbl(tbl)
             local str = ""
-            for idx = 1,#tbl do
+            for idx = 1, #tbl do
                 local tmp = tbl[idx]
                 if type(tmp) == "table" then
                     ptbl(tmp)
@@ -208,31 +209,29 @@ vim.api.nvim_create_user_command('RunFormatter', function(opts)
             table.insert(edits, create_edit("", o_start, o_start + o_len - 1 + 1, 0, 0))
         else
             -- Replacement, could be improved by diffing within the lines too
-            table.insert(edits, create_edit(new_text, o_start, o_start + o_len - 1, 0, orig_lines[o_start + o_len - 1]:len()))
+            table.insert(edits,
+                         create_edit(new_text, o_start, o_start + o_len - 1, 0, orig_lines[o_start + o_len - 1]:len()))
         end
     end
     if debug then
         for _, edit in ipairs(edits) do
             print("Edit:")
             print("- " .. edit.newText)
-            print("- start: " .. edit.range.start.line .. ", "  .. edit.range.start.character)
-            print("- end: " .. edit.range["end"].line .. ", "  .. edit.range["end"].character)
+            print("- start: " .. edit.range.start.line .. ", " .. edit.range.start.character)
+            print("- end: " .. edit.range["end"].line .. ", " .. edit.range["end"].character)
         end
         print(" ")
     end
 
     vim.lsp.util.apply_text_edits(edits, buffer, "utf-8")
-end, { nargs='?'})
+end, {nargs = '?'})
 
 -- TODO We also want to support files with shebangs and no extension, e.g. detect
 --      /.../sh and /.../python and map to an appropriate language
-vim.api.nvim_create_autocmd(
-    "BufWritePre",
-    {
-        pattern = "*",
-        group = vim.api.nvim_create_augroup("AutoFormat", { clear = true }),
-        callback = function(args)
-            vim.cmd( {cmd = "RunFormatter", args = {tostring(args.buf)}})
-        end,
-    }
-)
+vim.api.nvim_create_autocmd("BufWritePre", {
+    pattern = "*",
+    group = vim.api.nvim_create_augroup("AutoFormat", {clear = true}),
+    callback = function(args)
+        vim.cmd({cmd = "RunFormatter", args = {tostring(args.buf)}})
+    end
+})

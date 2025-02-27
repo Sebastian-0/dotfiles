@@ -11,12 +11,12 @@ vim.opt.breakindent = true
 vim.opt.breakindentopt = "shift:2"
 vim.opt.wildmode = "longest,list"
 vim.opt.ignorecase = true
---vim.opt.signcolumn = "yes" -- Could also set this to "number"
---vim.opt.completeopt = "menu" -- I don't notice the difference...
+-- vim.opt.signcolumn = "yes" -- Could also set this to "number"
+-- vim.opt.completeopt = "menu" -- I don't notice the difference...
 
 -- Increase performance of searches (https://github.com/neovim/neovim/issues/23590#issuecomment-1911925029)
 vim.api.nvim_create_autocmd("ColorScheme", {
-    group = vim.api.nvim_create_augroup("SearchSpeedup", { clear = true }),
+    group = vim.api.nvim_create_augroup("SearchSpeedup", {clear = true}),
     command = [[hi! link CurSearch Search]]
 })
 
@@ -28,42 +28,42 @@ vim.g.netrw_liststyle = 3
 vim.g.netrw_altv = 1
 vim.g.netrw_winsize = 75
 vim.g.netrw_list_hide = "\\(^\\|\\s\\s\\)\\zs\\.\\S\\+" -- Hide all dotfiles by default
---vim.g.netrw_browsex_viewer = "xdg-open" -- Controls what happens when pressing x over files, for some reason not working...
+-- vim.g.netrw_browsex_viewer = "xdg-open" -- Controls what happens when pressing x over files, for some reason not working...
 vim.g.netrw_bufsettings = "noma nomod nobl nowrap ro number relativenumber"
 
 -- Return to previous position when opening a file
 vim.api.nvim_create_autocmd("BufReadPost", {
-    group = vim.api.nvim_create_augroup("ReturnToLast", { clear = true }),
+    group = vim.api.nvim_create_augroup("ReturnToLast", {clear = true}),
     command = [[if line("'\"") > 1 && line("'\"") <= line("$") | execute "normal! g'\"" | endif]]
 })
 
 -- Stop automatic comments
 vim.api.nvim_create_autocmd("FileType", {
-    group = vim.api.nvim_create_augroup("NoAutoComment", { clear = true }),
+    group = vim.api.nvim_create_augroup("NoAutoComment", {clear = true}),
     callback = function()
-        vim.opt.formatoptions:remove({ "o", "r" })
+        vim.opt.formatoptions:remove({"o", "r"})
     end
 })
 
 -- Set filetype for glsl
 vim.api.nvim_create_autocmd({"BufRead", "BufNewFile"}, {
-    group = vim.api.nvim_create_augroup("GlslLangType", { clear = true }),
-    pattern = { "*.frag", "*.vert", "*.fs", "*.vs" },
+    group = vim.api.nvim_create_augroup("GlslLangType", {clear = true}),
+    pattern = {"*.frag", "*.vert", "*.fs", "*.vs"},
     command = [[set filetype=glsl]]
 })
 
 -- Set comment character for certain file types
 vim.api.nvim_create_autocmd("FileType", {
-    group = vim.api.nvim_create_augroup("CommentString", { clear = true }),
-    pattern = { "c", "cpp", "cuda", "glsl" },
+    group = vim.api.nvim_create_augroup("CommentString", {clear = true}),
+    pattern = {"c", "cpp", "cuda", "glsl"},
     command = [[setlocal commentstring=//\ %s]]
 })
 
 -- Add column showing maximum width for commit bodies
 vim.api.nvim_create_autocmd("FileType", {
-    group = vim.api.nvim_create_augroup("GitCommitBodyMarker", { clear = true }),
+    group = vim.api.nvim_create_augroup("GitCommitBodyMarker", {clear = true}),
     pattern = "gitcommit",
-    callback = function ()
+    callback = function()
         vim.opt.textwidth = 72
         vim.opt.colorcolumn = "73"
     end
@@ -116,10 +116,10 @@ vim.api.nvim_create_user_command("BD", "bp|sp|bn|bd", {})
 require("format")
 
 -- TODO: Set different keybinds
-vim.keymap.set('n', '<F6>',  ":JupyterRunFile<CR>")
-vim.keymap.set('n', '<F5>',  ":JupyterSendCell<CR>")
-vim.keymap.set('n', '<F8>',  ":PythonSetBreak<CR>")
-vim.keymap.set('n', '<F9>',  ":JupyterRunFile %:p --verbose --plot <CR>")
+vim.keymap.set('n', '<F6>', ":JupyterRunFile<CR>")
+vim.keymap.set('n', '<F5>', ":JupyterSendCell<CR>")
+vim.keymap.set('n', '<F8>', ":PythonSetBreak<CR>")
+vim.keymap.set('n', '<F9>', ":JupyterRunFile %:p --verbose --plot <CR>")
 vim.keymap.set('n', '<F10>', ":JupyterCd %:p:h<CR>")
 vim.keymap.set('n', '<F11>', ":JupyterConnect<CR>")
 

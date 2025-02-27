@@ -6,13 +6,13 @@ if not (vim.uv or vim.loop).fs_stat(lazypath) then
         "--filter=blob:none",
         "https://github.com/folke/lazy.nvim.git",
         "--branch=stable", -- latest stable release
-        lazypath,
+        lazypath
     })
     if vim.v.shell_error ~= 0 then
         vim.api.nvim_echo({
-            { "Failed to clone lazy.nvim:\n", "ErrorMsg" },
-            { out, "WarningMsg" },
-            { "\nPress any key to exit..." },
+            {"Failed to clone lazy.nvim:\n", "ErrorMsg"},
+            {out, "WarningMsg"},
+            {"\nPress any key to exit..."}
         }, true, {})
         vim.fn.getchar()
         os.exit(1)
@@ -26,12 +26,7 @@ require("lazy").setup({
         'nvim-telescope/telescope.nvim',
         -- version = '0.1.x',
         commit = '5899106',
-        dependencies = {
-            {
-                'nvim-lua/plenary.nvim',
-                version = '0.1.4'
-            }
-        },
+        dependencies = {{'nvim-lua/plenary.nvim', version = '0.1.4'}},
         config = function()
             local builtin = require('telescope.builtin')
             vim.keymap.set('n', '<leader>ff', builtin.find_files, {})
@@ -42,12 +37,8 @@ require("lazy").setup({
 
             require('telescope').setup {
                 pickers = {
-                    find_files = {
-                        find_command = { "rg", "--files", "--hidden", "--glob", "!**/.git/*" }
-                    },
-                    live_grep = {
-                        additional_args = { "--hidden", "--glob", "!**/.git/*", "--glob", "!*.lock" }
-                    }
+                    find_files = {find_command = {"rg", "--files", "--hidden", "--glob", "!**/.git/*"}},
+                    live_grep = {additional_args = {"--hidden", "--glob", "!**/.git/*", "--glob", "!*.lock"}}
                 }
             }
         end
@@ -61,10 +52,28 @@ require("lazy").setup({
             local configs = require("nvim-treesitter.configs")
 
             configs.setup({
-                ensure_installed = { "cuda", "c", "cpp", "c_sharp", "cmake", "dockerfile", "lua", "vim", "python", "typescript", "tsx", "bash", "javascript", "rust", "java", "yaml", "glsl" },
+                ensure_installed = {
+                    "cuda",
+                    "c",
+                    "cpp",
+                    "c_sharp",
+                    "cmake",
+                    "dockerfile",
+                    "lua",
+                    "vim",
+                    "python",
+                    "typescript",
+                    "tsx",
+                    "bash",
+                    "javascript",
+                    "rust",
+                    "java",
+                    "yaml",
+                    "glsl"
+                },
                 sync_install = false,
                 auto_install = true,
-                highlight = { enable = true, additional_vim_regex_highlighting = { "python" } }, -- Python regex highlight is a fix for https://github.com/nvim-treesitter/nvim-treesitter/discussions/1951
+                highlight = {enable = true, additional_vim_regex_highlighting = {"python"}} -- Python regex highlight is a fix for https://github.com/nvim-treesitter/nvim-treesitter/discussions/1951
                 -- indent = { enable = true },
             })
         end
@@ -78,10 +87,10 @@ require("lazy").setup({
                 integrations = {
                     treesitter = true,
                     telescope = {
-                        enabled = true,
+                        enabled = true
                         -- style = "nvchad"
                     }
-                },
+                }
                 -- custom_highlights = function(colors)
                 --     return {
                 --         CursorColumn = { bg = colors.surface0 }
@@ -92,36 +101,23 @@ require("lazy").setup({
     },
     {
         'nvim-lualine/lualine.nvim',
-        commit='f4f791f',
-        dependencies = {
-            {
-                'nvim-tree/nvim-web-devicons',
-                commit = '1020869'
-            }
-        },
+        commit = 'f4f791f',
+        dependencies = {{'nvim-tree/nvim-web-devicons', commit = '1020869'}},
         config = function()
             require("lualine").setup {
-                options = {
-                    theme = "catppuccin"
-                }, sections = {
-                lualine_a = { 'mode' },
-                lualine_b = { 'diff', 'diagnostics' },
-                lualine_c = { 'filename' },
-                lualine_x = { 'os.date("%d %b %H:%M")', 'encoding', 'fileformat', {'filetype', icon_only = true} },
-                lualine_y = { 'progress' },
-                lualine_z = { 'location' }
-            },
+                options = {theme = "catppuccin"},
+                sections = {
+                    lualine_a = {'mode'},
+                    lualine_b = {'diff', 'diagnostics'},
+                    lualine_c = {'filename'},
+                    lualine_x = {'os.date("%d %b %H:%M")', 'encoding', 'fileformat', {'filetype', icon_only = true}},
+                    lualine_y = {'progress'},
+                    lualine_z = {'location'}
+                }
             }
         end
     },
-    {
-        "karb94/neoscroll.nvim",
-        commit = 'f957373',
-        opts = {
-            stop_eof = false,
-            easing_function = "quadratic",
-        }
-    },
+    {"karb94/neoscroll.nvim", commit = 'f957373', opts = {stop_eof = false, easing_function = "quadratic"}},
     {
         "terrortylor/nvim-comment",
         commit = 'e9ac16a',
@@ -129,19 +125,9 @@ require("lazy").setup({
             require("nvim_comment").setup()
         end
     },
-    {
-        "ryanoasis/vim-devicons",
-        version = '0.11.x',
-    },
-    {
-        "lambdalisue/suda.vim",
-        version = "1.2.x"
-    },
-    {
-        "Vimjas/vim-python-pep8-indent",
-        commit = '60ba5e1',
-        ft = "python"
-    },
+    {"ryanoasis/vim-devicons", version = '0.11.x'},
+    {"lambdalisue/suda.vim", version = "1.2.x"},
+    {"Vimjas/vim-python-pep8-indent", commit = '60ba5e1', ft = "python"},
     {
         "kylechui/nvim-surround",
         version = "2.3.x",
@@ -154,39 +140,23 @@ require("lazy").setup({
         "nvim-neo-tree/neo-tree.nvim",
         branch = "v3.x",
         dependencies = {
-            {
-                'nvim-lua/plenary.nvim',
-                version = '0.1.4'
-            },
-            {
-                'nvim-tree/nvim-web-devicons',
-                commit = '1020869'
-            },
-            {
-                "MunifTanjim/nui.nvim",
-                version = '0.3.x'
-            }
+            {'nvim-lua/plenary.nvim', version = '0.1.4'},
+            {'nvim-tree/nvim-web-devicons', commit = '1020869'},
+            {"MunifTanjim/nui.nvim", version = '0.3.x'}
         },
         config = function()
             require("neo-tree").setup({
-                window = {
-                    position = "current",
-                    mappings = {
-                        ["l"] = "open"
-                    }
-                },
-                filesystem = {
-                    hijack_netrw_behavior = "open_default"
-                },
+                window = {position = "current", mappings = {["l"] = "open"}},
+                filesystem = {hijack_netrw_behavior = "open_default"},
                 event_handlers = {
                     {
                         event = "neo_tree_buffer_enter",
                         handler = function(_)
                             vim.opt.relativenumber = true
                             vim.opt.number = true
-                        end,
+                        end
                     }
-                },
+                }
             })
             vim.api.nvim_create_user_command("Ex", "Neotree", {}) -- Unclear why this is needed... I thought the hijack setting should deal with this...
         end
@@ -197,9 +167,7 @@ require("lazy").setup({
         config = function()
             require('gitsigns').setup({
                 current_line_blame = true,
-                current_line_blame_opts = {
-                    delay = 500
-                },
+                current_line_blame_opts = {delay = 500},
                 on_attach = function(_)
                     local gs = package.loaded.gitsigns
                     vim.keymap.set('n', '<leader>gd', gs.diffthis)
@@ -229,34 +197,13 @@ require("lazy").setup({
         'VonHeikemen/lsp-zero.nvim',
         branch = 'v4.x',
         dependencies = {
-            {
-                'williamboman/mason.nvim',
-                version = '1.11.x'
-            },
-            {
-                'williamboman/mason-lspconfig.nvim',
-                version = '1.32.x'
-            },
-            {
-                'neovim/nvim-lspconfig',
-                version = '1.6.0'
-            },
-            {
-                'hrsh7th/nvim-cmp',
-                commit = '1250990'
-            },
-            {
-                'hrsh7th/cmp-path',
-                commit = '91ff86c'
-            },
-            {
-                'hrsh7th/cmp-nvim-lsp',
-                commit = '99290b3'
-            },
-            {
-                'L3MON4D3/LuaSnip',
-                version = '2.3.x'
-            },
+            {'williamboman/mason.nvim', version = '1.11.x'},
+            {'williamboman/mason-lspconfig.nvim', version = '1.32.x'},
+            {'neovim/nvim-lspconfig', version = '1.6.0'},
+            {'hrsh7th/nvim-cmp', commit = '1250990'},
+            {'hrsh7th/cmp-path', commit = '91ff86c'},
+            {'hrsh7th/cmp-nvim-lsp', commit = '99290b3'},
+            {'L3MON4D3/LuaSnip', version = '2.3.x'}
         },
         config = function()
             local lsp_zero = require('lsp-zero')
@@ -269,7 +216,7 @@ require("lazy").setup({
                 capabilities = require('cmp_nvim_lsp').default_capabilities(),
                 lsp_attach = lsp_attach,
                 float_border = 'rounded',
-                sign_text = true,
+                sign_text = true
             })
 
             require('mason').setup({})
@@ -286,12 +233,11 @@ require("lazy").setup({
                     'glslls',
                     'html'
                 },
-                handlers = {
-                    lsp_zero.default_setup,
-                },
+                handlers = {lsp_zero.default_setup}
             })
 
             require("lspconfig").rust_analyzer.setup {
+                -- LuaFormatter off
                 settings = {
                     ["rust-analyzer"] = {
                         check = {
@@ -301,14 +247,16 @@ require("lazy").setup({
                         }
                     },
                 }
+                -- LuaFormatter on
             }
 
             require("lspconfig").pylsp.setup {
+                -- LuaFormatter off
                 settings = {
                     pylsp = {
                         plugins = {
                             pycodestyle = {
-                                ignore = { 'E501', 'E203', 'W503' },
+                                ignore = {'E501', 'E203', 'W503'},
                             },
                             mccabe = {
                                 enabled = false,
@@ -316,9 +264,11 @@ require("lazy").setup({
                         }
                     }
                 }
+                -- LuaFormatter on
             }
 
             require("lspconfig").lua_ls.setup {
+                -- LuaFormatter off
                 settings = {
                     Lua = {
                         workspace = {
@@ -326,26 +276,25 @@ require("lazy").setup({
                         }
                     }
                 }
+                -- LuaFormatter on
             }
 
             require("lspconfig").clangd.setup {
+                -- LuaFormatter off
                 cmd = {"clangd", "--clang-tidy", "--background-index"}
+                -- LuaFormatter on
             }
 
             local has_words_before = function()
                 unpack = unpack or table.unpack
                 local line, col = unpack(vim.api.nvim_win_get_cursor(0))
-                return col ~= 0 and
-                    vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match("%s") == nil
+                return col ~= 0 and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match("%s") ==
+                           nil
             end
             local luasnip = require('luasnip')
             local cmp = require('cmp')
             cmp.setup({
-                sources = cmp.config.sources({
-                    { name = "nvim_lsp" },
-                    { name = "luasnip" },
-                    { name = 'path' }
-                }),
+                sources = cmp.config.sources({{name = "nvim_lsp"}, {name = "luasnip"}, {name = 'path'}}),
                 mapping = cmp.mapping.preset.insert({
                     ["<Tab>"] = cmp.mapping(function(fallback)
                         if cmp.visible() then
@@ -359,7 +308,7 @@ require("lazy").setup({
                         else
                             fallback()
                         end
-                    end, { "i", "s" }),
+                    end, {"i", "s"}),
                     ["<S-Tab>"] = cmp.mapping(function(fallback)
                         if cmp.visible() then
                             cmp.select_prev_item()
@@ -368,22 +317,20 @@ require("lazy").setup({
                         else
                             fallback()
                         end
-                    end, { "i", "s" }),
-                    ['<CR>'] = cmp.mapping.confirm({ select = true }),
-                    ['<C-Space>'] = cmp.mapping.complete(),
+                    end, {"i", "s"}),
+                    ['<CR>'] = cmp.mapping.confirm({select = true}),
+                    ['<C-Space>'] = cmp.mapping.complete()
                 }),
                 snippet = { -- I don't know when this is useful...
                     expand = function(args)
                         require('luasnip').lsp_expand(args.body)
-                    end,
-                },
+                    end
+                }
 
             })
         end
     },
-    {
-        'jupyter-vim/jupyter-vim',
-    }
+    {'jupyter-vim/jupyter-vim'}
 })
 
 -- Enable theme
