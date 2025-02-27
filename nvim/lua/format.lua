@@ -68,7 +68,34 @@ local function create_edit(new_text, l_start, l_end, c_start, c_end)
         },
     },
 }
+end
+
+local function default_formatters(ext)
+    if string.find("*.py", ext) then
+        return {"black", "--quiet", "%"}
+    elseif string.find("*.h,*.cc,*.cpp,*.c,*.cu,*.hpp,*.vs,*.fs,*.vert,*.frag", ext) then
+        if file_exists(".clang-format") then
+            return {"clang-format", "-style=file:.clang-format", "-i", "%"}
+        else
+            return {"clang-format", "-i", "%"}
+        end
+    elseif string.find("*.js,*.ts,*.json,*.jsonc", ext) then
+        return {"biome", "format", "%"}
+    elseif string.find("*.rs", ext) then
+        return {"cargo", "fmt", "--", "%"}
+    elseif string.find("*.sh", ext) then
+        -- return {"shfmt", "--indent", "4", "--space-redirects", "--case-indent", "--binary-next-line", "--language-dialect", "bash", "--write"}
+        return {"shfmt", "-i", "4", "-sr", "-ci", "-bn", "-ln", "bash", "-w", "%"} -- Required for old version of shfmt...
+    elseif string.find("*.xml", ext) then
+        return {"python3", vim.fn.stdpath("config") .. "/format_xml.py", "--input", "%", "--output", "%"}
     end
+end
+
+local function office_formatters(ext)
+    if string.find("*.js,*.ts,*.json,*.jsonc", ext) then
+        return {"yarn", ":format", "%"}
+    end
+end
 
 vim.api.nvim_create_user_command('RunFormatter', function(opts)
     local buffer = 0
@@ -111,24 +138,16 @@ vim.api.nvim_create_user_command('RunFormatter', function(opts)
     end
 
     -- Run formatter on the temporary file
-    if string.find("*.py", ext) then
-        run_formatter(file_name, {"black", "--quiet", "%"})
-    elseif string.find("*.h,*.cc,*.cpp,*.c,*.cu,*.hpp,*.vs,*.fs,*.vert,*.frag", ext) then
-        if file_exists(".clang-format") then
-            run_formatter(file_name, {"clang-format", "-style=file:.clang-format", "-i", "%"})
-        else
-            run_formatter(file_name, {"clang-format", "-i", "%"})
+    local formatter_generators = {office_formatters, default_formatters}
+    local formatter = {}
+    for _, gen in ipairs(formatter_generators) do
+        formatter = gen(ext)
+        if formatter then
+            break
         end
-    elseif string.find("*.js,*.ts,*.json,*.jsonc", ext) then
-        run_formatter(file_name, {"yarn", ":format", "%"})
-    elseif string.find("*.rs", ext) then
-        run_formatter(file_name, {"cargo", "fmt", "--", "%"})
-    elseif string.find("*.sh", ext) then
-        -- run_formatter(file_name, {"shfmt", "--indent", "4", "--space-redirects", "--case-indent", "--binary-next-line", "--language-dialect", "bash", "--write"})
-        run_formatter(file_name, {"shfmt", "-i", "4", "-sr", "-ci", "-bn", "-ln", "bash", "-w", "%"}) -- Required for old version of shfmt...
-    elseif string.find("*.xml", ext) then
-        run_formatter(file_name, {"python3", vim.fn.stdpath("config") .. "/format_xml.py", "--input", "%", "--output", "%"})
     end
+
+    run_formatter(file_name, ext, formatter)
 
     -- Read formatted file
     local new_lines = {}
