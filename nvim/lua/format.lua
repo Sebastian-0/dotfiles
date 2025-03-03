@@ -60,23 +60,23 @@ local function create_edit(new_text, l_start, l_end, c_start, c_end)
     }
 end
 
-local function default_formatters(ext)
-    if string.find("*.py", ext) then
+local function default_formatters(ext_pattern)
+    if string.find("*.py", ext_pattern) then
         return {"black", "--quiet", "%"}
-    elseif string.find("*.h,*.cc,*.cpp,*.c,*.cu,*.hpp,*.vs,*.fs,*.vert,*.frag", ext) then
+    elseif string.find("*.h,*.cc,*.cpp,*.c,*.cu,*.hpp,*.vs,*.fs,*.vert,*.frag", ext_pattern) then
         if file_exists(".clang-format") then
             return {"clang-format", "-style=file:.clang-format", "-i", "%"}
         else
             return {"clang-format", "-i", "%"}
         end
-    elseif string.find("*.js,*.ts,*.json,*.jsonc", ext) then
+    elseif string.find("*.js,*.ts,*.json,*.jsonc", ext_pattern) then
         return {"biome", "format", "%"}
-    elseif string.find("*.rs", ext) then
+    elseif string.find("*.rs", ext_pattern) then
         return {"cargo", "fmt", "--", "%"}
-    elseif string.find("*.sh", ext) then
+    elseif string.find("*.sh", ext_pattern) then
         -- return {"shfmt", "--indent", "4", "--space-redirects", "--case-indent", "--binary-next-line", "--language-dialect", "bash", "--write"}
         return {"shfmt", "-i", "4", "-sr", "-ci", "-bn", "-ln", "bash", "-w", "%"} -- Required for old version of shfmt...
-    elseif string.find("*.lua", ext) then
+    elseif string.find("*.lua", ext_pattern) then
         return {
             "lua-format",
             "--chop-down-table",
@@ -87,13 +87,13 @@ local function default_formatters(ext)
             "--in-place",
             "%"
         }
-    elseif string.find("*.xml", ext) then
+    elseif string.find("*.xml", ext_pattern) then
         return {"python3", vim.fn.stdpath("config") .. "/format_xml.py", "--input", "%", "--output", "%"}
     end
 end
 
-local function office_formatters(ext)
-    if string.find("*.js,*.ts,*.json,*.jsonc", ext) then
+local function office_formatters(ext_pattern)
+    if string.find("*.js,*.ts,*.json,*.jsonc", ext_pattern) then
         return {"yarn", ":format", "%"}
     end
 end
@@ -119,6 +119,20 @@ vim.api.nvim_create_user_command('RunFormatter', function(opts)
         return
     end
 
+    -- Select a formatter
+    local formatter_generators = {office_formatters, default_formatters}
+    local formatter = {}
+    for _, gen in ipairs(formatter_generators) do
+        formatter = gen("%." .. ext)
+        if formatter then
+            break
+        end
+    end
+
+    if not formatter then
+        return
+    end
+
     -- Create a temporary file and write buffer contents
     local orig_lines = vim.api.nvim_buf_get_lines(buffer, 0, -1, true)
     local file_name = os.tmpname() .. "." .. name
@@ -139,15 +153,6 @@ vim.api.nvim_create_user_command('RunFormatter', function(opts)
     end
 
     -- Run formatter on the temporary file
-    local formatter_generators = {office_formatters, default_formatters}
-    local formatter = {}
-    for _, gen in ipairs(formatter_generators) do
-        formatter = gen(ext)
-        if formatter then
-            break
-        end
-    end
-
     run_formatter(file_name, ext, formatter)
 
     -- Read formatted file
