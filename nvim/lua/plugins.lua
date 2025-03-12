@@ -326,7 +326,7 @@ require("lazy").setup({
             })
         end
     },
-    {'rmagatti/auto-session', commit = '9c3f977', lazy = false, opts = {}},
+    {'rmagatti/auto-session', commit = '9c3f977', lazy = false, opts = {args_allow_single_directory = false}},
     {"karb94/neoscroll.nvim", commit = 'f957373', opts = {stop_eof = false, easing_function = "quadratic"}},
     {"ryanoasis/vim-devicons", version = '0.11.x'},
     {"lambdalisue/suda.vim", version = "1.2.x"},
