@@ -190,6 +190,14 @@ require("lazy").setup({
 
     },
     {
+        "mbbill/undotree",
+        commit = 'b951b87',
+        init = function()
+            vim.keymap.set('n', '<leader>u', vim.cmd.UndotreeToggle)
+            vim.opt.undofile = true
+        end
+    },
+    {
         'VonHeikemen/lsp-zero.nvim',
         branch = 'v4.x',
         dependencies = {
