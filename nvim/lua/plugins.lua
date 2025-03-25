@@ -323,7 +323,9 @@ require("lazy").setup({
                         end
                     end, {"i", "s"}),
                     ['<CR>'] = cmp.mapping.confirm({select = true}),
-                    ['<C-Space>'] = cmp.mapping.complete()
+                    ['<C-Space>'] = cmp.mapping.complete(),
+                    ['<C-d>'] = cmp.mapping.scroll_docs(4),
+                    ['<C-u>'] = cmp.mapping.scroll_docs(-4)
                 }),
                 snippet = { -- I don't know when this is useful...
                     expand = function(args)
