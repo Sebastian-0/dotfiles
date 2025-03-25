@@ -70,7 +70,7 @@ local function default_formatters(ext_pattern)
             return {"clang-format", "-i", "%"}
         end
     elseif string.find("*.js,*.ts,*.json,*.jsonc", ext_pattern) then
-        return {"biome", "format", "%"}
+        return {"biome", "format", "--write", "%"}
     elseif string.find("*.rs", ext_pattern) then
         return {"cargo", "fmt", "--", "%"}
     elseif string.find("*.sh", ext_pattern) then
