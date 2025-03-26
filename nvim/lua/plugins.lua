@@ -118,13 +118,6 @@ require("lazy").setup({
         end
     },
     {
-        "terrortylor/nvim-comment",
-        commit = 'e9ac16a',
-        config = function()
-            require("nvim_comment").setup()
-        end
-    },
-    {
         "kylechui/nvim-surround",
         version = "2.3.x",
         event = "VeryLazy",
