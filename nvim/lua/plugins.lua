@@ -180,7 +180,6 @@ require("lazy").setup({
         config = function()
             require("lazydev").setup()
         end
-
     },
     {
         "mbbill/undotree",
@@ -339,7 +338,13 @@ require("lazy").setup({
     {"ryanoasis/vim-devicons", version = '0.11.x'},
     {"lambdalisue/suda.vim", version = "1.2.x"},
     {"Vimjas/vim-python-pep8-indent", commit = '60ba5e1', ft = "python"},
-    {'jupyter-vim/jupyter-vim'}
+    {"jupyter-vim/jupyter-vim"},
+    {
+        "norcalli/nvim-colorizer.lua",
+        config = function()
+            require("colorizer").setup()
+        end
+    }
 })
 
 -- Enable theme
