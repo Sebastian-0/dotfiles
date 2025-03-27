@@ -14,8 +14,8 @@ echo $PASS > /tmp/remote_pass
 
 launch_workers() {
     i3-msg "exec terminator -x $dir/launch_ssh.sh /tmp/remote_pass worker-1"
+    i3-msg "exec terminator -x $dir/launch_ssh.sh /tmp/remote_pass worker-2"
     i3-msg "exec terminator -x $dir/launch_ssh.sh /tmp/remote_pass worker-3"
-    i3-msg "exec terminator -x $dir/launch_ssh.sh /tmp/remote_pass worker-4"
     i3-msg "exec terminator -x $dir/launch_ssh.sh /tmp/remote_pass performance"
 }
 
