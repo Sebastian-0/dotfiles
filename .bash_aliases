@@ -29,13 +29,15 @@ else
     alias vi='vim'
 fi
 
-# Kitty ssh alias to avoid non-functional terminals over ssh
+# Kitty kitten aliases
 if [ "$TERM" = "xterm-kitty" ]; then
     if [ -z "$SSH_TTY" ]; then
         # If we are NOT running an ssh session but think we are a Kitty terminal we are
         # probably a Kitty terminal, so use the ssh kitten. This makes sure the
         # xterm-kitty value of TERM doesn't break the remote terminal.
-        alias ssh="kitty +kitten ssh"
+        alias ssh="kitten ssh"
+        alias diff="kitten diff"
+        alias icat="kitten icat"
     else
         # If we are in a remote session we don't know if we run Kitty or not on this
         # machine, so do the second best and change the TERM for the nested ssh session.
