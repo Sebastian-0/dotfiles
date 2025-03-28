@@ -71,8 +71,10 @@ require("lazy").setup({
                     "yaml",
                     "glsl"
                 },
+                modules = {},
+                ignore_install = {},
                 sync_install = false,
-                auto_install = true,
+                auto_install = false, -- NOTE: Requires that you have the treesitter cli installed
                 highlight = {enable = true, additional_vim_regex_highlighting = {"python"}} -- Python regex highlight is a fix for https://github.com/nvim-treesitter/nvim-treesitter/discussions/1951
                 -- indent = { enable = true },
             })

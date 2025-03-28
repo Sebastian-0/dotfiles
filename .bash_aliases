@@ -204,7 +204,7 @@ gii() {
 # Auto-completion for aliases
 # TODO Auto-generate These type of functions. List with 'alias -p'.
 # - Substitute 1 with amount of args to git
-# - Substitute 'git stash' with actual command
+# - Substitute 'git switch' with actual command
 # - Substitute 'gisw' with actual aliases
 # - If necessary take inspiration from: https://superuser.com/a/437508
 #
