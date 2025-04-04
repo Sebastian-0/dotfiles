@@ -84,49 +84,38 @@ require("lazy").setup({
         "catppuccin/nvim",
         name = "catppuccin",
         priority = 1000,
-        config = function()
-            require("catppuccin").setup {
-                integrations = {
-                    treesitter = true,
-                    telescope = {
-                        enabled = true
-                        -- style = "nvchad"
-                    }
+        opts = {
+            integrations = {
+                treesitter = true,
+                telescope = {
+                    enabled = true
+                    -- style = "nvchad"
                 }
-                -- custom_highlights = function(colors)
-                --     return {
-                --         CursorColumn = { bg = colors.surface0 }
-                --     }
-                -- end
             }
-        end
+            -- custom_highlights = function(colors)
+            --     return {
+            --         CursorColumn = { bg = colors.surface0 }
+            --     }
+            -- end
+        }
     },
     {
         'nvim-lualine/lualine.nvim',
         commit = 'f4f791f',
         dependencies = {{'nvim-tree/nvim-web-devicons', commit = '1020869'}},
-        config = function()
-            require("lualine").setup {
-                options = {theme = "catppuccin"},
-                sections = {
-                    lualine_a = {'mode'},
-                    lualine_b = {'diff', 'diagnostics'},
-                    lualine_c = {'filename'},
-                    lualine_x = {'os.date("%d %b %H:%M")', 'encoding', 'fileformat', {'filetype', icon_only = true}},
-                    lualine_y = {'progress'},
-                    lualine_z = {'location'}
-                }
+        opts = {
+            options = {theme = "catppuccin"},
+            sections = {
+                lualine_a = {'mode'},
+                lualine_b = {'diff', 'diagnostics'},
+                lualine_c = {'filename'},
+                lualine_x = {'os.date("%d %b %H:%M")', 'encoding', 'fileformat', {'filetype', icon_only = true}},
+                lualine_y = {'progress'},
+                lualine_z = {'location'}
             }
-        end
+        }
     },
-    {
-        "kylechui/nvim-surround",
-        version = "2.3.x",
-        event = "VeryLazy",
-        config = function()
-            require("nvim-surround").setup({})
-        end
-    },
+    {"kylechui/nvim-surround", version = "2.3.x", event = "VeryLazy", opts = {}},
     {
         "nvim-neo-tree/neo-tree.nvim",
         branch = "v3.x",
@@ -135,36 +124,34 @@ require("lazy").setup({
             {'nvim-tree/nvim-web-devicons', commit = '1020869'},
             {"MunifTanjim/nui.nvim", version = '0.3.x'}
         },
-        config = function()
-            require("neo-tree").setup({
-                window = {position = "current", mappings = {["l"] = "open"}},
-                filesystem = {hijack_netrw_behavior = "open_default"},
-                event_handlers = {
-                    {
-                        event = "neo_tree_buffer_enter",
-                        handler = function(_)
-                            vim.opt.relativenumber = true
-                            vim.opt.number = true
-                        end
-                    }
+        opts = {
+            window = {position = "current", mappings = {["l"] = "open"}},
+            filesystem = {hijack_netrw_behavior = "open_default"},
+            event_handlers = {
+                {
+                    event = "neo_tree_buffer_enter",
+                    handler = function(_)
+                        vim.opt.relativenumber = true
+                        vim.opt.number = true
+                    end
                 }
-            })
+            }
+        },
+        init = function()
             vim.api.nvim_create_user_command("Ex", "Neotree", {}) -- Unclear why this is needed... I thought the hijack setting should deal with this...
         end
     },
     {
         "lewis6991/gitsigns.nvim",
         version = "1.0.x",
-        config = function()
-            require('gitsigns').setup({
-                current_line_blame = true,
-                current_line_blame_opts = {delay = 500},
-                on_attach = function(_)
-                    local gs = package.loaded.gitsigns
-                    vim.keymap.set('n', '<leader>gd', gs.diffthis)
-                end
-            })
-        end
+        opts = {
+            current_line_blame = true,
+            current_line_blame_opts = {delay = 500},
+            on_attach = function(_)
+                local gs = package.loaded.gitsigns
+                vim.keymap.set('n', '<leader>gd', gs.diffthis)
+            end
+        }
     },
     {
         "rhysd/git-messenger.vim",
@@ -175,14 +162,7 @@ require("lazy").setup({
             vim.keymap.set('n', '<leader>gh', ':GitMessenger<CR>')
         end
     },
-    {
-        "folke/lazydev.nvim",
-        version = "1.9.x",
-        ft = "lua",
-        config = function()
-            require("lazydev").setup()
-        end
-    },
+    {"folke/lazydev.nvim", version = "1.9.x", ft = "lua", opts = {}},
     {
         "mbbill/undotree",
         commit = 'b951b87',
