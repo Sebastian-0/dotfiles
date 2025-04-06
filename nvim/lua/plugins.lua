@@ -239,6 +239,10 @@ require("lazy").setup({
                             mccabe = {
                                 enabled = false,
                             },
+                            pylint = {
+                                enabled = false,
+                                args = {"--disable=missing-class-docstring,missing-function-docstring"}
+                            },
                         }
                     }
                 }
