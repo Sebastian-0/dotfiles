@@ -311,6 +311,17 @@ require("lazy").setup({
         end
     },
     {
+        "rest-nvim/rest.nvim",
+        version = "3.12.0",
+        dependencies = {
+            "nvim-treesitter/nvim-treesitter",
+            opts = function(_, opts)
+                opts.ensure_installed = opts.ensure_installed or {}
+                table.insert(opts.ensure_installed, "http")
+            end
+        }
+    },
+    {
         'rmagatti/auto-session',
         commit = '9c3f977',
         lazy = false,

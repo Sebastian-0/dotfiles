@@ -118,13 +118,33 @@ vim.api.nvim_create_user_command("BD", "bp|sp|bn|bd", {})
 -- Format on save implementation
 require("format")
 
--- TODO: Set different keybinds
-vim.keymap.set('n', '<F6>', ":JupyterRunFile<CR>")
-vim.keymap.set('n', '<F5>', ":JupyterSendCell<CR>")
-vim.keymap.set('n', '<F8>', ":PythonSetBreak<CR>")
-vim.keymap.set('n', '<F9>', ":JupyterRunFile %:p --verbose --plot <CR>")
-vim.keymap.set('n', '<F10>', ":JupyterCd %:p:h<CR>")
-vim.keymap.set('n', '<F11>', ":JupyterConnect<CR>")
+-- Jupyter notebook keybinds
+vim.api.nvim_create_autocmd("FileType", {
+    group = vim.api.nvim_create_augroup("JupyterKeybinds", {clear = true}),
+    pattern = "python",
+    callback = function()
+        -- TODO: Set different keybinds
+        vim.keymap.set('n', '<F5>', ":JupyterSendCell<CR>")
+        vim.keymap.set('n', '<F6>', ":JupyterRunFile<CR>")
+        vim.keymap.set('n', '<F8>', ":PythonSetBreak<CR>")
+        vim.keymap.set('n', '<F9>', ":JupyterRunFile %:p --verbose --plot <CR>")
+        vim.keymap.set('n', '<F10>', ":JupyterCd %:p:h<CR>")
+        vim.keymap.set('n', '<F11>', ":JupyterConnect<CR>")
+    end
+})
+
+-- REST nvim keybinds
+vim.api.nvim_create_autocmd("FileType", {
+    group = vim.api.nvim_create_augroup("JupyterKeybinds", {clear = true}),
+    pattern = "http",
+    callback = function()
+        vim.keymap.set('n', '<F5>', ":Rest run<CR>")
+        vim.keymap.set('n', '<F6>', ":Rest last<CR>")
+        vim.keymap.set('n', '<F7>', ":Rest cookies<CR>")
+        vim.keymap.set('n', '<F8>', ":Rest env select<CR>")
+        vim.keymap.set('n', '<F9>', ":Rest env show<CR>")
+    end
+})
 
 -- Plugins
 require("plugins")
