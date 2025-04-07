@@ -93,7 +93,7 @@ local function default_formatters(ext_pattern)
 end
 
 local function office_formatters(ext_pattern)
-    if string.find("*.js,*.ts,*.json,*.jsonc", ext_pattern) then
+    if string.find("*.cjs,*.mjs,*.js,*.ts,*.json,*.jsonc", ext_pattern) then
         return {"yarn", ":format", "%"}
     end
 end
