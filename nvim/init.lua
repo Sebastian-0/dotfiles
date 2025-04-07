@@ -105,8 +105,16 @@ vim.keymap.set("n", "=ap", "ma =ap `a")
 vim.keymap.set("n", "Y", "y$")
 
 -- Move up/down visual editor lines (when lines are auto wrapped)
-vim.keymap.set("n", "j", "gj")
-vim.keymap.set("n", "k", "gk")
+local function smart_j()
+    return vim.v.count == 0 and "gj" or "j"
+end
+
+local function smart_k()
+    return vim.v.count == 0 and "gk" or "k"
+end
+
+vim.keymap.set("n", "j", smart_j, {expr = true})
+vim.keymap.set("n", "k", smart_k, {expr = true})
 
 -- Extra save and quit commands
 vim.api.nvim_create_user_command("Q", "q", {})
