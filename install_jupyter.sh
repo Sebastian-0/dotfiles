@@ -8,7 +8,7 @@ set -euo pipefail
 #   https://github.com/ipython/ipython/issues/289
 
 if is_ubuntu; then
-    sudo apt-get -yq install jupyter-qtconsole
+    sudo apt-get -yq install jupyter-qtconsole python3-pickleshare
 else
     echo "Not implemented!"
     exit 1
