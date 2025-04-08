@@ -143,7 +143,7 @@ vim.api.nvim_create_autocmd("FileType", {
 
 -- REST nvim keybinds
 vim.api.nvim_create_autocmd("FileType", {
-    group = vim.api.nvim_create_augroup("JupyterKeybinds", {clear = true}),
+    group = vim.api.nvim_create_augroup("NvimRestKeybinds", {clear = true}),
     pattern = "http",
     callback = function()
         vim.keymap.set('n', '<F5>', ":Rest run<CR>")
