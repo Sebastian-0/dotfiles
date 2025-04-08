@@ -149,7 +149,12 @@ require("lazy").setup({
             current_line_blame_opts = {delay = 500},
             on_attach = function(_)
                 local gs = package.loaded.gitsigns
-                vim.keymap.set('n', '<leader>gd', gs.diffthis)
+                vim.keymap.set('n', '<leader>gd', gs.preview_hunk_inline)
+                vim.keymap.set('n', '<leader>gD', gs.diffthis)
+                vim.keymap.set('n', '<leader>gw', gs.toggle_word_diff)
+                vim.keymap.set('n', '<leader>gn', gs.next_hunk)
+                vim.keymap.set('n', '<leader>gN', gs.prev_hunk)
+                vim.keymap.set('n', '<leader>gr', gs.reset_hunk)
             end
         }
     },
