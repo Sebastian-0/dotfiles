@@ -174,6 +174,7 @@ require("lazy").setup({
         init = function()
             vim.keymap.set('n', '<leader>u', vim.cmd.UndotreeToggle)
             vim.opt.undofile = true
+            vim.g.undotree_SetFocusWhenToggle = true
         end
     },
     {
