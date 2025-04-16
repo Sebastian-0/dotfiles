@@ -4,3 +4,5 @@ i3/wallpaper/**/*.png
 *.zip
 jupyter/migrated
 cached_layouts
+yazi/plugins
+yazi/flavors

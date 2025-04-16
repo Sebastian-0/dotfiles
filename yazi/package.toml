@@ -1,0 +1,9 @@
+[[plugin.deps]]
+use = "raikhan/compress"
+rev = "0e21310"
+hash = "64eb7a1b835cf57bbda62b4bf4c80fe0"
+
+[[flavor.deps]]
+use = "yazi-rs/flavors:catppuccin-mocha"
+rev = "68326b4"
+hash = "2ac87e1b3a61f5887472899e86535d29"
