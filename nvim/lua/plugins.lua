@@ -184,6 +184,7 @@ require("lazy").setup({
         config = function()
             require('mason').setup({})
             require('mason-tool-installer').setup {
+                -- NOTE: These must be configured in lsp.lua
                 ensure_installed = {
                     'clangd',
                     'cmake-language-server',

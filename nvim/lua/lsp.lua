@@ -47,10 +47,11 @@ vim.lsp.config['vscode-html-language-server'] = {
 }
 vim.lsp.enable('vscode-html-language-server')
 
-vim.lsp.config['lua-language-server'] = {
+-- NOTE: Must be called lua_ls for folke/lazydev to work: https://github.com/folke/lazydev.nvim/discussions/28#discussioncomment-12757084
+vim.lsp.config['lua_ls'] = {
     cmd = {'lua-language-server'},
     filetypes = {'lua'},
-    root_markers = {'.git', '.luarc.json', '.luarc.jsonc'},
+    root_markers = {'.git', '.luarc.json', '.luarc.jsonc', 'lazy-lock.json'},
     -- LuaFormatter off
     settings = {
         Lua = {
@@ -61,7 +62,7 @@ vim.lsp.config['lua-language-server'] = {
     }
     -- LuaFormatter on
 }
-vim.lsp.enable('lua-language-server')
+vim.lsp.enable('lua_ls')
 
 vim.lsp.config['pylsp'] = {
     cmd = {'pylsp'},
