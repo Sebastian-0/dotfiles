@@ -1,8 +1,4 @@
-vim.opt.relativenumber = true
-vim.opt.number = true
 vim.opt.mouse = ""
-vim.opt.cursorline = true
--- vim.opt.cursorcolumn = true -- Produces very laggy scrolling
 vim.opt.scrolloff = 5
 vim.opt.tabstop = 4
 vim.opt.expandtab = true
@@ -14,14 +10,15 @@ vim.opt.ignorecase = true
 -- vim.opt.signcolumn = "yes" -- Could also set this to "number"
 -- vim.opt.completeopt = "menu" -- I don't notice the difference...
 
+-- Display settings
+vim.opt.relativenumber = true
+vim.opt.number = true
+vim.opt.cursorline = true
+vim.opt.cursorcolumn = true -- Produces very laggy scrolling
+vim.opt.winborder = "rounded"
+
 -- This is only needed for norcalli/nvim-colorizer.lua to work
 vim.opt.termguicolors = true
-
--- Increase performance of searches (https://github.com/neovim/neovim/issues/23590#issuecomment-1911925029)
-vim.api.nvim_create_autocmd("ColorScheme", {
-    group = vim.api.nvim_create_augroup("SearchSpeedup", {clear = true}),
-    command = [[hi! link CurSearch Search]]
-})
 
 -- Leader
 vim.g.mapleader = " "
