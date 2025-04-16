@@ -167,7 +167,6 @@ require("lazy").setup({
             vim.keymap.set('n', '<leader>gh', ':GitMessenger<CR>')
         end
     },
-    {"folke/lazydev.nvim", version = "1.9.x", ft = "lua", opts = {}},
     {
         "mbbill/undotree",
         commit = 'b951b87',
@@ -177,102 +176,38 @@ require("lazy").setup({
             vim.g.undotree_SetFocusWhenToggle = true
         end
     },
+    {"folke/lazydev.nvim", version = "1.9.x", ft = "lua", opts = {}},
     {
-        'VonHeikemen/lsp-zero.nvim',
-        branch = 'v4.x',
+        'williamboman/mason.nvim',
+        version = '1.11.x',
+        dependencies = {{'WhoIsSethDaniel/mason-tool-installer.nvim', commit = '1255518'}},
+        config = function()
+            require('mason').setup({})
+            require('mason-tool-installer').setup {
+                ensure_installed = {
+                    'clangd',
+                    'cmake-language-server',
+                    'rust-analyzer',
+                    'python-lsp-server',
+                    'lua-language-server',
+                    'typescript-language-server',
+                    'bash-language-server',
+                    'dockerfile-language-server',
+                    'glslls',
+                    'html-lsp'
+                }
+            }
+        end
+    },
+    {
+        'hrsh7th/nvim-cmp',
+        commit = '1250990',
         dependencies = {
-            {'williamboman/mason.nvim', version = '1.11.x'},
-            {'williamboman/mason-lspconfig.nvim', version = '1.32.x'},
-            {'neovim/nvim-lspconfig', version = '1.6.0'},
-            {'hrsh7th/nvim-cmp', commit = '1250990'},
             {'hrsh7th/cmp-path', commit = '91ff86c'},
             {'hrsh7th/cmp-nvim-lsp', commit = '99290b3'},
             {'L3MON4D3/LuaSnip', version = '2.3.x'}
         },
         config = function()
-            local lsp_zero = require('lsp-zero')
-
-            local lsp_attach = function(_, bufnr)
-                lsp_zero.default_keymaps({buffer = bufnr})
-            end
-
-            lsp_zero.extend_lspconfig({
-                capabilities = require('cmp_nvim_lsp').default_capabilities(),
-                lsp_attach = lsp_attach,
-                float_border = 'rounded',
-                sign_text = true
-            })
-
-            require('mason').setup({})
-            require('mason-lspconfig').setup({
-                ensure_installed = {
-                    'clangd',
-                    'cmake',
-                    'rust_analyzer',
-                    'pylsp',
-                    'lua_ls',
-                    'ts_ls',
-                    'bashls',
-                    'dockerls',
-                    'glslls',
-                    'html'
-                },
-                handlers = {lsp_zero.default_setup}
-            })
-
-            require("lspconfig").rust_analyzer.setup {
-                -- LuaFormatter off
-                settings = {
-                    ["rust-analyzer"] = {
-                        check = {
-                            command = "clippy",
-                            extraArgs = {"--", "-W", "clippy::pedantic"},
-                            checkOnSave = true,
-                        }
-                    },
-                }
-                -- LuaFormatter on
-            }
-
-            require("lspconfig").pylsp.setup {
-                -- LuaFormatter off
-                settings = {
-                    pylsp = {
-                        plugins = {
-                            pycodestyle = {
-                                ignore = {'E501', 'E203', 'W503'},
-                            },
-                            mccabe = {
-                                enabled = false,
-                            },
-                            pylint = {
-                                enabled = false,
-                                args = {"--disable=missing-class-docstring,missing-function-docstring"}
-                            },
-                        }
-                    }
-                }
-                -- LuaFormatter on
-            }
-
-            require("lspconfig").lua_ls.setup {
-                -- LuaFormatter off
-                settings = {
-                    Lua = {
-                        workspace = {
-                            checkThirdParty = false,
-                        }
-                    }
-                }
-                -- LuaFormatter on
-            }
-
-            require("lspconfig").clangd.setup {
-                -- LuaFormatter off
-                cmd = {"clangd", "--clang-tidy", "--background-index"}
-                -- LuaFormatter on
-            }
-
             local has_words_before = function()
                 unpack = unpack or table.unpack
                 local line, col = unpack(vim.api.nvim_win_get_cursor(0))

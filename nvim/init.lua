@@ -165,3 +165,4 @@ vim.api.nvim_create_autocmd("FileType", {
 
 -- Plugins
 require("plugins")
+require("lsp")
