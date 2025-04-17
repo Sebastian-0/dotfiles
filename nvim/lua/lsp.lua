@@ -112,3 +112,7 @@ vim.lsp.config['typescript-language-server'] = {
     root_markers = {".git", "tsconfig.json", "jsconfig.json", "package.json"}
 }
 vim.lsp.enable('typescript-language-server')
+
+-- Keymaps
+vim.keymap.set("n", "gD", vim.lsp.buf.declaration)
+vim.keymap.set("n", "gd", vim.lsp.buf.definition)
