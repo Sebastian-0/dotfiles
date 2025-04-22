@@ -80,3 +80,5 @@ vim.keymap.set("n", "gd", vim.lsp.buf.definition)
 --       how to make that happen... Overriding on_attach means the default
 --       on_attach gets deleted!
 vim.keymap.set("n", "gF", ":LspClangdSwitchSourceHeader<CR>")
+-- TODO: This should only be active for rust analyzer
+vim.keymap.set("n", "gR", ":LspCargoReload<CR>")
