@@ -14,7 +14,7 @@ vim.opt.ignorecase = true
 vim.opt.relativenumber = true
 vim.opt.number = true
 vim.opt.cursorline = true
-vim.opt.cursorcolumn = true -- Produces very laggy scrolling
+-- vim.opt.cursorcolumn = true -- Produces very laggy scrolling
 vim.opt.winborder = "rounded"
 
 -- This is only needed for norcalli/nvim-colorizer.lua to work
