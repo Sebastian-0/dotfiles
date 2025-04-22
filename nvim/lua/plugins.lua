@@ -184,22 +184,23 @@ require("lazy").setup({
         config = function()
             require('mason').setup({})
             require('mason-tool-installer').setup {
-                -- NOTE: These must be configured in lsp.lua
+                -- NOTE: These must be configured and enabled in lsp.lua
                 ensure_installed = {
+                    'bash-language-server',
                     'clangd',
                     'cmake-language-server',
-                    'rust-analyzer',
-                    'python-lsp-server',
-                    'lua-language-server',
-                    'typescript-language-server',
-                    'bash-language-server',
                     'dockerfile-language-server',
                     'glslls',
-                    'html-lsp'
+                    'html-lsp',
+                    'lua-language-server',
+                    'python-lsp-server',
+                    'rust-analyzer',
+                    'typescript-language-server'
                 }
             }
         end
     },
+    {'neovim/nvim-lspconfig', commit = 'bd1d024'},
     {
         'hrsh7th/nvim-cmp',
         commit = '1250990',

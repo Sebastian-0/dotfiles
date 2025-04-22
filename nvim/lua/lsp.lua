@@ -1,72 +1,32 @@
-vim.lsp.config('*', {
-    -- TODO What is multilineTokenSupport?
-    -- capabilities = {
-    --   textDocument = {
-    --     semanticTokens = {
-    --       multilineTokenSupport = true,
-    --     }
-    --   }
-    -- },
-    root_markers = {'.git'}
+--
+-- NOTE: Language servers must be installed in plugins.lua using their real name,
+--       in the below configuration we use the nvim lsp-config names instead, and
+--       these are USUALLY not the same! You can find the real name in lsp-configs'
+--       default config section for the LSP, under cmd.
+--
+--       See lsp-configs here: https://github.com/neovim/nvim-lspconfig/blob/master/doc/configs.md
+--
+--
+-- Configure LSPs
+local lspconfig = require("lspconfig")
+vim.lsp.config('clangd', {
+    cmd = {"clangd", "--clang-tidy", "--background-index"}
+    -- on_attach = function()
+    --     vim.keymap.set("n", "gF", ":LspClangdSwitchSourceHeader<CR>")
+    -- end
 })
-
-vim.lsp.config['bash-language-server'] = {cmd = {'bash-language-server', 'start'}, filetypes = {'bash', 'sh'}}
-vim.lsp.enable('bash-language-server')
-
-vim.lsp.config['clangd'] = {
-    cmd = {"clangd", "--clang-tidy", "--background-index"},
-    filetypes = {"c", "cpp", "objc", "objcpp", "cuda", "proto"},
-    root_markers = {
-        ".git",
-        ".clangd",
-        ".clang-tidy",
-        ".clang-format",
-        "compile_commands.json",
-        "compile_flags.txt",
-        "configure.ac"
-    }
-}
-vim.lsp.enable('clangd')
-
-vim.lsp.config['cmake-language-server'] = {cmd = {'cmake-language-server'}, filetypes = {'cmake'}}
-vim.lsp.enable('cmake-language-server')
-
-vim.lsp.config['docker-langserver'] = {cmd = {'docker-langserver', '--stdio'}, filetypes = {'dockerfile'}}
-vim.lsp.enable('docker-langserver')
-
-vim.lsp.config['glslls'] = {
-    cmd = {'glslls', '--stdin'},
-    filetypes = {"glsl", "vert", "tesc", "tese", "frag", "geom", "comp"}
-}
-vim.lsp.enable('glslls')
-
-vim.lsp.config['vscode-html-language-server'] = {
-    cmd = {'vscode-html-language-server', '--stdio'},
-    filetypes = {'html', 'xhtml'},
-    root_markers = {'.git', 'package.json'}
-}
-vim.lsp.enable('vscode-html-language-server')
-
--- NOTE: Must be called lua_ls for folke/lazydev to work: https://github.com/folke/lazydev.nvim/discussions/28#discussioncomment-12757084
-vim.lsp.config['lua_ls'] = {
-    cmd = {'lua-language-server'},
-    filetypes = {'lua'},
-    root_markers = {'.git', '.luarc.json', '.luarc.jsonc', 'lazy-lock.json'},
-    -- LuaFormatter off
+vim.lsp.config('lua_ls', {
     settings = {
+        -- LuaFormatter off
         Lua = {
             workspace = {
                 checkThirdParty = false,
             }
         }
+        -- LuaFormatter on
     }
-    -- LuaFormatter on
-}
-vim.lsp.enable('lua_ls')
-
-vim.lsp.config['pylsp'] = {
-    cmd = {'pylsp'},
-    filetypes = {'python'},
+})
+vim.lsp.config('pylsp', {
     settings = {
         -- LuaFormatter off
         pylsp = {
@@ -85,13 +45,8 @@ vim.lsp.config['pylsp'] = {
         }
         -- LuaFormatter on
     }
-}
-vim.lsp.enable('pylsp')
-
-vim.lsp.config['rust-analyzer'] = {
-    cmd = {'rust-analyzer'},
-    filetypes = {'rust'},
-    root_markers = {'Cargo.lock'},
+})
+vim.lsp.config('rust_analyzer', {
     settings = {
         -- LuaFormatter off
         ["rust-analyzer"] = {
@@ -103,16 +58,25 @@ vim.lsp.config['rust-analyzer'] = {
         },
         -- LuaFormatter on
     }
-}
-vim.lsp.enable('rust-analyzer')
+})
 
-vim.lsp.config['typescript-language-server'] = {
-    cmd = {'typescript-language-server', '--stdio'},
-    filetypes = {"javascript", "javascriptreact", "javascript.jsx", "typescript", "typescriptreact", "typescript.tsx"},
-    root_markers = {".git", "tsconfig.json", "jsconfig.json", "package.json"}
-}
-vim.lsp.enable('typescript-language-server')
+-- Enable LSPs
+vim.lsp.enable('bashls')
+vim.lsp.enable('clangd')
+vim.lsp.enable('cmake')
+vim.lsp.enable('dockerls')
+vim.lsp.enable('glslls')
+vim.lsp.enable('html')
+vim.lsp.enable('lua_ls')
+vim.lsp.enable('pylsp')
+vim.lsp.enable('rust_analyzer')
+vim.lsp.enable('ts_ls')
 
 -- Keymaps
 vim.keymap.set("n", "gD", vim.lsp.buf.declaration)
 vim.keymap.set("n", "gd", vim.lsp.buf.definition)
+
+-- TODO: This should only be active for Clangd, and right now it's not obvious
+--       how to make that happen... Overriding on_attach means the default
+--       on_attach gets deleted!
+vim.keymap.set("n", "gF", ":LspClangdSwitchSourceHeader<CR>")
