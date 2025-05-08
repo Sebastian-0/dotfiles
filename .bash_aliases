@@ -23,10 +23,13 @@ if which nvim >&/dev/null; then
     VISUAL=nvim
     alias vi='nvim'
     alias vim='nvim'
-else
+elif which vim >&/dev/null; then
     EDITOR=vim
     VISUAL=vim
     alias vi='vim'
+else
+    EDITOR=vi
+    VISUAL=vi
 fi
 
 # Kitty kitten aliases
