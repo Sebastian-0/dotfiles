@@ -138,6 +138,9 @@ alias gisp='git stash pop'
 
 alias girc='git rebase --continue'
 
+alias gicp='git cherry-pick'
+alias gicpc='git cherry-pick --continue'
+
 alias gisw='git switch'
 alias gich='git checkout'
 alias gichp='git checkout -p'
