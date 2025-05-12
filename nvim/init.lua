@@ -148,6 +148,16 @@ vim.api.nvim_create_autocmd("FileType", {
         vim.keymap.set('n', '<F7>', ":Rest cookies<CR>", {buffer = 0})
         vim.keymap.set('n', '<F8>', ":Rest env select<CR>", {buffer = 0})
         vim.keymap.set('n', '<F9>', ":Rest env show<CR>", {buffer = 0})
+
+        -- TODO This should be done in BufRead, BufOpen or similar events, if the file type is correct
+        -- Define custom keybinds based on the file contents
+        local lines = vim.api.nvim_buf_get_lines(0, 0, -1, true)
+        for _, line in ipairs(lines) do
+            local key, name = line:match("^# BIND (%S+) (.+)$")
+            if key and name then
+                vim.keymap.set('n', key, ":Rest run " .. name .. "<CR>", {buffer = 0})
+            end
+        end
     end
 })
 
