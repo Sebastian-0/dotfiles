@@ -65,7 +65,7 @@ if ! which i3 >&/dev/null; then
 
     echo "Launch clipmenud service..."
     mkdir -p ~/.config/environment.d/
-    cp i3/clipmenu/clipmenud.conf ~/.config/environment.d/
+    ln -s "$PWD/i3/clipmenu/clipmenud.conf" ~/.config/environment.d/clipmenud.conf
     systemctl enable --user clipmenud.service
     systemctl start --user clipmenud.service
 
