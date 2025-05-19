@@ -8,8 +8,8 @@ if [ -z "$(grep remote_server_workspace ~/.bashrc)" ]; then
     mkdir -p ~/.config/terminator
     cp remote_server/terminator_config ~/.config/terminator/config
     echo "Installing alias..."
+    printf "\n" >> ~/.bashrc
     cat << EOF >> ~/.bashrc
-
 function remote_server_workspace() (
     cd "$PWD"
     ./launch_server_workspace.sh \$@

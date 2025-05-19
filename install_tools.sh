@@ -44,6 +44,7 @@ else
     exit 1
 fi
 if ! grep -q zoxide ~/.bashrc; then
+    printf "\n" >> ~/.bashrc
     cat << EOF >> ~/.bashrc
 # cd aliases
 if which zoxide >&/dev/null; then
