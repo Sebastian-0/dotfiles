@@ -11,6 +11,8 @@ git config --global core.autocrlf input
 git config --global rerere.enabled true
 git config --global column.ui auto
 git config --global push.autoSetupRemote true
+git config --global diff.algorithm histogram
+git config --global merge.conflictstyle diff3
 git config --global gpg.format ssh
 echo "Note: git signing must be enabled manually with:"
 echo "> git config --global user.signingkey path/to/ssh/key.pub"
