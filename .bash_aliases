@@ -163,11 +163,11 @@ giri() {
 
 gic() {
     if [ "$#" -eq 1 ]; then
-        git commit -m "$1"
+        git commit -m "$1" --edit
     elif [ "$#" -eq 2 ]; then
-        git commit -m "$1" -m "$2"
+        git commit -m "$1" -m "$2" --edit
     else
-        echo "Missing message parameter!"
+        git commit
     fi
 }
 
