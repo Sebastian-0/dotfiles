@@ -113,42 +113,76 @@ alias layout_swerty='setxkbmap -layout se -variant swerty'
 alias layout_se='setxkbmap -layout se'
 
 # Add git aliases
-alias gip='git pull'
-alias gipu='git push'
-alias gipuf='git push --force-with-lease'
-alias gipud='git push -d origin '
-alias gipuu='git push -u origin '
 
-alias gis='git status'
+# Auto-completion for aliases
+# TODO Auto-generate These type of functions. List with 'alias -p'.
+# - If necessary take inspiration from: https://superuser.com/a/437508
+#
+# To find existing auto-completions for a command run `complete -p <command>`
+# If they don't exist you can force-load them with `_completion_loader`
+define_git_alias() {
+    local alias_name="$1"
+    shift
+    local git_command="$1"
+    shift
+    local alias_command="$1"
+    shift
 
-alias gia='git add'
-alias giau='git add -u'
-alias giap='git add -p'
+    _completion_loader git
 
-alias gicl='git clone'
-alias gica='git commit --amend'
-alias gicanv='git commit --no-verify --amend'
+    eval "
+    function _alias_completion::$alias_name {
+        ((COMP_CWORD += 1))
+        COMP_WORDS=($git_command \${COMP_WORDS[@]:1})
+        ((COMP_POINT -= \${#COMP_LINE}))
+        COMP_LINE=\${COMP_LINE/$alias_name/$git_command}
+        ((COMP_POINT += \${#COMP_LINE}))
+        __git_wrap__git_main
+    }"
+    complete -o bashdefault -o default -o nospace -F "_alias_completion::$alias_name" "$alias_name"
 
-alias gil='git log'
-alias gitk='gitk_background'
+    if [ -n "$alias_command" ]; then
+        alias "$alias_name=$alias_command"
+    fi
+}
+
+define_git_alias gip 'git pull' 'git pull'
+define_git_alias gipu 'git push' 'git push'
+define_git_alias gipuf 'git push' 'git push --force-with-lease'
+define_git_alias gipud 'git push' 'git push -d origin '
+define_git_alias gipuu 'git push' 'git push -u origin '
+
+define_git_alias gis 'git status' 'git status'
+
+define_git_alias gia 'git add' 'git add'
+define_git_alias giau 'git add' 'git add -u'
+define_git_alias giap 'git add' 'git add -p'
+
+define_git_alias gicl 'git clone' 'git clone'
+define_git_alias gica 'git commit' 'git commit --amend'
+define_git_alias gicanv 'git commit' 'git commit --no-verify --amend'
+
+define_git_alias gil 'git log' 'git log'
+
+define_git_alias gist 'git stash' 'git stash'
+define_git_alias gisp 'git stash' 'git stash pop'
+
+define_git_alias girc 'git rebase' 'git rebase --continue'
+
+define_git_alias gicp 'git cherry-pick' 'git cherry-pick'
+define_git_alias gicpc 'git cherry-pick' 'git cherry-pick --continue'
+
+define_git_alias gisw 'git switch' 'git switch'
+define_git_alias gich 'git checkout' 'git checkout'
+define_git_alias gichp 'git checkout' 'git checkout -p'
+
 alias gig='git gui &'
-
-alias gist='git stash'
-alias gisp='git stash pop'
-
-alias girc='git rebase --continue'
-
-alias gicp='git cherry-pick'
-alias gicpc='git cherry-pick --continue'
-
-alias gisw='git switch'
-alias gich='git checkout'
-alias gichp='git checkout -p'
-
+alias gitk='gitk_background'
 gitk_background() {
     \gitk "$@" &
 }
 
+define_git_alias giri 'git rebase'
 giri() {
     if [ "$#" -eq 1 ]; then
         if [[ "$1" =~ ^[0-9]+$ ]]; then
@@ -161,6 +195,7 @@ giri() {
     fi
 }
 
+define_git_alias gic 'git commit'
 gic() {
     if [ "$#" -eq 1 ]; then
         git commit -m "$1" --edit
@@ -171,6 +206,7 @@ gic() {
     fi
 }
 
+define_git_alias gicnv 'git commit'
 gicnv() {
     if [ "$#" -eq 1 ]; then
         git commit --no-verify -m "$1"
@@ -206,47 +242,6 @@ gii() {
         start_agent
     fi
 }
-
-# Auto-completion for aliases
-# TODO Auto-generate These type of functions. List with 'alias -p'.
-# - Substitute 1 with amount of args to git
-# - Substitute 'git switch' with actual command
-# - Substitute 'gisw' with actual aliases
-# - If necessary take inspiration from: https://superuser.com/a/437508
-#
-# To find existing auto-completions for a command run `complete -p <command>`
-# If they don't exist you can force-load them with `_completion_loader`
-_completion_loader git
-
-function _alias_completion::gil {
-    ((COMP_CWORD += 1))
-    COMP_WORDS=(git switch ${COMP_WORDS[@]:1})
-    ((COMP_POINT -= ${#COMP_LINE}))
-    COMP_LINE=${COMP_LINE/gil/git log}
-    ((COMP_POINT += ${#COMP_LINE}))
-    __git_wrap__git_main
-}
-complete -o bashdefault -o default -o nospace -F _alias_completion::gil gil
-
-function _alias_completion::gisw {
-    ((COMP_CWORD += 1))
-    COMP_WORDS=(git switch ${COMP_WORDS[@]:1})
-    ((COMP_POINT -= ${#COMP_LINE}))
-    COMP_LINE=${COMP_LINE/gisw/git switch}
-    ((COMP_POINT += ${#COMP_LINE}))
-    __git_wrap__git_main
-}
-complete -o bashdefault -o default -o nospace -F _alias_completion::gisw gisw
-
-function _alias_completion::gich {
-    ((COMP_CWORD += 1))
-    COMP_WORDS=(git checkout ${COMP_WORDS[@]:1})
-    ((COMP_POINT -= ${#COMP_LINE}))
-    COMP_LINE=${COMP_LINE/gich/git checkout}
-    ((COMP_POINT += ${#COMP_LINE}))
-    __git_wrap__git_main
-}
-complete -o bashdefault -o default -o nospace -F _alias_completion::gich gich
 
 # Set up fzf key bindings and fuzzy completion
 if [ -f /usr/share/doc/fzf/examples/key-bindings.bash ]; then
