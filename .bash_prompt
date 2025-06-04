@@ -20,7 +20,10 @@ function timer_now {
 }
 
 function timer_start {
-    timer_start=${timer_start:-$(timer_now)}
+    # Only run for commands not in the prompt, otherwise the timer shows the wrong value
+    if [[ "$PROMPT_COMMAND" != *$BASH_COMMAND* ]]; then
+        timer_start=${timer_start:-$(timer_now)}
+    fi
 }
 
 function timer_stop {
@@ -49,7 +52,7 @@ function timer_stop {
     unset timer_start
 }
 
-function prompt() {
+function _seb_prompt() {
     local exit="$?"
     timer_stop
     if [ "$exit" = "0" ]; then
@@ -63,5 +66,7 @@ function prompt() {
     prompt="\[$R\]\$"
     PS1="\n┌$ret $time $host $dir\n$prompt "
 }
-trap 'timer_start' DEBUG
-export PROMPT_COMMAND=prompt
+if [[ "$PROMPT_COMMAND" != *_seb_prompt* ]]; then
+    trap 'timer_start' DEBUG
+    export PROMPT_COMMAND="$PROMPT_COMMAND; _seb_prompt"
+fi
