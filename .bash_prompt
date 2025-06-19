@@ -27,7 +27,13 @@ function timer_start {
 }
 
 function timer_stop {
-    local delta_us=$((($(timer_now) - $timer_start) / 1000))
+    local now
+    now=$(timer_now)
+    # The timer is not started in case of Ctrl+C, make time diff == 0
+    if [ -z "$timer_start" ]; then
+        timer_start="$now"
+    fi
+    local delta_us=$(((now - timer_start) / 1000))
     local us=$((delta_us % 1000))
     local ms=$(((delta_us / 1000) % 1000))
     local s=$(((delta_us / 1000000) % 60))
