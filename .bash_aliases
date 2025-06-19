@@ -169,9 +169,11 @@ define_git_alias gist 'git stash' 'git stash'
 define_git_alias gisp 'git stash' 'git stash pop'
 
 define_git_alias girc 'git rebase' 'git rebase --continue'
+define_git_alias gira 'git rebase' 'git rebase --abort'
 
 define_git_alias gicp 'git cherry-pick' 'git cherry-pick'
 define_git_alias gicpc 'git cherry-pick' 'git cherry-pick --continue'
+define_git_alias gicpa 'git cherry-pick' 'git cherry-pick --abort'
 
 define_git_alias gisw 'git switch' 'git switch'
 define_git_alias gich 'git checkout' 'git checkout'
