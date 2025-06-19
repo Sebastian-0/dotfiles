@@ -154,6 +154,7 @@ define_git_alias gipuu 'git push' 'git push -u origin '
 
 define_git_alias gis 'git status' 'git status'
 define_git_alias gil 'git log' 'git log'
+define_git_alias gill 'git log' 'git log --pretty=oneline'
 define_git_alias gid 'git diff' 'git diff'
 define_git_alias gidw 'git diff' 'git diff --ignore-all-space --ignore-space-change'
 
