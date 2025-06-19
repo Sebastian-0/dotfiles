@@ -153,6 +153,9 @@ define_git_alias gipud 'git push' 'git push -d origin '
 define_git_alias gipuu 'git push' 'git push -u origin '
 
 define_git_alias gis 'git status' 'git status'
+define_git_alias gil 'git log' 'git log'
+define_git_alias gid 'git diff' 'git diff'
+define_git_alias gidw 'git diff' 'git diff --ignore-all-space --ignore-space-change'
 
 define_git_alias gia 'git add' 'git add'
 define_git_alias giau 'git add' 'git add -u'
@@ -161,8 +164,6 @@ define_git_alias giap 'git add' 'git add -p'
 define_git_alias gicl 'git clone' 'git clone'
 define_git_alias gica 'git commit' 'git commit --amend'
 define_git_alias gicanv 'git commit' 'git commit --no-verify --amend'
-
-define_git_alias gil 'git log' 'git log'
 
 define_git_alias gist 'git stash' 'git stash'
 define_git_alias gisp 'git stash' 'git stash pop'
