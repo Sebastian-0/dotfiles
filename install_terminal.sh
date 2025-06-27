@@ -8,9 +8,9 @@ set -euo pipefail
 echo "Install tdrop..."
 if ! which tdrop >&/dev/null; then
     if is_ubuntu; then
-        sudo apt-get install -y --no-install-recommends xdotool x11-utils gawk
+        sudo apt-get install -y --no-install-recommends xdotool x11-utils gawk make
     else
-        sudo pacman -S --needed --noconfirm xorg-xprop xdotool xorg-xwininfo gawk
+        sudo pacman -S --needed --noconfirm xorg-xprop xdotool xorg-xwininfo gawk make
     fi
     git clone https://github.com/noctuid/tdrop.git
     cd tdrop

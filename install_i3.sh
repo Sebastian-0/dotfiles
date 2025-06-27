@@ -87,7 +87,7 @@ if ! which i3 >&/dev/null; then
         python3 -m venv venv
         . venv/bin/activate
         pip install -r requirements.txt
-        python3 install.py mocha
+        python3 install.py mocha blue
         cd -
         rm -rf gtk
     )

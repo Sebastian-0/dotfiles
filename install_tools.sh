@@ -7,14 +7,16 @@ set -euo pipefail
 
 echo "Install git, calc & exa/eza..."
 if is_ubuntu; then
-    sudo apt-get install -y --no-install-recommends git gitk calc # fonts-firacode
+    sudo apt-get install -y --no-install-recommends git gitk calc curl # fonts-firacode
 
     # Install eza from official repo
-    sudo mkdir -p /etc/apt/keyrings
-    wget -qO- https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | sudo gpg --dearmor -o /etc/apt/keyrings/gierens.gpg
-    echo "deb [signed-by=/etc/apt/keyrings/gierens.gpg] http://deb.gierens.de stable main" | sudo tee /etc/apt/sources.list.d/gierens.list
-    sudo chmod 644 /etc/apt/keyrings/gierens.gpg /etc/apt/sources.list.d/gierens.list
-    sudo apt update
+    if [ ! -f /etc/apt/keyrings/gierens.gpg ]; then
+        sudo mkdir -p /etc/apt/keyrings
+        wget -qO- https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | sudo gpg --dearmor -o /etc/apt/keyrings/gierens.gpg
+        echo "deb [signed-by=/etc/apt/keyrings/gierens.gpg] http://deb.gierens.de stable main" | sudo tee /etc/apt/sources.list.d/gierens.list
+        sudo chmod 644 /etc/apt/keyrings/gierens.gpg /etc/apt/sources.list.d/gierens.list
+        sudo apt update
+    fi
     sudo apt install -y --no-install-recommends eza
 elif is_arch; then
     sudo pacman -S --needed --noconfirm git tk calc eza # ttf-fira-code

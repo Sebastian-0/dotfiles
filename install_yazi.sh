@@ -5,19 +5,13 @@ set -euo pipefail
 
 ./install_font.sh
 
-echo "Install rustup and rust..."
-if ! which rustup > /dev/null; then
-    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-fi
-rustup update
-
 echo "Install extension packages..."
 if is_ubuntu; then
-    sudo apt-get install ripgrep jq imagemagick fd-find poppler-utils ffmpeg 7zip
+    sudo apt-get install -y --no-install-recommends ripgrep jq imagemagick fd-find poppler-utils ffmpeg 7zip
 fi
 
 echo "Install yazi..."
-cargo install --locked yazi-fm yazi-cli
+sudo snap install --classic yazi
 
 echo "Copy yazi configuration..."
 symlink_config yazi
@@ -26,6 +20,8 @@ echo "Set up plugins and themes..."
 mkdir -p yazi/plugins
 mkdir -p yazi/flavors
 ya pack -i
+
+# If ya can't run try with /snap/yazi/current/ya
 
 # Installed with this originally
 # ya pack -a raikhan/compress
