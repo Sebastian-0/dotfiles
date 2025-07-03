@@ -224,7 +224,7 @@ gicnv() {
     elif [ "$#" -eq 2 ]; then
         git commit --no-verify -m "$1" -m "$2"
     else
-        echo "Missing message parameter!"
+        git commit --no-verify
     fi
 }
 
