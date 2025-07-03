@@ -169,9 +169,6 @@ define_git_alias gicanv 'git commit' 'git commit --no-verify --amend'
 define_git_alias gist 'git stash' 'git stash'
 define_git_alias gisp 'git stash' 'git stash pop'
 
-define_git_alias girc 'git rebase' 'git rebase --continue'
-define_git_alias gira 'git rebase' 'git rebase --abort'
-
 define_git_alias gicp 'git cherry-pick' 'git cherry-pick'
 define_git_alias gicpc 'git cherry-pick' 'git cherry-pick --continue'
 define_git_alias gicpa 'git cherry-pick' 'git cherry-pick --abort'
@@ -186,6 +183,8 @@ gitk_background() {
     \gitk "$@" &
 }
 
+define_git_alias girc 'git rebase' 'git rebase --continue'
+define_git_alias gira 'git rebase' 'git rebase --abort'
 define_git_alias giri 'git rebase'
 giri() {
     if [ "$#" -eq 1 ]; then
@@ -196,6 +195,14 @@ giri() {
         fi
     else
         echo "Missing commit count/hash!"
+    fi
+}
+define_git_alias girib 'git rebase'
+girib() {
+    if [ "$#" -eq 1 ]; then
+        git rebase --interactive "$(git merge-base "origin/$1" HEAD)"
+    else
+        echo "Missing target branch"
     fi
 }
 
