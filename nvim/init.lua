@@ -116,6 +116,9 @@ vim.keymap.set("n", "k", smart_k, {expr = true})
 -- Extra save and quit commands
 vim.api.nvim_create_user_command("Q", "q", {})
 vim.api.nvim_create_user_command("W", "w", {})
+vim.api.nvim_create_user_command("Wa", "wa", {})
+vim.api.nvim_create_user_command("WA", "wa", {})
+vim.api.nvim_create_user_command("X", "x", {})
 
 -- Close current buffer but leave window open
 vim.api.nvim_create_user_command("BD", "bp|sp|bn|bd", {})
