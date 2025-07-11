@@ -16,3 +16,4 @@ fi
 pip3 install --break-system-packages catppuccin
 
 symlink_path "$HOME" .jupyter jupyter
+symlink_path "$HOME" .ipython ipython
