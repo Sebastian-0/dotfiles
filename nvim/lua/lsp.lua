@@ -72,10 +72,7 @@ vim.lsp.enable('pylsp')
 vim.lsp.enable('rust_analyzer')
 vim.lsp.enable('ts_ls')
 
--- Keymaps
-vim.keymap.set("n", "gD", vim.lsp.buf.declaration)
-vim.keymap.set("n", "gd", vim.lsp.buf.definition)
-
+-- Keymaps (most are defined by telescope, here are extra)
 -- TODO: This should only be active for Clangd, and right now it's not obvious
 --       how to make that happen... Overriding on_attach means the default
 --       on_attach gets deleted!

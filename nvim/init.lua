@@ -123,9 +123,6 @@ vim.api.nvim_create_user_command("X", "x", {})
 -- Close current buffer but leave window open
 vim.api.nvim_create_user_command("BD", "bp|sp|bn|bd", {})
 
--- Format on save implementation
-require("format")
-
 -- Jupyter notebook keybinds
 vim.api.nvim_create_autocmd("FileType", {
     group = vim.api.nvim_create_augroup("JupyterKeybinds", {clear = true}),
@@ -172,6 +169,9 @@ vim.api.nvim_create_autocmd("FileType", {
         vim.api.nvim_set_option_value("formatprg", "jq", {scope = 'local'})
     end
 })
+
+-- Format on save implementation
+require("format")
 
 -- Plugins
 require("plugins")

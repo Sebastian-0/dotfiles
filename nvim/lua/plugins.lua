@@ -28,17 +28,43 @@ require("lazy").setup({
         commit = '5899106',
         dependencies = {{'nvim-lua/plenary.nvim', version = '0.1.4'}},
         config = function()
+            -- File search keymaps
             local builtin = require('telescope.builtin')
             vim.keymap.set('n', '<leader>ff', builtin.find_files, {})
+            vim.keymap.set('n', '<leader>fF', function()
+                builtin.find_files({no_ignore = true})
+            end, {})
             vim.keymap.set('n', '<leader>fg', builtin.live_grep, {})
+            vim.keymap.set('n', '<leader>fG', function()
+                builtin.live_grep({additional_args = {'--no-ignore'}})
+            end, {})
             vim.keymap.set('n', '<leader>fb', builtin.buffers, {})
+
+            -- LSP keymaps
+            vim.keymap.set("n", "gr", builtin.lsp_references)
+            vim.keymap.set("n", "gD", builtin.lsp_type_definitions)
+            vim.keymap.set("n", "gd", builtin.lsp_definitions)
+            vim.keymap.set("n", "gh", builtin.lsp_incoming_calls)
+            vim.keymap.set("n", "<leader>gl", function()
+                builtin.diagnostics({bufnr = 0})
+            end)
+
+            -- Git keymaps
+            vim.keymap.set("n", "<leader>gs", builtin.git_stash)
+            vim.keymap.set("n", "<leader>gb", builtin.git_branches)
+            vim.keymap.set("n", "<leader>gc", builtin.git_bcommits)
+
+            -- Misc
             vim.keymap.set('n', '<leader>fh', builtin.help_tags, {})
             vim.keymap.set('n', '<leader>fr', builtin.resume, {})
 
             require('telescope').setup {
                 pickers = {
-                    find_files = {find_command = {"rg", "--files", "--hidden", "--glob", "!**/.git/*"}},
-                    live_grep = {additional_args = {"--hidden", "--glob", "!**/.git/*", "--glob", "!*.lock"}}
+                    find_files = {
+                        hidden = true,
+                        find_command = {"rg", "--files", "--color", "never", "--glob", "!**/.git/*"}
+                    },
+                    live_grep = {glob_pattern = {"!**/.git/*", "!*.lock"}, additional_args = {"--hidden"}}
                 }
             }
         end
