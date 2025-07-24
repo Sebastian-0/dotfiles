@@ -61,7 +61,7 @@ require("lazy").setup({
             vim.keymap.set('n', '<leader>fh', builtin.help_tags, {})
             vim.keymap.set('n', '<leader>fr', builtin.resume, {})
 
-            local prompt_append = function(suffix)
+            local prompt_toggle = function(option)
                 local action_state = require("telescope.actions.state")
                 return function(prompt_bufnr)
                     local picker = action_state.get_current_picker(prompt_bufnr)
@@ -73,8 +73,14 @@ require("lazy").setup({
                         prompt = helpers.quote(prompt, {quote_char = "\""})
                     end
 
-                    prompt = vim.trim(prompt) .. suffix
-                    picker:set_prompt(prompt)
+                    local idx = prompt:find(option, 1, true)
+                    if idx then
+                        prompt = prompt:sub(1, idx - 1) .. prompt:sub(idx + option:len())
+                    else
+                        prompt = prompt .. " " .. option
+                    end
+
+                    picker:set_prompt(vim.trim(prompt))
                 end
             end
 
@@ -98,7 +104,8 @@ require("lazy").setup({
                         mappings = {
                             i = {
                                 ["<C-a>"] = lga_actions.quote_prompt(),
-                                ["<C-i>"] = prompt_append(" --no-ignore "),
+                                ["<C-h>"] = prompt_toggle("--no-hidden"),
+                                ["<C-i>"] = prompt_toggle("--no-ignore"),
                                 ["<C-Space>"] = require('telescope.actions').to_fuzzy_refine
                             }
                         },
