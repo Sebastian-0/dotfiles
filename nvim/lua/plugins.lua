@@ -26,7 +26,10 @@ require("lazy").setup({
         'nvim-telescope/telescope.nvim',
         -- version = '0.1.x',
         commit = '5899106',
-        dependencies = {{'nvim-lua/plenary.nvim', version = '0.1.4'}},
+        dependencies = {
+            {'nvim-lua/plenary.nvim', version = '0.1.4'},
+            {"nvim-telescope/telescope-live-grep-args.nvim", commit = "b80ec2c"}
+        },
         config = function()
             -- File search keymaps
             local builtin = require('telescope.builtin')
@@ -34,10 +37,10 @@ require("lazy").setup({
             vim.keymap.set('n', '<leader>fF', function()
                 builtin.find_files({no_ignore = true})
             end, {})
-            vim.keymap.set('n', '<leader>fg', builtin.live_grep, {})
-            vim.keymap.set('n', '<leader>fG', function()
-                builtin.live_grep({additional_args = {'--no-ignore'}})
-            end, {})
+            vim.keymap.set("n", "<leader>fg", require('telescope').extensions.live_grep_args.live_grep_args)
+            vim.keymap.set("n", "<leader>fG", function()
+                require('telescope').extensions.live_grep_args.live_grep_args({additional_args = {'--no-ignore'}})
+            end)
             vim.keymap.set('n', '<leader>fb', builtin.buffers, {})
 
             -- LSP keymaps
@@ -58,15 +61,52 @@ require("lazy").setup({
             vim.keymap.set('n', '<leader>fh', builtin.help_tags, {})
             vim.keymap.set('n', '<leader>fr', builtin.resume, {})
 
-            require('telescope').setup {
+            local prompt_append = function(suffix)
+                local action_state = require("telescope.actions.state")
+                return function(prompt_bufnr)
+                    local picker = action_state.get_current_picker(prompt_bufnr)
+                    local prompt = picker:_get_prompt()
+                    prompt = vim.trim(prompt)
+
+                    if prompt:find("\"") == nil and prompt:find("'") == nil then
+                        local helpers = require("telescope-live-grep-args.helpers")
+                        prompt = helpers.quote(prompt, {quote_char = "\""})
+                    end
+
+                    prompt = vim.trim(prompt) .. suffix
+                    picker:set_prompt(prompt)
+                end
+            end
+
+            local telescope = require('telescope')
+            local lga_actions = require("telescope-live-grep-args.actions")
+            telescope.setup {
                 pickers = {
                     find_files = {
                         hidden = true,
-                        find_command = {"rg", "--files", "--color", "never", "--glob", "!**/.git/*"}
+                        find_command = {"rg", "--files", "--color", "never", "--glob", "!**/.git/*"},
+                        mappings = {i = {["<C-Space>"] = require('telescope.actions').to_fuzzy_refine}}
                     },
-                    live_grep = {glob_pattern = {"!**/.git/*", "!*.lock"}, additional_args = {"--hidden"}}
+                    live_grep = { -- Currently not used because we use live_grep_args
+                        glob_pattern = {"!**/.git/*", "!*.lock"},
+                        additional_args = {"--hidden"},
+                        mappings = {i = {["<C-Space>"] = require('telescope.actions').to_fuzzy_refine}}
+                    }
+                },
+                extensions = {
+                    live_grep_args = {
+                        mappings = {
+                            i = {
+                                ["<C-a>"] = lga_actions.quote_prompt(),
+                                ["<C-i>"] = prompt_append(" --no-ignore "),
+                                ["<C-Space>"] = require('telescope.actions').to_fuzzy_refine
+                            }
+                        },
+                        additional_args = {"--hidden", "--glob", "!**/.git/*", "--glob", "!*.lock"}
+                    }
                 }
             }
+            telescope.load_extension("live_grep_args")
         end
     },
     {
@@ -279,7 +319,6 @@ require("lazy").setup({
                         require('luasnip').lsp_expand(args.body)
                     end
                 }
-
             })
         end
     },
