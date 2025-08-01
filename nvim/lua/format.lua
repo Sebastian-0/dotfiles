@@ -1,7 +1,7 @@
 local debug = false
 
 local prev_warned_missing = {}
-local function run_formatter(path, ext, args)
+local function run_formatter(path, filetype, args)
     for i = 1, #args do
         if args[i] == "%" then
             args[i] = path
@@ -12,7 +12,7 @@ local function run_formatter(path, ext, args)
     end
     local ok, res = pcall(wrap)
     if not ok then
-        local key = ext .. args[1]
+        local key = filetype .. args[1]
         if not prev_warned_missing[key] then
             print("Formatter", args[1], "not installed")
             print(" ")
@@ -60,23 +60,23 @@ local function create_edit(new_text, l_start, l_end, c_start, c_end)
     }
 end
 
-local function default_formatters(ext_pattern)
-    if string.find("*.py", ext_pattern) then
+local function default_formatters(filetype)
+    if string.find("python", filetype) then
         return {"black", "--quiet", "%"}
-    elseif string.find("*.h,*.cc,*.cpp,*.c,*.cu,*.hpp,*.vs,*.fs,*.vert,*.frag", ext_pattern) then
+    elseif string.find("cuda,cpp,c,glsl", filetype) then
         if file_exists(".clang-format") then
             return {"clang-format", "-style=file:.clang-format", "-i", "%"}
         else
             return {"clang-format", "-i", "%"}
         end
-    elseif string.find("*.cjs,*.mjs,*.js,*.ts,*.json,*.jsonc", ext_pattern) then
+    elseif string.find("javascript,typescript,json,jsonc", filetype) then
         return {"biome", "format", "--write", "%"}
-    elseif string.find("*.rs", ext_pattern) then
+    elseif string.find("rust", filetype) then
         return {"cargo", "fmt", "--", "%"}
-    elseif string.find("*.sh", ext_pattern) then
+    elseif string.find("sh", filetype) then
         -- return {"shfmt", "--indent", "4", "--space-redirects", "--case-indent", "--binary-next-line", "--language-dialect", "bash", "--write"}
         return {"shfmt", "-i", "4", "-sr", "-ci", "-bn", "-ln", "bash", "-w", "%"} -- Required for old version of shfmt...
-    elseif string.find("*.lua", ext_pattern) then
+    elseif string.find("lua", filetype) then
         return {
             "lua-format",
             "--chop-down-table",
@@ -87,43 +87,33 @@ local function default_formatters(ext_pattern)
             "--in-place",
             "%"
         }
-    elseif string.find("*.xml", ext_pattern) then
+    elseif string.find("xml", filetype) then
         return {"python3", vim.fn.stdpath("config") .. "/format_xml.py", "--input", "%", "--output", "%"}
     end
 end
 
-local function office_formatters(ext_pattern)
-    if string.find("*.cjs,*.mjs,*.js,*.ts,*.json,*.jsonc", ext_pattern) then
+local function office_formatters(filetype)
+    if string.find("javascript,typescript,json,jsonc", filetype) then
         return {"yarn", ":format", "%"}
     end
 end
 
 vim.api.nvim_create_user_command('RunFormatter', function(opts)
     local buffer = 0
-    local ext = nil
     if opts.args then
         local res = tonumber(opts.args)
         if res then
             buffer = res
-        else
-            ext = opts.args
         end
     end
     local buf = vim.api.nvim_buf_get_name(buffer)
     local name = buf:match("/([^/]+)$")
-    if ext == nil then
-        ext = buf:match("%.([^%.]+)$")
-    end
-
-    if ext == nil or ext == '' then
-        return
-    end
 
     -- Select a formatter
     local formatter_generators = {office_formatters, default_formatters}
     local formatter = {}
     for _, gen in ipairs(formatter_generators) do
-        formatter = gen("%." .. ext)
+        formatter = gen(vim.bo[buffer].filetype)
         if formatter then
             break
         end
@@ -153,7 +143,7 @@ vim.api.nvim_create_user_command('RunFormatter', function(opts)
     end
 
     -- Run formatter on the temporary file
-    run_formatter(file_name, ext, formatter)
+    run_formatter(file_name, vim.bo[buffer].filetype, formatter)
 
     -- Read formatted file
     local new_lines = {}
@@ -231,8 +221,6 @@ vim.api.nvim_create_user_command('RunFormatter', function(opts)
     vim.lsp.util.apply_text_edits(edits, buffer, "utf-8")
 end, {nargs = '?'})
 
--- TODO We also want to support files with shebangs and no extension, e.g. detect
---      /.../sh and /.../python and map to an appropriate language
 vim.api.nvim_create_autocmd("BufWritePre", {
     pattern = "*",
     group = vim.api.nvim_create_augroup("AutoFormat", {clear = true}),
