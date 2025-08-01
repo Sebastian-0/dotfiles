@@ -26,6 +26,17 @@ if ! which nvim >&/dev/null; then
     fi
 fi
 
+echo "Install formatters..."
+sudo luarocks install --server=https://luarocks.org/dev luaformatter
+if is_ubuntu; then
+    sudo apt-get install -y --no-install-recommends shfmt
+elif is_arch; then
+    sudo pacman -S --needed --noconfirm shfmt
+else
+    echo "Unsupported OS!"
+    exit 1
+fi
+
 echo "Configure nvim..."
 symlink_config nvim
 git config --global core.editor "nvim"
