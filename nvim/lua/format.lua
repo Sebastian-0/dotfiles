@@ -93,6 +93,10 @@ local function default_formatters(filetype)
 end
 
 local function office_formatters(filetype)
+    if os.getenv("NVIM_ENV") ~= "intuicell" then
+        return
+    end
+
     if string.find("javascript,typescript,json,jsonc", filetype) then
         return {"yarn", ":format", "%"}
     end
