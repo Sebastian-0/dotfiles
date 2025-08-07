@@ -71,6 +71,7 @@ vim.lsp.enable('lua_ls')
 vim.lsp.enable('pylsp')
 vim.lsp.enable('rust_analyzer')
 vim.lsp.enable('ts_ls')
+vim.lsp.enable('zls')
 
 -- Keymaps (most are defined by telescope, here are extra)
 -- TODO: This should only be active for Clangd, and right now it's not obvious

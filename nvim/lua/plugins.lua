@@ -142,7 +142,8 @@ require("lazy").setup({
                     "rust",
                     "java",
                     "yaml",
-                    "glsl"
+                    "glsl",
+                    "zig"
                 },
                 modules = {},
                 ignore_install = {},
@@ -268,7 +269,8 @@ require("lazy").setup({
                     'lua-language-server',
                     'python-lsp-server',
                     'rust-analyzer',
-                    'typescript-language-server'
+                    'typescript-language-server',
+                    'zls'
                 }
             }
         end
