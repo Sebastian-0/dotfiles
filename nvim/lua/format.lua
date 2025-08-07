@@ -1,16 +1,8 @@
 local debug = false
 
 local prev_warned_missing = {}
-local function run_formatter(path, filetype, args)
-    for i = 1, #args do
-        if args[i] == "%" then
-            args[i] = path
-        end
-    end
-    local function wrap()
-        return vim.system(args):wait()
-    end
-    local ok, res = pcall(wrap)
+local function run_formatter(filetype, args, stdin)
+    local ok, res = pcall(vim.system, args, {stdin = stdin, text = true})
     if not ok then
         local key = filetype .. args[1]
         if not prev_warned_missing[key] then
@@ -18,15 +10,18 @@ local function run_formatter(path, filetype, args)
             print(" ")
             prev_warned_missing[key] = true
         end
-    else
-        if res.code ~= 0 then
-            print("Formatting failed!")
-            print(res.stdout)
-            print(res.stderr)
-            print("-> Return code:", res.code)
-            print(" ")
-        end
+        return
     end
+    res = res:wait()
+    if res.code ~= 0 then
+        print("Formatting failed!")
+        print(res.stdout)
+        print(res.stderr)
+        print("-> Return code:", res.code)
+        print(" ")
+        return
+    end
+    return res.stdout
 end
 
 local function file_exists(name)
@@ -62,33 +57,31 @@ end
 
 local function default_formatters(filetype)
     if string.find("python", filetype) then
-        return {"black", "--quiet", "%"}
+        return true, {"black", "--quiet", "-"}
     elseif string.find("cuda,cpp,c,glsl", filetype) then
         if file_exists(".clang-format") then
-            return {"clang-format", "-style=file:.clang-format", "-i", "%"}
+            return true, {"clang-format", "-style=file:.clang-format"}
         else
-            return {"clang-format", "-i", "%"}
+            return true, {"clang-format"}
         end
     elseif string.find("javascript,typescript,json,jsonc", filetype) then
-        return {"biome", "format", "--write", "%"}
+        return true, {"biome", "format", "-"}
     elseif string.find("rust", filetype) then
-        return {"cargo", "fmt", "--", "%"}
+        return true, {"rustfmt"}
     elseif string.find("sh", filetype) then
-        -- return {"shfmt", "--indent", "4", "--space-redirects", "--case-indent", "--binary-next-line", "--language-dialect", "bash", "--write"}
-        return {"shfmt", "-i", "4", "-sr", "-ci", "-bn", "-ln", "bash", "-w", "%"} -- Required for old version of shfmt...
+        -- return true, {"shfmt", "--indent", "4", "--space-redirects", "--case-indent", "--binary-next-line", "--language-dialect", "bash"}
+        return true, {"shfmt", "-i", "4", "-sr", "-ci", "-bn", "-ln", "bash"} -- Required for old version of shfmt...
     elseif string.find("lua", filetype) then
-        return {
+        return true, {
             "lua-format",
             "--chop-down-table",
             "--chop-down-kv-table",
             "--no-keep-simple-function-one-line",
             "--no-keep-simple-control-block-one-line",
-            "--column-limit=120",
-            "--in-place",
-            "%"
+            "--column-limit=120"
         }
     elseif string.find("xml", filetype) then
-        return {"python3", vim.fn.stdpath("config") .. "/format_xml.py", "--input", "%", "--output", "%"}
+        return false, {"python3", vim.fn.stdpath("config") .. "/format_xml.py", "--input", "%", "--output", "%"}
     end
 end
 
@@ -98,37 +91,15 @@ local function office_formatters(filetype)
     end
 
     if string.find("javascript,typescript,json,jsonc", filetype) then
-        return {"yarn", ":format", "%"}
+        return false, {"yarn", ":format", "%"}
     end
 end
 
-vim.api.nvim_create_user_command('RunFormatter', function(opts)
-    local buffer = 0
-    if opts.args then
-        local res = tonumber(opts.args)
-        if res then
-            buffer = res
-        end
-    end
+local function format_with_temp_file(orig_lines, buffer, formatter)
     local buf = vim.api.nvim_buf_get_name(buffer)
     local name = buf:match("/([^/]+)$")
 
-    -- Select a formatter
-    local formatter_generators = {office_formatters, default_formatters}
-    local formatter = {}
-    for _, gen in ipairs(formatter_generators) do
-        formatter = gen(vim.bo[buffer].filetype)
-        if formatter then
-            break
-        end
-    end
-
-    if not formatter then
-        return
-    end
-
     -- Create a temporary file and write buffer contents
-    local orig_lines = vim.api.nvim_buf_get_lines(buffer, 0, -1, true)
     local file_name = os.tmpname() .. "." .. name
     local file, err = io.open(file_name, "w+")
     if file then
@@ -147,7 +118,15 @@ vim.api.nvim_create_user_command('RunFormatter', function(opts)
     end
 
     -- Run formatter on the temporary file
-    run_formatter(file_name, vim.bo[buffer].filetype, formatter)
+    for i = 1, #formatter do
+        if formatter[i] == "%" then
+            formatter[i] = file_name
+        end
+    end
+    local res = run_formatter(vim.bo[buffer].filetype, formatter)
+    if not res then
+        return
+    end
 
     -- Read formatted file
     local new_lines = {}
@@ -168,6 +147,52 @@ vim.api.nvim_create_user_command('RunFormatter', function(opts)
     if not success then
         print("Failed to delete temp file " .. file_name .. ", reason: " .. err)
         print(" ") -- Extra line in case output is swallowed by prompt
+        return
+    end
+
+    return new_lines
+end
+
+local function format_with_stdin(orig_lines, buffer, formatter)
+    local res = run_formatter(vim.bo[buffer].filetype, formatter, orig_lines)
+    if res then
+        return vim.split(res, "\n")
+    end
+end
+
+vim.api.nvim_create_user_command('RunFormatter', function(opts)
+    local buffer = 0
+    if opts.args then
+        local res = tonumber(opts.args)
+        if res then
+            buffer = res
+        end
+    end
+
+    -- Select a formatter
+    local formatter_generators = {office_formatters, default_formatters}
+    local formatter = {}
+    local use_stdin = false
+    for _, gen in ipairs(formatter_generators) do
+        use_stdin, formatter = gen(vim.bo[buffer].filetype)
+        if formatter then
+            break
+        end
+    end
+
+    if not formatter then
+        return
+    end
+
+    local orig_lines = vim.api.nvim_buf_get_lines(buffer, 0, -1, true)
+    local new_lines = {}
+    if use_stdin then
+        new_lines = format_with_stdin(orig_lines, buffer, formatter)
+    else
+        new_lines = format_with_temp_file(orig_lines, buffer, formatter)
+    end
+
+    if not new_lines then
         return
     end
 
