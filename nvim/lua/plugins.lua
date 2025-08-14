@@ -282,6 +282,7 @@ require("lazy").setup({
         dependencies = {
             {'hrsh7th/cmp-path', commit = '91ff86c'},
             {'hrsh7th/cmp-nvim-lsp', commit = '99290b3'},
+            {'saadparwaiz1/cmp_luasnip', commit = '98d9cb5'},
             {'L3MON4D3/LuaSnip', version = '2.3.x'}
         },
         config = function()
@@ -329,6 +330,8 @@ require("lazy").setup({
                     end
                 }
             })
+
+            require("luasnip.loaders.from_lua").load({paths = "./lua/snippets"})
         end
     },
     {
