@@ -37,10 +37,11 @@ echo "Install LSP dependencies..."
 # NOTE:
 # - `shellcheck` is needed by bashls for linting
 # - `gcc`, `c++`, `cmake` and `ninja` are required by glslls
+# - `openjdk-21` and `maven` are required by java-language-server
 if is_ubuntu; then
-    sudo apt-get install -y --no-install-recommends shellcheck gcc cmake ninja-build g++
+    sudo apt-get install -y --no-install-recommends shellcheck gcc cmake ninja-build g++ openjdk-21-jdk maven
 elif is_arch; then
-    sudo pacman -S --needed --noconfirm shellcheck gcc cmake ninja
+    sudo pacman -S --needed --noconfirm shellcheck gcc cmake ninja jdk21-openjdk maven
 else
     echo "Unsupported OS!"
     exit 1
