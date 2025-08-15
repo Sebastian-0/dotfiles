@@ -13,7 +13,7 @@ local function run_formatter(filetype, args, stdin)
         return
     end
     res = res:wait()
-    if res.code ~= 0 then
+    if res.code ~= 0 and filetype ~= "zig" then -- TODO: Temp fix here because zig returns empty stdout/stderr always, and errors even on success...
         print("Formatting failed!")
         print(res.stdout)
         print(res.stderr)
@@ -82,6 +82,12 @@ local function default_formatters(filetype)
         }
     elseif string.find("xml", filetype) then
         return false, {"python3", vim.fn.stdpath("config") .. "/format_xml.py", "--input", "%", "--output", "%"}
+    elseif string.find("zig", filetype) then
+        -- return true, {"zig", "fmt", "--stdin"}
+        -- return true, {"zig", "fmt", "--stdin", "--color", "off"}
+        -- return true, {"bash", "-c", "zig fmt --stdin --color off"}
+        return false, {"zig", "fmt", "%"}
+        -- return {"cat", "%", "|", "zig", "fmt", "--stdin", ">", "%"}
     end
 end
 
