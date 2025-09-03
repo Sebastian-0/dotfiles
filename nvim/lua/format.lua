@@ -60,9 +60,9 @@ local function default_formatters(filetype)
         return true, {"black", "--quiet", "-"}
     elseif string.find("cuda,cpp,c,glsl", filetype) then
         if file_exists(".clang-format") then
-            return true, {"clang-format", "-style=file:.clang-format"}
+            return true, {"clang-format", "--style=file:.clang-format"}
         else
-            return true, {"clang-format"}
+            return true, {"clang-format", "--style={IndentWidth: 4}"}
         end
     elseif string.find("javascript,typescript,json,jsonc", filetype) then
         return true, {"biome", "format", "-"}
