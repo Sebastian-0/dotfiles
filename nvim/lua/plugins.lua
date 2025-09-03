@@ -266,7 +266,7 @@ require("lazy").setup({
                     'dockerfile-language-server',
                     'glslls',
                     'html-lsp',
-                    'java-language-server',
+                    'jdtls',
                     'lua-language-server',
                     'python-lsp-server',
                     'rust-analyzer',
