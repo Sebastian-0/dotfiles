@@ -44,7 +44,7 @@ require("lazy").setup({
             vim.keymap.set('n', '<leader>fb', builtin.buffers, {})
 
             -- LSP keymaps
-            vim.keymap.set("n", "gr", builtin.lsp_references)
+            vim.keymap.set("n", "grr", builtin.lsp_references)
             vim.keymap.set("n", "gD", builtin.lsp_type_definitions)
             vim.keymap.set("n", "gd", builtin.lsp_definitions)
             vim.keymap.set("n", "gh", builtin.lsp_incoming_calls)
