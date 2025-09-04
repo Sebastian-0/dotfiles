@@ -229,6 +229,8 @@ gicnv() {
 }
 
 SSH_ENV="$HOME/.ssh/environment"
+SSH_ADD_TIME="$HOME/.ssh/ssh_add_time"
+SSH_ADD_EXPIRY_SECONDS=36000
 
 ssh_start_agent() {
     launch() {
@@ -236,12 +238,12 @@ ssh_start_agent() {
         # spawn ssh-agent
         /usr/bin/ssh-agent | sed 's/^echo/#echo/' > "${SSH_ENV}"
         echo "Initialization succeeded!"
-        chmod 600 "${SSH_ENV}"
+        chmod 600 "$SSH_ENV"
     }
 
-    if [ -f "${SSH_ENV}" ]; then
-        . "${SSH_ENV}" > /dev/null
-        ps -ef | grep "${SSH_AGENT_PID}" | grep ssh-agent$ > /dev/null || {
+    if [ -f "$SSH_ENV" ]; then
+        . "$SSH_ENV" > /dev/null
+        ps -ef | grep "$SSH_AGENT_PID" | grep ssh-agent$ > /dev/null || {
             launch
         }
     else
@@ -250,12 +252,22 @@ ssh_start_agent() {
 }
 
 ssh_add_key() {
+    . "$SSH_ENV" > /dev/null
     if ! ssh-add -l > /dev/null; then
-        . "${SSH_ENV}" > /dev/null
-        /usr/bin/ssh-add -t 10h || {
-            kill ${SSH_AGENT_PID}
+        /usr/bin/ssh-add -t "$SSH_ADD_EXPIRY_SECONDS" || {
+            kill "$SSH_AGENT_PID"
             echo "Failed to add identity, forgot password?"
         }
+        date +%s%N > "$SSH_ADD_TIME"
+    else
+        start="$(cat "$SSH_ADD_TIME")"
+        current="$(date +%s%N)"
+        delta=$((SSH_ADD_EXPIRY_SECONDS * 1000000000 - (current - start)))
+        echo "Time until key expiry: $( # Subshell to avoid leaking sourced symbols
+            root_path="$(dirname -- "${BASH_SOURCE[0]}")"
+            . "$root_path/utils.sh"
+            nanos_to_str $delta
+        )"
     fi
 }
 
