@@ -1,3 +1,7 @@
+root_path="$(dirname -- "${BASH_SOURCE[0]}")"
+
+. "$root_path/utils/ssh_env.sh"
+
 # Don't put duplicate lines or lines starting with space in the history.
 HISTCONTROL=ignoreboth
 HISTSIZE=4096
@@ -228,10 +232,6 @@ gicnv() {
     fi
 }
 
-SSH_ENV="$HOME/.ssh/environment"
-SSH_ADD_TIME="$HOME/.ssh/ssh_add_time"
-SSH_ADD_EXPIRY_SECONDS=36000
-
 ssh_start_agent() {
     launch() {
         echo "Initializing new SSH agent..."
@@ -264,8 +264,7 @@ ssh_add_key() {
         current="$(date +%s%N)"
         delta=$((SSH_ADD_EXPIRY_SECONDS * 1000000000 - (current - start)))
         echo "Time until key expiry: $( # Subshell to avoid leaking sourced symbols
-            root_path="$(dirname -- "${BASH_SOURCE[0]}")"
-            . "$root_path/utils.sh"
+            . "$root_path/utils/time.sh"
             nanos_to_str $delta
         )"
     fi
@@ -283,6 +282,7 @@ fi
 if [ -f /usr/share/fzf/key-bindings.bash ]; then
     . /usr/share/fzf/key-bindings.bash
 fi
+
 # NOTE: Disable completions because they have little gain and mess up autocomplete for
 # my git aliases.
 # if [ -f /usr/share/bash-completion/completions/fzf ]; then

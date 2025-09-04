@@ -1,4 +1,7 @@
 #!/bin/bash
+root_path="$(dirname -- "${BASH_SOURCE[0]}")"
+
+. "$root_path/utils/ssh_env.sh"
 
 # Hello         
 SEP_R='' 
@@ -9,6 +12,9 @@ SEG_L=''
 R='\e[0m'
 COL_STATUS_OK='\e[32m'
 COL_STATUS_ERR='\e[38;5;124m'
+COL_SSH_ERR='\e[38;5;124m'
+COL_SSH_LOCKED='\e[38;5;208m'
+COL_SSH_UNLOCKED='\e[32m'
 COL_TIME='\e[37m'
 COL_HOST='\e[33m'
 COL_DIR='\e[37m'
@@ -35,8 +41,7 @@ function timer_stop {
     fi
     local delta=$((now - timer_start))
     timer_show="$( # Subshell to avoid leaking sourced symbols
-        root_path="$(dirname -- "${BASH_SOURCE[0]}")"
-        . "$root_path/utils.sh"
+        . "$root_path/utils/time.sh"
         nanos_to_str $delta
     )"
     unset timer_start
@@ -50,11 +55,29 @@ function _seb_prompt() {
     else
         local ret="\[$R${COL_STATUS_ERR}\][  $exit ]"
     fi
+
+    start="$(cat "$SSH_ADD_TIME")"
+    current="$(date +%s%N)"
+    delta=$((SSH_ADD_EXPIRY_SECONDS * 1000000000 - (current - start)))
+    if ! ps -A | grep ssh-agent$ > /dev/null; then
+        # No SSH agent is running at all
+        ssh="\[$R$COL_SSH_ERR\]< 󰻌 -- >"
+    elif ! ssh-add -l > /dev/null || [ "$delta" -lt 0 ]; then
+        # No key registered, or key expired
+        ssh="\[$R$COL_SSH_LOCKED\]< 󰦞 -- >"
+    else
+        ssh_expiry_time="$( # Subshell to avoid leaking sourced symbols
+            . "$root_path/utils/time.sh"
+            nanos_to_str $delta
+        )"
+        ssh="\[$R$COL_SSH_UNLOCKED\]< 󰕥 $ssh_expiry_time >"
+    fi
+
     time="\[$R$COL_TIME\]($timer_show) \t"
     host="\[$R$COL_HOST\][\u@\h]"
     dir="\[$R$COL_DIR\]\w"
     prompt="\[$R\]\$"
-    PS1="\n┌$ret $time $host $dir\n$prompt "
+    PS1="\n┌$ret $time $host $ssh $dir\n$prompt "
 }
 if [[ "$PROMPT_COMMAND" != *_seb_prompt* ]]; then
     trap 'timer_start' DEBUG
