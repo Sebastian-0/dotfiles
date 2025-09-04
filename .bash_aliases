@@ -230,28 +230,38 @@ gicnv() {
 
 SSH_ENV="$HOME/.ssh/environment"
 
-function start_agent {
-    echo "Initializing new SSH agent..."
-    # spawn ssh-agent
-    /usr/bin/ssh-agent | sed 's/^echo/#echo/' > "${SSH_ENV}"
-    echo "Initialization succeeded!"
-    chmod 600 "${SSH_ENV}"
-    . "${SSH_ENV}" > /dev/null
-    /usr/bin/ssh-add || {
-        kill ${SSH_AGENT_PID}
-        echo "Failed to add identity, forgot password?"
+ssh_start_agent() {
+    launch() {
+        echo "Initializing new SSH agent..."
+        # spawn ssh-agent
+        /usr/bin/ssh-agent | sed 's/^echo/#echo/' > "${SSH_ENV}"
+        echo "Initialization succeeded!"
+        chmod 600 "${SSH_ENV}"
     }
-}
 
-gii() {
     if [ -f "${SSH_ENV}" ]; then
         . "${SSH_ENV}" > /dev/null
         ps -ef | grep "${SSH_AGENT_PID}" | grep ssh-agent$ > /dev/null || {
-            start_agent
+            launch
         }
     else
-        start_agent
+        launch
     fi
+}
+
+ssh_add_key() {
+    if ! ssh-add -l > /dev/null; then
+        . "${SSH_ENV}" > /dev/null
+        /usr/bin/ssh-add -t 10h || {
+            kill ${SSH_AGENT_PID}
+            echo "Failed to add identity, forgot password?"
+        }
+    fi
+}
+
+ssi() {
+    ssh_start_agent
+    ssh_add_key
 }
 
 # Set up fzf key bindings and fuzzy completion
