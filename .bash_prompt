@@ -56,7 +56,11 @@ function _seb_prompt() {
         local ret="\[$R${COL_STATUS_ERR}\][  $exit ]"
     fi
 
-    start="$(cat "$SSH_ADD_TIME")"
+    if [ ! -f "$SSH_ADD_TIME" ]; then
+        start=0
+    else
+        start="$(cat "$SSH_ADD_TIME")"
+    fi
     current="$(date +%s%N)"
     delta=$((SSH_ADD_EXPIRY_SECONDS * 1000000000 - (current - start)))
     if ! ps -A | grep ssh-agent$ > /dev/null; then
