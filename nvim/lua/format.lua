@@ -97,7 +97,7 @@ local function office_formatters(filetype)
     end
 
     if string.find("javascript,typescript,json,jsonc", filetype) then
-        return false, {"yarn", ":format", "%"}
+        return false, {"yarn", ":biome", "format", "--no-errors-on-unmatched", "--write", "%"}
     end
 end
 
