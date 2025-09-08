@@ -12,11 +12,12 @@ SEG_L=''
 R='\e[0m'
 COL_STATUS_OK='\e[32m'
 COL_STATUS_ERR='\e[38;5;124m'
+COL_TIME='\e[37m'
+COL_HOST='\e[33m'
 COL_SSH_ERR='\e[38;5;124m'
 COL_SSH_LOCKED='\e[38;5;208m'
 COL_SSH_UNLOCKED='\e[32m'
-COL_TIME='\e[37m'
-COL_HOST='\e[33m'
+COL_GIT='\e[38;5;12m'
 COL_DIR='\e[37m'
 
 # Timer functionality courtesy of Nicolas Thery:
@@ -51,37 +52,69 @@ function _seb_prompt() {
     local exit="$?"
     timer_stop
     if [ "$exit" = "0" ]; then
-        local ret="\[$R${COL_STATUS_OK}\][ 󰄬 ]"
+        local ret="\[$R${COL_STATUS_OK}\][ 󰄬 ] "
     else
-        local ret="\[$R${COL_STATUS_ERR}\][  $exit ]"
+        local ret="\[$R${COL_STATUS_ERR}\][  $exit ] "
     fi
 
+    local start
     if [ ! -f "$SSH_ADD_TIME" ]; then
         start=0
     else
         start="$(cat "$SSH_ADD_TIME")"
     fi
-    current="$(date +%s%N)"
-    delta=$((SSH_ADD_EXPIRY_SECONDS * 1000000000 - (current - start)))
+    local current="$(date +%s%N)"
+    local delta=$((SSH_ADD_EXPIRY_SECONDS * 1000000000 - (current - start)))
+    local ssh
     if ! ps -A | grep ssh-agent$ > /dev/null; then
         # No SSH agent is running at all
-        ssh="\[$R$COL_SSH_ERR\]< 󰻌 -- >"
+        ssh="\[$R$COL_SSH_ERR\]< 󰻌 -- > "
     elif ! ssh-add -l > /dev/null || [ "$delta" -lt 0 ]; then
         # No key registered, or key expired
-        ssh="\[$R$COL_SSH_LOCKED\]< 󰦞 -- >"
+        ssh="\[$R$COL_SSH_LOCKED\]< 󰦞 -- > "
     else
-        ssh_expiry_time="$( # Subshell to avoid leaking sourced symbols
+        local ssh_expiry_time="$( # Subshell to avoid leaking sourced symbols
             . "$root_path/utils/time.sh"
             nanos_to_str $delta
         )"
-        ssh="\[$R$COL_SSH_UNLOCKED\]< 󰕥 $ssh_expiry_time >"
+        ssh="\[$R$COL_SSH_UNLOCKED\]< 󰕥 $ssh_expiry_time > "
     fi
 
-    time="\[$R$COL_TIME\]($timer_show) \t"
-    host="\[$R$COL_HOST\][\u@\h]"
-    dir="\[$R$COL_DIR\]\w"
-    prompt="\[$R\]\$"
-    PS1="\n┌$ret $time $host $ssh $dir\n$prompt "
+    local time="\[$R$COL_TIME\]($timer_show) \t "
+    local host
+    if [ -n "$SSH_CONNECTION" ]; then
+        host="\[$R$COL_HOST\][\u@\h] "
+    else
+        host="\[$R$COL_HOST\][\u@] "
+    fi
+    local gt=""
+    if git status &> /dev/null; then
+        local provider="󰊢"
+        # local repo="$(basename "$(git rev-parse --show-toplevel)")"
+        local remote_repo="$(git config --get remote.origin.url)"
+        if [ -n "$remote_repo" ]; then
+            #     repo="$(basename -s .git "$remote_repo")"
+            if [[ "$remote_repo" = *github.com* ]]; then
+                provider=󰊤
+            fi
+            if [[ "$remote_repo" = *bitbucket.com* ]]; then
+                provider=󰠄
+            fi
+            if [[ "$remote_repo" = *gitlab.com* ]]; then
+                provider=󰮠
+            fi
+        fi
+
+        local branch="$(git branch --show-current)"
+        if [ -z "$branch" ]; then
+            branch="DETACHED"
+        fi
+        # gt="($provider $repo $branch) "
+        gt="\[$R$COL_GIT\]($provider $branch) "
+    fi
+    local dir="\[$R$COL_DIR\]\w"
+    local prompt="\[$R\]\$"
+    PS1="\n┌$ret$time$host$gt$ssh$dir\n$prompt "
 }
 if [[ "$PROMPT_COMMAND" != *_seb_prompt* ]]; then
     trap 'timer_start' DEBUG
