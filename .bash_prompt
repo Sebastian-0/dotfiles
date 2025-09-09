@@ -3,91 +3,87 @@ root_path="$(dirname -- "${BASH_SOURCE[0]}")"
 
 . "$root_path/utils/ssh_env.sh"
 
-# Hello         
-SEP_R='' 
-SEP_L=''
-SEG_R=''
-SEG_L=''
-
-R='\e[0m'
-COL_STATUS_OK='\e[32m'
-COL_STATUS_ERR='\e[38;5;124m'
-COL_TIME='\e[37m'
-COL_HOST='\e[33m'
-COL_SSH_ERR='\e[38;5;124m'
-COL_SSH_LOCKED='\e[38;5;208m'
-COL_SSH_UNLOCKED='\e[32m'
-COL_GIT='\e[38;5;12m'
-COL_DIR='\e[37m'
+SEB_PROMPT_R='\e[0m'
+SEB_PROMPT_COL_STATUS_OK='\e[32m'
+SEB_PROMPT_COL_STATUS_ERR='\e[38;5;124m'
+SEB_PROMPT_COL_TIME='\e[37m'
+SEB_PROMPT_COL_HOST='\e[33m'
+SEB_PROMPT_COL_SSH_ERR='\e[38;5;124m'
+SEB_PROMPT_COL_SSH_LOCKED='\e[38;5;208m'
+SEB_PROMPT_COL_SSH_UNLOCKED='\e[32m'
+SEB_PROMPT_COL_GIT='\e[38;5;12m'
+SEB_PROMPT_COL_DIR='\e[37m'
 
 # Timer functionality courtesy of Nicolas Thery:
 # https://stackoverflow.com/a/34812608
-function timer_now {
+function _seb_prompt_time_now {
     date +%s%N
 }
 
-function timer_start {
+function _seb_prompt_timer_start {
     # Only run for commands not in the prompt, otherwise the timer shows the wrong value
     if [[ "$PROMPT_COMMAND" != *$BASH_COMMAND* ]]; then
-        timer_start=${timer_start:-$(timer_now)}
+        _seb_prompt_time_start=${timer_start:-$(_seb_prompt_time_now)}
     fi
 }
 
-function timer_stop {
+function _seb_prompt_time {
     local now
-    now=$(timer_now)
+    now=$(_seb_prompt_time_now)
     # The timer is not started in case of Ctrl+C, make time diff == 0
-    if [ -z "${timer_start:-}" ]; then
-        timer_start="$now"
+    if [ -z "${_seb_prompt_time_start:-}" ]; then
+        _seb_prompt_time_start="$now"
     fi
-    local delta=$((now - timer_start))
-    timer_show="$( # Subshell to avoid leaking sourced symbols
+    local delta=$((now - _seb_prompt_time_start))
+    echo "\[$SEB_PROMPT_R$SEB_PROMPT_COL_TIME\]($( # Subshell to avoid leaking sourced symbols
         . "$root_path/utils/time.sh"
         nanos_to_str $delta
-    )"
-    unset timer_start
+    )) \t "
 }
 
-function _seb_prompt() {
-    local exit="$?"
-    timer_stop
+function _seb_prompt_exit_code() {
+    local exit="$1"
     if [ "$exit" = "0" ]; then
-        local ret="\[$R${COL_STATUS_OK}\][ 󰄬 ] "
+        echo "\[$SEB_PROMPT_R${SEB_PROMPT_COL_STATUS_OK}\][ 󰄬 ] "
     else
-        local ret="\[$R${COL_STATUS_ERR}\][  $exit ] "
+        echo "\[$SEB_PROMPT_R${SEB_PROMPT_COL_STATUS_ERR}\][  $exit ] "
     fi
+}
 
+function _seb_prompt_ssh() {
     local start
     if [ ! -f "$SSH_ADD_TIME" ]; then
         start=0
     else
         start="$(cat "$SSH_ADD_TIME")"
     fi
-    local current="$(date +%s%N)"
+
+    local current="$(_seb_prompt_time_now)"
     local delta=$((SSH_ADD_EXPIRY_SECONDS * 1000000000 - (current - start)))
-    local ssh
-    if ! ps -A | grep ssh-agent$ > /dev/null; then
+    if ! pgrep ssh-agent > /dev/null; then
         # No SSH agent is running at all
-        ssh="\[$R$COL_SSH_ERR\]< 󰻌 -- > "
+        echo "\[$SEB_PROMPT_R$SEB_PROMPT_COL_SSH_ERR\]< 󰻌 -- > "
     elif ! ssh-add -l > /dev/null || [ "$delta" -lt 0 ]; then
         # No key registered, or key expired
-        ssh="\[$R$COL_SSH_LOCKED\]< 󰦞 -- > "
+        echo "\[$SEB_PROMPT_R$SEB_PROMPT_COL_SSH_LOCKED\]< 󰦞 -- > "
     else
         local ssh_expiry_time="$( # Subshell to avoid leaking sourced symbols
             . "$root_path/utils/time.sh"
             nanos_to_str $delta
         )"
-        ssh="\[$R$COL_SSH_UNLOCKED\]< 󰕥 $ssh_expiry_time > "
+        echo "\[$SEB_PROMPT_R$SEB_PROMPT_COL_SSH_UNLOCKED\]< 󰕥 $ssh_expiry_time > "
     fi
+}
 
-    local time="\[$R$COL_TIME\]($timer_show) \t "
-    local host
+function _seb_prompt_host() {
     if [ -z "${SSH_CONNECTION:-}" ]; then
-        host="\[$R$COL_HOST\][\u@] "
+        echo "\[$SEB_PROMPT_R$SEB_PROMPT_COL_HOST\][\u@] "
     else
-        host="\[$R$COL_HOST\][\u@\h] "
+        echo "\[$SEB_PROMPT_R$SEB_PROMPT_COL_HOST\][\u@\h] "
     fi
-    local gt=""
+}
+
+function _seb_prompt_git() {
     if git status &> /dev/null; then
         local provider="󰊢"
         # local repo="$(basename "$(git rev-parse --show-toplevel)")"
@@ -109,15 +105,34 @@ function _seb_prompt() {
         if [ -z "$branch" ]; then
             branch="DETACHED"
         fi
-        # gt="($provider $repo $branch) "
-        gt="\[$R$COL_GIT\]($provider $branch) "
+        # echo "($provider $repo $branch) "
+        echo "\[$SEB_PROMPT_R$SEB_PROMPT_COL_GIT\]($provider $branch) "
     fi
-    local dir="\[$R$COL_DIR\]\w"
-    local prompt="\[$R\]\$"
-    PS1="\n┌$ret$time$host$gt$ssh$dir\n$prompt "
+}
+
+function _seb_prompt_working_dir() {
+    echo "\[$SEB_PROMPT_R$SEB_PROMPT_COL_DIR\]\w"
+}
+
+function _seb_prompt_input_char() {
+    echo "\[$SEB_PROMPT_R\]\$"
+}
+
+function _seb_prompt() {
+    local ec="$?"
+    local ret="$(_seb_prompt_exit_code $ec)"
+    local time="$(_seb_prompt_time)"
+    local ssh="$(_seb_prompt_ssh)"
+    local host="$(_seb_prompt_host)"
+    local git="$(_seb_prompt_git)"
+    local dir="$(_seb_prompt_working_dir)"
+    local input_char="$(_seb_prompt_input_char)"
+
+    unset _seb_prompt_time_start
+    PS1="\n┌$ret$time$host$git$ssh$dir\n$input_char "
 }
 if [[ "$PROMPT_COMMAND" != *_seb_prompt* ]]; then
-    trap 'timer_start' DEBUG
+    trap '_seb_prompt_timer_start' DEBUG
     if [ -z "$PROMPT_COMMAND" ]; then
         export PROMPT_COMMAND="_seb_prompt"
     else
