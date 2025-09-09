@@ -37,7 +37,7 @@ function timer_stop {
     local now
     now=$(timer_now)
     # The timer is not started in case of Ctrl+C, make time diff == 0
-    if [ -z "$timer_start" ]; then
+    if [ -z "${timer_start:-}" ]; then
         timer_start="$now"
     fi
     local delta=$((now - timer_start))
@@ -82,10 +82,10 @@ function _seb_prompt() {
 
     local time="\[$R$COL_TIME\]($timer_show) \t "
     local host
-    if [ -n "$SSH_CONNECTION" ]; then
-        host="\[$R$COL_HOST\][\u@\h] "
-    else
+    if [ -z "${SSH_CONNECTION:-}" ]; then
         host="\[$R$COL_HOST\][\u@] "
+    else
+        host="\[$R$COL_HOST\][\u@\h] "
     fi
     local gt=""
     if git status &> /dev/null; then
