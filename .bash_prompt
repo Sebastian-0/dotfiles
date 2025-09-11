@@ -105,6 +105,13 @@ function _seb_prompt_git() {
         if [ -z "$branch" ]; then
             branch="DETACHED"
         fi
+
+        # TODO space and " don't work in a regex
+        ahead_behind="$(git status --short --branch | grep '##')"
+        if [[ "$ahead_behind" =~ ".*\[.*ahead ([0-9]+)" ]]; then
+            echo "Match: ${BASH_REMATCH[1]}"
+        fi
+
         # echo "($provider $repo $branch) "
         echo "\[$SEB_PROMPT_R$SEB_PROMPT_COL_GIT\]($provider $branch) "
     fi
