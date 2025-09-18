@@ -213,9 +213,9 @@ girib() {
 define_git_alias gic 'git commit'
 gic() {
     if [ "$#" -eq 1 ]; then
-        git commit -m "$1" --edit
+        git commit --edit -m "$1"
     elif [ "$#" -eq 2 ]; then
-        git commit -m "$1" -m "$2" --edit
+        git commit --edit -m "$1" -m "$2"
     else
         git commit
     fi
@@ -224,9 +224,9 @@ gic() {
 define_git_alias gicnv 'git commit'
 gicnv() {
     if [ "$#" -eq 1 ]; then
-        git commit --no-verify -m "$1"
+        git commit --no-verify --edit -m "$1"
     elif [ "$#" -eq 2 ]; then
-        git commit --no-verify -m "$1" -m "$2"
+        git commit --no-verify --edit -m "$1" -m "$2"
     else
         git commit --no-verify
     fi
