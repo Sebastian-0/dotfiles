@@ -1,4 +1,4 @@
-vim.opt.mouse = ""
+vim.opt.mouse = "a" -- Try using mouse mode and see if I panic
 vim.opt.scrolloff = 5
 vim.opt.tabstop = 4
 vim.opt.expandtab = true
