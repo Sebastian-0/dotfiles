@@ -110,8 +110,8 @@ local function smart_k()
     return vim.v.count == 0 and "gk" or "k"
 end
 
-vim.keymap.set("n", "j", smart_j, {expr = true})
-vim.keymap.set("n", "k", smart_k, {expr = true})
+vim.keymap.set({"n", "v"}, "j", smart_j, {expr = true})
+vim.keymap.set({"n", "v"}, "k", smart_k, {expr = true})
 
 -- Extra save and quit commands
 vim.api.nvim_create_user_command("Q", "q", {})
