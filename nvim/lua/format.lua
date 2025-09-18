@@ -1,7 +1,7 @@
 local debug = false
 
 local prev_warned_missing = {}
-local function run_formatter(filetype, args, stdin)
+local function run_formatter(filetype, args, stdin, print_stdout_on_error)
     local ok, res = pcall(vim.system, args, {stdin = stdin, text = true})
     if not ok then
         local key = filetype .. args[1]
@@ -15,7 +15,9 @@ local function run_formatter(filetype, args, stdin)
     res = res:wait()
     if res.code ~= 0 and filetype ~= "zig" then -- TODO: Temp fix here because zig returns empty stdout/stderr always, and errors even on success...
         print("Formatting failed!")
-        print(res.stdout)
+        if print_stdout_on_error then
+            print(res.stdout)
+        end
         print(res.stderr)
         print("-> Return code:", res.code)
         print(" ")
@@ -129,7 +131,7 @@ local function format_with_temp_file(orig_lines, buffer, formatter)
             formatter[i] = file_name
         end
     end
-    local res = run_formatter(vim.bo[buffer].filetype, formatter)
+    local res = run_formatter(vim.bo[buffer].filetype, formatter, true)
     if not res then
         return
     end
@@ -160,7 +162,7 @@ local function format_with_temp_file(orig_lines, buffer, formatter)
 end
 
 local function format_with_stdin(orig_lines, buffer, formatter)
-    local res = run_formatter(vim.bo[buffer].filetype, formatter, orig_lines)
+    local res = run_formatter(vim.bo[buffer].filetype, formatter, orig_lines, false)
     if res then
         return vim.split(res, "\n")
     end
