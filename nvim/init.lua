@@ -170,6 +170,21 @@ vim.api.nvim_create_autocmd("FileType", {
     end
 })
 
+-- Save last edit in a global mark
+local last_edit_mark = "P"
+
+vim.api.nvim_create_autocmd({"TextChanged", "TextChangedI"}, {
+    callback = function(args)
+        local buftype = vim.api.nvim_get_option_value("buftype", {buf = args.buf})
+        if buftype ~= "" then
+            return -- skip non-file buffers like telescope, help, etc.
+        end
+        vim.cmd("mark " .. last_edit_mark)
+    end
+})
+
+vim.keymap.set("n", "<leader>l", "`" .. last_edit_mark)
+
 -- Format on save implementation
 require("format")
 
