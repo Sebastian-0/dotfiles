@@ -48,6 +48,7 @@ require("lazy").setup({
             vim.keymap.set("n", "gD", builtin.lsp_type_definitions)
             vim.keymap.set("n", "gd", builtin.lsp_definitions)
             vim.keymap.set("n", "gh", builtin.lsp_incoming_calls)
+            vim.keymap.set("n", "gO", builtin.lsp_document_symbols)
             vim.keymap.set("n", "<leader>gl", function()
                 builtin.diagnostics({bufnr = 0})
             end)
