@@ -181,6 +181,11 @@ vim.api.nvim_create_autocmd({"TextChanged", "TextChangedI"}, {
         if buftype ~= "" then
             return -- skip non-file buffers like telescope, help, etc.
         end
+
+        local ft = vim.api.nvim_get_option_value("filetype", {buf = args.buf})
+        if ft == "netrw" then
+            return -- Skip raw netrw buffers
+        end
         vim.cmd("mark " .. last_edit_mark)
     end
 })
