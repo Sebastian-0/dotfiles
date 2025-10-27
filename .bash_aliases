@@ -54,15 +54,6 @@ if [ "$TERM" = "xterm-kitty" ]; then
     fi
 fi
 
-# Apt aliases
-if which nala >&/dev/null; then
-    alias apt=nala
-    alias apt-get=nala
-elif which apt-fast >&/dev/null; then
-    alias apt=apt-fast
-    alias apt-get=apt-fast
-fi
-
 # Misc aliases
 alias sudo='sudo ' # Needed to make aliases work for sudo
 alias ip='ip --color'
