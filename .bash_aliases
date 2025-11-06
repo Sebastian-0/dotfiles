@@ -69,9 +69,8 @@ alias nmtui="NEWT_COLORS='entry=black,white;label=black,white' nmtui"
 
 function mkcd() {
     if [ "$#" -eq 1 ]; then
-        mkdir "$1"
-        if [ "$?" = 0 ]; then
-            cd "$1"
+        if mkdir -p "$1"; then
+            cd "$1" || exit 1
         fi
     else
         echo "Missing folder name, or wrong amount of arguments!"
