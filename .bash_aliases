@@ -105,6 +105,18 @@ print_folder() {
     fi
 }
 
+# List all docker images and corresponding tags in a docker registry
+docker_registry_list_tags() {
+    if [ -z "$DOCKER_REGISTRY" ]; then
+        echo "The DOCKER_REGISTRY environment variable must be set!"
+        exit 1
+    fi
+    for repo in $(curl -sk "https://$DOCKER_REGISTRY/v2/_catalog" | jq -r '.repositories[]'); do
+        echo "=== $repo ==="
+        curl -sk "https://$DOCKER_REGISTRY/v2/$repo/tags/list" | jq -r '.tags[]?' | sort
+    done
+}
+
 # Layout aliases
 alias layout_swerty='setxkbmap -layout se -variant swerty'
 alias layout_se='setxkbmap -layout se'
