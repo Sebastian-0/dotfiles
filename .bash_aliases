@@ -91,7 +91,10 @@ sha1folder() {
 }
 
 # List ascending disk usage of all items in the folder, in user-readable format
-alias folder_usage='du -hd 1 . | sort -h'
+folder_usage() {
+    local TARGET="${1:-.}"
+    sudo du -hd 1 "$TARGET" | sort -h
+}
 
 # Print all files in a folder
 print_folder() {
