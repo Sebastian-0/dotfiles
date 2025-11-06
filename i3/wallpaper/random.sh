@@ -21,7 +21,15 @@ while true; do
     images=($(find "$target" | shuf))
     for img in "${images[@]}"; do
         echo "Using image $img"
-        feh --bg-scale --zoom fill "$img"
+        if [ "$XDG_SESSION_TYPE" = "wayland" ]; then
+            pid="$(pidof swaybg || echo "")"
+            swaybg -m fill -i "$img" &
+            if [ -n "$pid" ]; then
+                kill "$pid"
+            fi
+        else
+            feh --bg-scale --zoom fill "$img"
+        fi
         sleep $((30 * 60))
     done
 done

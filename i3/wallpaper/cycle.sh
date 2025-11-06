@@ -49,7 +49,15 @@ while true; do
         sleep_time=60
     fi
     echo "Using image $target-$img"
-    feh --bg-scale --zoom fill $target/$target-$img.*
+    if [ "$XDG_SESSION_TYPE" = "wayland" ]; then
+        pid="$(pidof swaybg || echo "")"
+        swaybg -m fill -i "$target/$target-$img.*"
+        if [ -n "$pid" ]; then
+            kill "$pid"
+        fi
+    else
+        feh --bg-scale --zoom fill "$target/$target-$img.*"
+    fi
     sleep $sleep_time
     ((++count))
 done
