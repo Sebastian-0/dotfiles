@@ -340,6 +340,14 @@ require("lazy").setup({
         end
     },
     {
+        "saecki/live-rename.nvim",
+        commit = "3a3cddf",
+        config = function()
+            local live_rename = require("live-rename")
+            vim.keymap.set("n", "grn", live_rename.rename, {desc = "LSP rename"})
+        end
+    },
+    {
         "rest-nvim/rest.nvim",
         version = "3.12.0",
         dependencies = {
