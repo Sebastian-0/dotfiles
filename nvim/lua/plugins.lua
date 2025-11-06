@@ -52,6 +52,9 @@ require("lazy").setup({
             vim.keymap.set("n", "<leader>gl", function()
                 builtin.diagnostics({bufnr = 0})
             end)
+            vim.keymap.set("n", "<leader>k", function()
+                builtin.lsp_definitions({jump_type = "never", layout_strategy = 'vertical'})
+            end)
 
             -- Git keymaps
             vim.keymap.set("n", "<leader>gs", builtin.git_stash)
