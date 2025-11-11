@@ -63,7 +63,8 @@ function _seb_prompt_ssh() {
     if ! pgrep ssh-agent > /dev/null; then
         # No SSH agent is running at all
         echo "\[$SEB_PROMPT_R$SEB_PROMPT_COL_SSH_ERR\]< 󰻌 -- > "
-    elif ! ssh-add -l > /dev/null || [ "$delta" -lt 0 ]; then
+    elif [ -z "$SSH_AGENT_PID" ] || ! ps -p "$SSH_AGENT_PID" > /dev/null || [ "$delta" -lt 0 ]; then
+        # TODO: PID is still valid after the key expires, maybe the delta check is enough? Otherwise add back: ! ssh-add -l > /dev/null
         # No key registered, or key expired
         echo "\[$SEB_PROMPT_R$SEB_PROMPT_COL_SSH_LOCKED\]< 󰦞 -- > "
     else
