@@ -47,9 +47,11 @@ else
     exit 1
 fi
 
-echo "Install formatters..."
+echo "Install formatters & dependencies..."
+# NOTE:
+# - 'make' is needed by luaformatter (additionally needs g++, cmake, etc... but those are already installed above)
 if is_ubuntu; then
-    sudo apt-get install -y --no-install-recommends shfmt
+    sudo apt-get install -y --no-install-recommends shfmt make
 elif is_arch; then
     sudo pacman -S --needed --noconfirm shfmt
 else
