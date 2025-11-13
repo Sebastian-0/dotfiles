@@ -1,4 +1,29 @@
 [opener]
 edit = [
-	{ run = 'nvim "$@"', block = true, for = "unix" },
+    { run = 'nvim "$@"', block = true, for = "unix" },
+]
+
+[open]
+# It's not possible to append to defaults, so instead I need to copy all here :(
+# https://github.com/sxyazi/yazi/blob/shipped/yazi-config/preset/yazi-default.toml#L61
+rules = [
+    # Folder
+    { name = "*/", use = [ "edit", "open", "reveal" ] },
+    # Text
+    { mime = "text/*", use = [ "edit", "reveal" ] },
+    # Image
+    { mime = "image/*", use = [ "open", "reveal" ] },
+    # Media
+    { mime = "{audio,video}/*", use = [ "play", "reveal" ] },
+    # Archive
+    { mime = "application/{zip,rar,7z*,tar,gzip,xz,zstd,bzip*,lzma,compress,archive,cpio,arj,xar,ms-cab*}", use = [ "extract", "reveal" ] },
+    # JSON
+    { mime = "application/{json,ndjson}", use = [ "edit", "reveal" ] },
+    { mime = "*/javascript", use = [ "edit", "reveal" ] },
+    # Empty file
+    { mime = "inode/empty", use = [ "edit", "reveal" ] },
+    # Log files
+    { name = "*.log", use = [ "edit", "open", "reveal" ] },
+    # Fallback
+    { name = "*", use = [ "open", "reveal" ] },
 ]
