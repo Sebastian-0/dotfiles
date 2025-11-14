@@ -375,6 +375,25 @@ require("lazy").setup({
         config = function()
             require("colorizer").setup()
         end
+    },
+    {
+        "vds2212/vim-remotions",
+        commit = "1354375",
+        event = {"BufRead", "BufWinEnter", "BufNewFile"},
+
+        config = function()
+            local motions = {
+                line = {backward = "k", forward = "j", repeat_if_count = 1, repeat_count = 1},
+                char = {backward = "h", forward = "l", repeat_if_count = 1, repeat_count = 1},
+                word = {backward = "b", forward = "w", repeat_if_count = 1, repeat_count = 1},
+                fullword = {backward = "B", forward = "W", repeat_if_count = 1, repeat_count = 1},
+                wordend = {backward = "ge", forward = "e", repeat_if_count = 1, repeat_count = 1},
+                vsplit = {backward = "<C-w><", forward = "<C-w>>", repeat_count = 1},
+                hsplit = {backward = "<C-w>-", forward = "<C-w>+", repeat_count = 1},
+                diagnostic = {backward = "[d", forward = "]d"}
+            }
+            vim.g.remotions_motions = motions
+        end
     }
 })
 
