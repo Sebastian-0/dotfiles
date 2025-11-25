@@ -2,6 +2,9 @@ local debug = false
 
 local prev_warned_missing = {}
 local function run_formatter(filetype, args, stdin, print_stdout_on_error)
+    if debug then
+        print(vim.inspect(args))
+    end
     local ok, res = pcall(vim.system, args, {stdin = stdin, text = true})
     if not ok then
         local key = filetype .. args[1]
@@ -161,7 +164,12 @@ local function format_with_temp_file(orig_lines, buffer, formatter)
     return new_lines
 end
 
-local function format_with_stdin(orig_lines, buffer, formatter)
+local function format_with_stdin(orig_lines, buffer, file_name, formatter)
+    for i = 1, #formatter do
+        if formatter[i] == "%" then
+            formatter[i] = file_name
+        end
+    end
     local res = run_formatter(vim.bo[buffer].filetype, formatter, orig_lines, false)
     if res then
         return vim.split(res, "\n")
@@ -195,7 +203,7 @@ vim.api.nvim_create_user_command('RunFormatter', function(opts)
     local orig_lines = vim.api.nvim_buf_get_lines(buffer, 0, -1, true)
     local new_lines = {}
     if use_stdin then
-        new_lines = format_with_stdin(orig_lines, buffer, formatter)
+        new_lines = format_with_stdin(orig_lines, buffer, vim.api.nvim_buf_get_name(buffer), formatter)
     else
         new_lines = format_with_temp_file(orig_lines, buffer, formatter)
     end
