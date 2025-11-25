@@ -101,8 +101,35 @@ local function office_formatters(filetype)
         return
     end
 
-    if string.find("javascript,typescript,json,jsonc", filetype) then
-        return false, {"yarn", ":biome", "format", "--no-errors-on-unmatched", "--write", "%"}
+    if string.find("python", filetype) then
+        return true, {"/var/intui/artifacts/x86_64-linux/ruff@0.14.6/ruff", "format", "--stdin-filename", "%"}
+    elseif string.find("cuda,cpp,c,glsl", filetype) then
+        if file_exists(".clang-format") then
+            return true, {
+                "/var/intui/artifacts/x86_64-linux/llvm-project@21.1.5/build/bin/clang-format",
+                "--style=file:.clang-format"
+            }
+        end
+    elseif string.find("sh", filetype) then
+        return true, {
+            "/var/intui/artifacts/x86_64-linux/shfmt@3.12.0/shfmt",
+            "--indent",
+            "4",
+            "--space-redirects",
+            "--case-indent",
+            "--binary-next-line",
+            "--language-dialect",
+            "bash"
+        }
+    elseif string.find("javascript,typescript,json,jsonc", filetype) then
+        return true, {
+            "/var/intui/artifacts/x86_64-linux/biome@2.3.7/biome",
+            "format",
+            "--no-errors-on-unmatched",
+            "--vcs-enabled=false",
+            "--stdin-file-path",
+            "%"
+        }
     end
 end
 
