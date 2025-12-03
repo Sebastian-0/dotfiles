@@ -51,9 +51,9 @@ echo "Install formatters & dependencies..."
 # NOTE:
 # - 'make' is needed by luaformatter (additionally needs g++, cmake, etc... but those are already installed above)
 if is_ubuntu; then
-    sudo apt-get install -y --no-install-recommends shfmt make
+    sudo apt-get install -y --no-install-recommends shfmt make luarocks
 elif is_arch; then
-    sudo pacman -S --needed --noconfirm shfmt
+    sudo pacman -S --needed --noconfirm shfmt make luarocks
 else
     echo "Unsupported OS!"
     exit 1
