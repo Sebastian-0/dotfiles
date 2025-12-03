@@ -6,6 +6,7 @@ jupyter/migrated
 cached_layouts
 yazi/plugins
 yazi/flavors
+fcitx5/conf
 
 # Ignore all ipython stuff except the startup scripts
 ipython/profile_default/*
