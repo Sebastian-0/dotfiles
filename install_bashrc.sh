@@ -6,6 +6,7 @@ else
     git config --global core.editor "vim"
 fi
 
+git config --global init.defaultBranch main
 git config --global pull.rebase true
 git config --global core.autocrlf input
 git config --global rerere.enabled true
