@@ -1,3 +1,5 @@
+-- Parts of the formatting is inspired by Conform:
+-- https://github.com/stevearc/conform.nvim/blob/ffe26e8df8115c9665d24231f8a49fadb2d611ce/lua/conform/runner.lua#L181
 local debug = false
 
 local prev_warned_missing = {}
@@ -26,6 +28,10 @@ local function run_formatter(filetype, args, stdin, print_stdout_on_error)
         print(" ")
         return
     end
+    -- NOTE: Remove the extra newline added by vim.system
+    if res.stdout:sub(-1) == "\n" then
+        return res.stdout:sub(0, #res.stdout - 1)
+    end
     return res.stdout
 end
 
@@ -47,7 +53,7 @@ local function slice(tbl, start, len)
     return res
 end
 
-local function create_edit(new_text, l_start, l_end, c_start, c_end)
+local function create_edit(old_text, new_text, l_start, l_end, c_start, c_end)
     -- Reduce by one to comply with the LSP spec for text diffs (zero indexed):
     -- https://microsoft.github.io/language-server-protocol/specifications/lsp/3.17/specification/#range
     local line_start = l_start - 1
@@ -55,6 +61,7 @@ local function create_edit(new_text, l_start, l_end, c_start, c_end)
     local char_start = c_start
     local char_end = c_end
     return {
+        oldText = old_text,
         newText = new_text,
         range = {start = {line = line_start, character = char_start}, ["end"] = {line = line_end, character = char_end}}
     }
@@ -239,9 +246,14 @@ vim.api.nvim_create_user_command('RunFormatter', function(opts)
         return
     end
 
+    -- NOTE: Workaround to make diffing work when end-of-file is changed. If a newline is added or removed
+    -- we would get a diff on the last line, but it wouldn't result in a change because I treat the newline
+    -- as a separator and not part of the line. Adding an extra newline avoids this because then vim will
+    -- always detect that as a different amount of lines instead of a different ending on the last line.
+    local orig_text = table.concat(orig_lines, "\n") .. "\n"
+    local new_text = table.concat(new_lines, "\n") .. "\n"
+
     -- Find diffs and apply
-    local orig_text = table.concat(orig_lines, "\n")
-    local new_text = table.concat(new_lines, "\n")
     local indices = vim.diff(orig_text, new_text, {result_type = 'indices', algorithm = 'histogram'})
     if debug then
         local function ptbl(tbl)
@@ -265,25 +277,26 @@ vim.api.nvim_create_user_command('RunFormatter', function(opts)
     for _, idx in ipairs(indices) do
         local o_start, o_len, n_start, n_len = unpack(idx)
         local new_text = table.concat(slice(new_lines, n_start, n_len), "\n")
+        local old_text = table.concat(slice(orig_lines, o_start, o_len), "\n") -- For debugging
         if o_len == 0 then
             -- Insertion
             if o_start < #orig_lines then
                 new_text = new_text .. "\n"
             end
-            table.insert(edits, create_edit(new_text, o_start + 1, o_start + 1, 0, 0))
+            table.insert(edits, create_edit("", new_text, o_start + 1, o_start + 1, 0, 0))
         elseif n_len == 0 then
             -- Deletion
-            table.insert(edits, create_edit("", o_start, o_start + o_len - 1 + 1, 0, 0))
+            table.insert(edits, create_edit(old_text, "", o_start, o_start + o_len - 1 + 1, 0, 0))
         else
             -- Replacement, could be improved by diffing within the lines too
-            table.insert(edits,
-                         create_edit(new_text, o_start, o_start + o_len - 1, 0, orig_lines[o_start + o_len - 1]:len()))
+            table.insert(edits, create_edit(old_text, new_text, o_start, o_start + o_len - 1, 0,
+                                            orig_lines[o_start + o_len - 1]:len()))
         end
     end
     if debug then
         for _, edit in ipairs(edits) do
             print("Edit:")
-            print("- " .. edit.newText)
+            print("- '" .. edit.oldText .. "' -> '" .. edit.newText .. "'")
             print("- start: " .. edit.range.start.line .. ", " .. edit.range.start.character)
             print("- end: " .. edit.range["end"].line .. ", " .. edit.range["end"].character)
         end
