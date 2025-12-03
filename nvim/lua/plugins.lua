@@ -394,6 +394,26 @@ require("lazy").setup({
             }
             vim.g.remotions_motions = motions
         end
+    },
+    {
+        "andythigpen/nvim-coverage",
+        commit = "a939e42",
+        config = function()
+            local coverage = require("coverage")
+            coverage.setup({
+                auto_reload = true,
+                lang = {
+                    cpp = {
+                        coverage_file = "platform/out/coverage/lcov.info" -- This can be a list of a function which finds the file
+                    }
+                }
+            })
+            vim.keymap.set("n", "<leader>cl", function()
+                coverage.load(true)
+            end)
+            vim.keymap.set("n", "<leader>ct", coverage.toggle)
+            vim.keymap.set("n", "<leader>cs", coverage.summary)
+        end
     }
 })
 
