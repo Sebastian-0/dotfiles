@@ -5,9 +5,9 @@ set -euo pipefail
 
 echo "Install fcitx5..."
 if is_ubuntu; then
-    sudo apt-get install -y --no-install-recommends fcitx5 fcitx5-chinese-addons fcitx5-configtool
+    sudo apt-get install -y --no-install-recommends fcitx5 fcitx5-chinese-addons fcitx5-configtool fcitx5-m17n
 else
-    sudo pacman -S --needed --noconfirm fcitx5 fcitx5-chinese-addons fcitx5-configtool
+    sudo pacman -S --needed --noconfirm fcitx5 fcitx5-chinese-addons fcitx5-configtool fcitx5-m17n
 fi
 
 echo "Copy fcitx5 configuration..."
