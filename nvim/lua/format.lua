@@ -137,6 +137,8 @@ local function office_formatters(filetype)
             "--stdin-file-path",
             "%"
         }
+    elseif string.find("xml", filetype) then
+        return true, {"not_existing_on_purpose"}
     end
 end
 
