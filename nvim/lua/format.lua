@@ -93,7 +93,7 @@ local function default_formatters(filetype)
             "--column-limit=120"
         }
     elseif string.find("xml", filetype) then
-        return false, {"python3", vim.fn.stdpath("config") .. "/format_xml.py", "--input", "%", "--output", "%"}
+        return true, {"python3", vim.fn.stdpath("config") .. "/format_xml.py", "--input", "-", "--output", "-"}
     elseif string.find("zig", filetype) then
         -- return true, {"zig", "fmt", "--stdin"}
         -- return true, {"zig", "fmt", "--stdin", "--color", "off"}
@@ -137,6 +137,17 @@ local function office_formatters(filetype)
             "--stdin-file-path",
             "%"
         }
+        -- elseif string.find("xml", filetype) then
+        --     return true, {
+        --         "python3",
+        --         vim.fn.stdpath("config") .. "/format_xml.py",
+        --         "--indent",
+        --         "2",
+        --         "--input",
+        --         "-",
+        --         "--output",
+        --         "-"
+        --     }
     elseif string.find("xml", filetype) then
         return true, {"not_existing_on_purpose"}
     end
