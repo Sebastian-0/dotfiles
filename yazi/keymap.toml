@@ -1,4 +1,0 @@
-[[mgr.prepend_keymap]]
-on   = [ "C" ]
-run  = "plugin compress"
-desc = "Archive selected files"
