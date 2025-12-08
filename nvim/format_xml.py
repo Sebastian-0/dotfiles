@@ -6,6 +6,7 @@ parser = argparse.ArgumentParser(
 )
 parser.add_argument("--input", required=True)
 parser.add_argument("--output", required=True)
+parser.add_argument("--indent", default=4)
 args = parser.parse_args()
 
 p_single = re.compile("<.*\\/>")
@@ -14,7 +15,7 @@ p_close = re.compile("<\\/.*>")
 p_comment = re.compile("<!--.*-->")
 
 output = []
-indent = " " * 4
+indent = " " * int(args.indent)
 depth = 0
 with open(args.input, "r") as f:
     for line in f:
