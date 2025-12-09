@@ -12,6 +12,10 @@ SEB_PROMPT_COL_SSH_ERR='\e[38;5;124m'
 SEB_PROMPT_COL_SSH_LOCKED='\e[38;5;208m'
 SEB_PROMPT_COL_SSH_UNLOCKED='\e[32m'
 SEB_PROMPT_COL_GIT='\e[38;5;12m'
+SEB_PROMPT_COL_GIT_BRANCH='\e[38;5;12m'
+SEB_PROMPT_COL_GIT_TAG='\e[38;5;178m'
+SEB_PROMPT_COL_GIT_COMMIT='\e[38;5;60m'
+SEB_PROMPT_COL_GIT_DETACHED='\e[38;5;13m'
 SEB_PROMPT_COL_DIR='\e[37m'
 
 # Timer functionality courtesy of Nicolas Thery:
@@ -104,28 +108,30 @@ function _seb_prompt_git() {
 
         local is_detached=false
         local branch="$(git branch --show-current)"
-        if [ -z "$branch" ]; then
+        if [ -n "$branch" ]; then
+            branch="\[$SEB_PROMPT_COL_GIT_BRANCH\]$branch"
+        else
             is_detached=true
         fi
 
         local tag="$(git tag --points-at HEAD | paste -sd' ' -)"
         if [ -n "$tag" ]; then
-            tag=" 󰓻 $tag"
+            tag="\[$SEB_PROMPT_COL_GIT_TAG\] 󰓻 $tag"
         fi
 
         local commit="$(git rev-parse --short HEAD)"
         if [ -n "$commit" ]; then
-            commit="  $commit"
+            commit="\[$SEB_PROMPT_COL_GIT_COMMIT\]  $commit"
         fi
 
         if [ "$is_detached" == false ]; then
-            echo "\[$SEB_PROMPT_R$SEB_PROMPT_COL_GIT\]($provider $branch$tag) "
+            echo "\[$SEB_PROMPT_R$SEB_PROMPT_COL_GIT\]($provider $branch$tag\[$SEB_PROMPT_COL_GIT\]) "
         else
             # For detached state we want to always show either tag or commit hash
             if [ -z "$tag" ]; then
                 tag="$commit"
             fi
-            echo "\[$SEB_PROMPT_R$SEB_PROMPT_COL_GIT\]($provider DETACHED$tag) "
+            echo "\[$SEB_PROMPT_R$SEB_PROMPT_COL_GIT\]($provider \[$SEB_PROMPT_COL_GIT_DETACHED\]DETACHED$tag\[$SEB_PROMPT_COL_GIT\]) "
         fi
     fi
 }
