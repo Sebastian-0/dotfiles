@@ -102,12 +102,31 @@ function _seb_prompt_git() {
             fi
         fi
 
+        local is_detached=false
         local branch="$(git branch --show-current)"
         if [ -z "$branch" ]; then
-            branch="DETACHED"
+            is_detached=true
         fi
-        # echo "($provider $repo $branch) "
-        echo "\[$SEB_PROMPT_R$SEB_PROMPT_COL_GIT\]($provider $branch) "
+
+        local tag="$(git tag --points-at HEAD | paste -sd' ' -)"
+        if [ -n "$tag" ]; then
+            tag=" 󰓻 $tag"
+        fi
+
+        local commit="$(git rev-parse --short HEAD)"
+        if [ -n "$commit" ]; then
+            commit="  $commit"
+        fi
+
+        if [ "$is_detached" == false ]; then
+            echo "\[$SEB_PROMPT_R$SEB_PROMPT_COL_GIT\]($provider $branch$tag) "
+        else
+            # For detached state we want to always show either tag or commit hash
+            if [ -z "$tag" ]; then
+                tag="$commit"
+            fi
+            echo "\[$SEB_PROMPT_R$SEB_PROMPT_COL_GIT\]($provider DETACHED$tag) "
+        fi
     fi
 }
 
