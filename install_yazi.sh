@@ -8,10 +8,22 @@ set -euo pipefail
 echo "Install extension packages..."
 if is_ubuntu; then
     sudo apt-get install -y --no-install-recommends ripgrep jq imagemagick fd-find poppler-utils ffmpeg 7zip
+elif is_arch; then
+    sudo pacman -S --needed --noconfirm ripgrep jq imagemagick fd poppler ffmpeg 7zip
+else
+    echo "Unsupported OS!"
+    exit 1
 fi
 
 echo "Install yazi..."
-sudo snap install --classic yazi
+if is_ubuntu; then
+    sudo snap install --classic yazi
+elif is_arch; then
+    sudo pacman -S --needed --noconfirm yazi
+else
+    echo "Unsupported OS!"
+    exit 1
+fi
 
 echo "Copy yazi configuration..."
 symlink_config yazi
