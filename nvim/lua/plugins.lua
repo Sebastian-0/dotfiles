@@ -300,6 +300,7 @@ require("lazy").setup({
             end
             local luasnip = require('luasnip')
             local cmp = require('cmp')
+            local compare = require('cmp.config.compare')
             cmp.setup({
                 sources = cmp.config.sources({{name = "nvim_lsp"}, {name = "luasnip"}, {name = 'path'}}),
                 mapping = cmp.mapping.preset.insert({
@@ -334,6 +335,24 @@ require("lazy").setup({
                     expand = function(args)
                         require('luasnip').lsp_expand(args.body)
                     end
+                },
+                -- NOTE: Use default sorting, but remove 'locality' to improve performance on files with very long lines.
+                -- The sorting config block is copied from:
+                -- https://github.com/hrsh7th/nvim-cmp/blob/d97d85e01339f01b842e6ec1502f639b080cb0fc/lua/cmp/config/default.lua#L67
+                sorting = {
+                    priority_weight = 2,
+                    comparators = {
+                        compare.offset,
+                        compare.exact,
+                        -- compare.scopes, -- Removed in the default settings
+                        compare.score,
+                        compare.recently_used,
+                        -- compare.locality, -- Removed due to above reason
+                        compare.kind,
+                        compare.sort_text,
+                        compare.length,
+                        compare.order
+                    }
                 }
             })
 
