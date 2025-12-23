@@ -17,6 +17,8 @@ SEB_PROMPT_COL_GIT_TAG='\e[38;5;178m'
 SEB_PROMPT_COL_GIT_COMMIT='\e[38;5;60m'
 SEB_PROMPT_COL_GIT_DETACHED='\e[38;5;13m'
 SEB_PROMPT_COL_DIR='\e[37m'
+SEB_PROMPT_COL_SUBSHELL='\e[38;5;98m'
+SEB_PROMPT_COL_ROOT='\e[38;5;220m'
 
 # Timer functionality courtesy of Nicolas Thery:
 # https://stackoverflow.com/a/34812608
@@ -144,6 +146,43 @@ function _seb_prompt_input_char() {
     echo "\[$SEB_PROMPT_R\]\$"
 }
 
+function _seb_prompt_join_by {
+    local d="${1-}" f="${2-}"
+    if shift 2; then
+        printf "%s" "$f" "${@/#/$d}"
+    fi
+}
+
+function _seb_prompt_sessions() {
+    local sessions=()
+    if [ -n "$IN_NIX_SHELL" ]; then
+        # NOTE: This check is not sufficient since it only works for `nix-shell` but not for `nix shell`, see:
+        # https://github.com/NixOS/nix/issues/3862#issuecomment-707320241
+        sessions+=("󱄅 nix")
+    fi
+    if [ -n "$SSH_CONNECTION" ] || [ -n "$SSH_TTY" ]; then
+        sessions+=("🖧  ssh")
+    fi
+    if [ "$SHLVL" -eq 2 ]; then
+        sessions+=(" bash")
+    fi
+    if [ "$SHLVL" -gt 2 ]; then
+        sessions+=(" bash ($SHLVL)")
+    fi
+    if [ -n "$YAZI_LEVEL" ]; then
+        sessions+=(" yazi")
+    fi
+    if [ -n "$VIRTUAL_ENV" ]; then
+        sessions+=("󰌠 venv")
+    fi
+    if [ -n "$DIRENV_DIR" ]; then
+        sessions+=("󰫧 direnv")
+    fi
+    if [ "${#sessions[@]}" -gt 0 ]; then
+        echo "\[$SEB_PROMPT_R$SEB_PROMPT_COL_SUBSHELL\]< $(_seb_prompt_join_by " | " "${sessions[@]}") > "
+    fi
+}
+
 function _seb_prompt() {
     local ec="$?"
     local ret="$(_seb_prompt_exit_code $ec)"
@@ -153,9 +192,16 @@ function _seb_prompt() {
     local git="$(_seb_prompt_git)"
     local dir="$(_seb_prompt_working_dir)"
     local input_char="$(_seb_prompt_input_char)"
+    local sessions="$(_seb_prompt_sessions)"
+
+    local root=""
+    if [ $EUID -eq 0 ]; then
+        # NOTE: This will probably never be useful because we don't use this prompt when we are root
+        root="\[$SEB_PROMPT_R$SEB_PROMPT_COL_ROOT\](  ) "
+    fi
 
     unset _seb_prompt_time_start
-    PS1="\n┌$ret$time$host$git$ssh$dir\n$input_char "
+    PS1="\n┌$ret$time$host$git$ssh$dir\n$sessions$root$input_char "
 }
 if [[ "$PROMPT_COMMAND" != *_seb_prompt* ]]; then
     trap '_seb_prompt_timer_start' DEBUG
