@@ -2,3 +2,24 @@
 on = [ ".", "s" ]
 run  = "plugin what-size"
 desc = "Calc size of selection or cwd" 
+
+[[mgr.prepend_keymap]]
+on   = [ ".", "c", "a" ]
+run  = "plugin compress"
+desc = "Archive selected files"
+
+[[mgr.prepend_keymap]]
+on   = [ ".", "c", "p" ]
+run  = "plugin compress -p"
+desc = "Archive selected files (password)"
+
+[[mgr.prepend_keymap]]
+on   = [ ".", "m" ]
+run  = "plugin chmod"
+desc = "Chmod on selected files"
+
+[[mgr.prepend_keymap]]
+on   = "!"
+for  = "unix"
+run  = 'shell "$SHELL" --block'
+desc = "Open $SHELL here"
