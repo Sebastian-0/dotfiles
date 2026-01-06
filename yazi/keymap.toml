@@ -19,6 +19,11 @@ run  = "plugin chmod"
 desc = "Chmod on selected files"
 
 [[mgr.prepend_keymap]]
+on   = [ ".", "." ]
+run  = "hidden toggle"
+desc = "Toggle the visibility of hidden files"
+
+[[mgr.prepend_keymap]]
 on   = "!"
 for  = "unix"
 run  = 'shell "$SHELL" --block'
