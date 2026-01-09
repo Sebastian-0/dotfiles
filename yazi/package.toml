@@ -1,17 +1,17 @@
 [[plugin.deps]]
 use = "pirafrank/what-size"
-rev = "d896656"
-hash = "62251f94eb67648d42cdfcfb8be0fad2"
+rev = "179ebf6"
+hash = "57056b9728006881d580ccabe8154a9c"
 
 [[plugin.deps]]
 use = "KKV9/compress"
-rev = "c264639"
-hash = "e17c11b605d989568a1d1741ca17c584"
+rev = "e2ae983"
+hash = "36b570e2164f6ad2317cfb839e42ef4"
 
 [[plugin.deps]]
 use = "yazi-rs/plugins:chmod"
-rev = "19dc890"
-hash = "5b2eb0cc2050cec1e4de83cfa51a5b90"
+rev = "68f7d48"
+hash = "8da0b15a97b5dfd13941d1ecc617ac7c"
 
 [[flavor.deps]]
 use = "yazi-rs/flavors:catppuccin-mocha"
