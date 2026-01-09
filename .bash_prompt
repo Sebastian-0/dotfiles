@@ -160,14 +160,22 @@ function _seb_prompt_sessions() {
         # https://github.com/NixOS/nix/issues/3862#issuecomment-707320241
         sessions+=("󱄅 nix")
     fi
+
+    # NOTE: Certain nested sessions also increase SHLVL because they run a new shell process, but I don't
+    # care about that so we reduce the count again if that's the case!
+    local bash_lvl="$SHLVL"
+    if [ -n "$YAZI_LEVEL" ]; then
+        ((bash_lvl--))
+    fi
+
     if [ -n "$SSH_CONNECTION" ] || [ -n "$SSH_TTY" ]; then
         sessions+=("🖧  ssh")
     fi
-    if [ "$SHLVL" -eq 2 ]; then
+    if [ "$bash_lvl" -eq 2 ]; then
         sessions+=(" bash")
     fi
-    if [ "$SHLVL" -gt 2 ]; then
-        sessions+=(" bash ($SHLVL)")
+    if [ "$bash_lvl" -gt 2 ]; then
+        sessions+=(" bash ($bash_lvl)")
     fi
     if [ -n "$YAZI_LEVEL" ]; then
         sessions+=(" yazi")
