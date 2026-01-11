@@ -77,7 +77,7 @@ local function default_formatters(filetype)
             return true, {"clang-format", "--style={IndentWidth: 4}"}
         end
     elseif string.find("javascript,typescript,json,jsonc", filetype) then
-        return true, {"biome", "format", "-"}
+        return true, {"biome", "format", "--stdin-file-path", "%"}
     elseif string.find("rust", filetype) then
         return true, {"rustfmt"}
     elseif string.find("sh", filetype) then
