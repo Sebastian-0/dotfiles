@@ -33,37 +33,38 @@ require("lazy").setup({
         config = function()
             -- File search keymaps
             local builtin = require('telescope.builtin')
-            vim.keymap.set('n', '<leader>ff', builtin.find_files, {})
+            vim.keymap.set('n', '<leader>ff', builtin.find_files, {desc = "Search files"})
             vim.keymap.set('n', '<leader>fF', function()
                 builtin.find_files({no_ignore = true})
-            end, {})
-            vim.keymap.set("n", "<leader>fg", require('telescope').extensions.live_grep_args.live_grep_args)
+            end, {desc = "Search files (include ignored)"})
+            vim.keymap.set("n", "<leader>fg", require('telescope').extensions.live_grep_args.live_grep_args,
+                           {desc = "Search fuzzy"})
             vim.keymap.set("n", "<leader>fG", function()
                 require('telescope').extensions.live_grep_args.live_grep_args({additional_args = {'--no-ignore'}})
-            end)
-            vim.keymap.set('n', '<leader>fb', builtin.buffers, {})
+            end, {desc = "Search fuzzy (include ignored)"})
+            vim.keymap.set('n', '<leader>fb', builtin.buffers, {desc = "Search buffers"})
 
             -- LSP keymaps
-            vim.keymap.set("n", "grr", builtin.lsp_references)
-            vim.keymap.set("n", "gD", builtin.lsp_type_definitions)
-            vim.keymap.set("n", "gd", builtin.lsp_definitions)
-            vim.keymap.set("n", "gh", builtin.lsp_incoming_calls)
-            vim.keymap.set("n", "gO", builtin.lsp_document_symbols)
+            vim.keymap.set("n", "grr", builtin.lsp_references, {desc = "LSP references"})
+            vim.keymap.set("n", "gD", builtin.lsp_type_definitions, {desc = "LSP type definitions"})
+            vim.keymap.set("n", "gd", builtin.lsp_definitions, {desc = "LSP definitions"})
+            vim.keymap.set("n", "gh", builtin.lsp_incoming_calls, {desc = "LSP incoming calls"})
+            vim.keymap.set("n", "gO", builtin.lsp_document_symbols, {desc = "LSP symbols"})
             vim.keymap.set("n", "<leader>gl", function()
                 builtin.diagnostics({bufnr = 0})
-            end)
+            end, {desc = "Diagnostics all"})
             vim.keymap.set("n", "<leader>k", function()
                 builtin.lsp_definitions({jump_type = "never", layout_strategy = 'vertical'})
-            end)
+            end, {desc = "Documentation hover"})
 
             -- Git keymaps
-            vim.keymap.set("n", "<leader>gs", builtin.git_stash)
-            vim.keymap.set("n", "<leader>gb", builtin.git_branches)
-            vim.keymap.set("n", "<leader>gc", builtin.git_bcommits)
+            vim.keymap.set("n", "<leader>gs", builtin.git_stash, {desc = "Git stash view"})
+            vim.keymap.set("n", "<leader>gb", builtin.git_branches, {desc = "Git branches view"})
+            vim.keymap.set("n", "<leader>gc", builtin.git_bcommits, {desc = "Git commits view"})
 
             -- Misc
-            vim.keymap.set('n', '<leader>fh', builtin.help_tags, {})
-            vim.keymap.set('n', '<leader>fr', builtin.resume, {})
+            vim.keymap.set('n', '<leader>fh', builtin.help_tags, {desc = "Search help files"})
+            vim.keymap.set('n', '<leader>fr', builtin.resume, {desc = "Resume search"})
 
             local prompt_toggle = function(option)
                 local action_state = require("telescope.actions.state")
@@ -228,12 +229,12 @@ require("lazy").setup({
             current_line_blame_opts = {delay = 500},
             on_attach = function(_)
                 local gs = package.loaded.gitsigns
-                vim.keymap.set('n', '<leader>gd', gs.preview_hunk_inline)
-                vim.keymap.set('n', '<leader>gD', gs.diffthis)
-                vim.keymap.set('n', '<leader>gw', gs.toggle_word_diff)
-                vim.keymap.set('n', '<leader>gn', gs.next_hunk)
-                vim.keymap.set('n', '<leader>gN', gs.prev_hunk)
-                vim.keymap.set('n', '<leader>gr', gs.reset_hunk)
+                vim.keymap.set('n', '<leader>gd', gs.preview_hunk_inline, {desc = "Git diff line"})
+                vim.keymap.set('n', '<leader>gD', gs.diffthis, {desc = "Git diff all"})
+                vim.keymap.set('n', '<leader>gw', gs.toggle_word_diff, {desc = "Git diff highlight"})
+                vim.keymap.set('n', '<leader>gn', gs.next_hunk, {desc = "Git hunk next"})
+                vim.keymap.set('n', '<leader>gN', gs.prev_hunk, {desc = "Git hunk previous"})
+                vim.keymap.set('n', '<leader>gr', gs.reset_hunk, {desc = "Git hunk reset"})
             end
         }
     },
@@ -243,14 +244,14 @@ require("lazy").setup({
         init = function()
             vim.g.git_messenger_no_default_mappings = true
             vim.g.git_messenger_always_into_popup = true
-            vim.keymap.set('n', '<leader>gh', ':GitMessenger<CR>')
+            vim.keymap.set('n', '<leader>gh', ':GitMessenger<CR>', {desc = "Git history file"})
         end
     },
     {
         "mbbill/undotree",
         commit = 'b951b87',
         init = function()
-            vim.keymap.set('n', '<leader>u', vim.cmd.UndotreeToggle)
+            vim.keymap.set('n', '<leader>u', vim.cmd.UndotreeToggle, {desc = "Undotree toggle"})
             vim.opt.undofile = true
             vim.g.undotree_SetFocusWhenToggle = true
         end
@@ -429,10 +430,30 @@ require("lazy").setup({
             })
             vim.keymap.set("n", "<leader>cl", function()
                 coverage.load(true)
-            end)
-            vim.keymap.set("n", "<leader>ct", coverage.toggle)
-            vim.keymap.set("n", "<leader>cs", coverage.summary)
+            end, {desc = "Code coverage load"})
+            vim.keymap.set("n", "<leader>ct", coverage.toggle, {desc = "Code coverage toggle"})
+            vim.keymap.set("n", "<leader>cs", coverage.summary, {desc = "Code coverage summary"})
         end
+    },
+    {
+        "folke/which-key.nvim",
+        event = "VeryLazy",
+        opts = {
+            preset = "helix",
+            -- your configuration comes here
+            -- or leave it empty to use the default settings
+            -- refer to the configuration section below
+            icons = {rules = {{pattern = "lsp", icon = " ", color = "azure"}}}
+        },
+        keys = {
+            {
+                "<leader>?",
+                function()
+                    require("which-key").show({global = false})
+                end,
+                desc = "Buffer Local Keymaps (which-key)"
+            }
+        }
     }
 })
 

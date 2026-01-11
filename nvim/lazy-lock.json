@@ -32,5 +32,6 @@
   "undotree": { "branch": "master", "commit": "b951b87b46c34356d44aa71886aecf9dd7f5788a" },
   "vim-devicons": { "branch": "master", "commit": "4db2a6ddaf66afa16105b7d2a13f81a9bb5ff9fc" },
   "vim-python-pep8-indent": { "branch": "master", "commit": "60ba5e11a61618c0344e2db190210145083c91f8" },
-  "vim-remotions": { "branch": "main", "commit": "13543754114a49db4460f3f7533e623a6ee9f4b0" }
+  "vim-remotions": { "branch": "main", "commit": "13543754114a49db4460f3f7533e623a6ee9f4b0" },
+  "which-key.nvim": { "branch": "main", "commit": "3aab2147e74890957785941f0c1ad87d0a44c15a" }
 }

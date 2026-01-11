@@ -12,7 +12,7 @@ local lspconfig = require("lspconfig")
 vim.lsp.config('clangd', {
     cmd = {"clangd", "--clang-tidy", "--background-index"}
     -- on_attach = function()
-    --     vim.keymap.set("n", "gF", ":LspClangdSwitchSourceHeader<CR>")
+    --     vim.keymap.set("n", "gF", ":LspClangdSwitchSourceHeader<CR>", {desc = "LSP Clangd header <-> source"})
     -- end
 })
 vim.lsp.config('lua_ls', {
@@ -78,6 +78,6 @@ vim.lsp.enable('zls')
 -- TODO: This should only be active for Clangd, and right now it's not obvious
 --       how to make that happen... Overriding on_attach means the default
 --       on_attach gets deleted!
-vim.keymap.set("n", "gF", ":LspClangdSwitchSourceHeader<CR>")
+vim.keymap.set("n", "gF", ":LspClangdSwitchSourceHeader<CR>", {desc = "LSP Clangd header <-> source"})
 -- TODO: This should only be active for rust analyzer
-vim.keymap.set("n", "gR", ":LspCargoReload<CR>")
+vim.keymap.set("n", "gR", ":LspCargoReload<CR>", {desc = "LSP Rust Cargo reload"})

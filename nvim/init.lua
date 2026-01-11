@@ -70,9 +70,12 @@ vim.api.nvim_create_autocmd("FileType", {
 })
 
 -- Managing diagnostics
-vim.keymap.set('n', 'gl', '<cmd>lua vim.diagnostic.open_float()<cr>', {desc = 'Open diagnostics in floating'})
-vim.keymap.set('n', '[d', '<cmd>lua vim.diagnostic.goto_prev()<cr>', {desc = 'Go to previous diagnostic'})
-vim.keymap.set('n', ']d', '<cmd>lua vim.diagnostic.goto_next()<cr>', {desc = 'Go to next diagnostic'})
+vim.keymap.set('n', 'gra', '<cmd>lua vim.lsp.buf.code_action()<cr>', {desc = "LSP code action"})
+vim.keymap.set('n', 'gri', '<cmd>lua vim.lsp.buf.implementation()<cr>', {desc = "LSP implementation"})
+vim.keymap.set('n', 'grt', '<cmd>lua vim.lsp.buf.type_definition()<cr>', {desc = "LSP type definition"})
+vim.keymap.set('n', 'gl', '<cmd>lua vim.diagnostic.open_float()<cr>', {desc = "Diagnostics line"})
+vim.keymap.set('n', '[d', '<cmd>lua vim.diagnostic.goto_prev()<cr>', {desc = "Diagnostics previous"})
+vim.keymap.set('n', ']d', '<cmd>lua vim.diagnostic.goto_next()<cr>', {desc = "Diagnostics next"})
 
 -- Moving lines of code
 vim.keymap.set("n", "<a-j>", ":m .+1<CR>==")
@@ -96,7 +99,7 @@ vim.keymap.set("n", "n", "nzzzv")
 vim.keymap.set("n", "N", "Nzzzv")
 
 -- Jump back after reindenting
-vim.keymap.set("n", "=ap", "ma =ap `a")
+vim.keymap.set("n", "=ap", "ma =ap `a", {desc = "Reindent block"})
 
 -- Make Y copy rest of line
 vim.keymap.set("n", "Y", "y$")
@@ -190,7 +193,7 @@ vim.api.nvim_create_autocmd({"TextChanged", "TextChangedI"}, {
     end
 })
 
-vim.keymap.set("n", "<leader>l", "`" .. last_edit_mark)
+vim.keymap.set("n", "<leader>l", "`" .. last_edit_mark, {desc = "Go to last edit"})
 
 -- Format on save implementation
 require("format")
