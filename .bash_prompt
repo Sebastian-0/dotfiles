@@ -119,14 +119,19 @@ function _seb_prompt_git() {
             is_detached=true
         fi
 
-        local tag="$(git tag --points-at HEAD | paste -sd' ' -)"
-        if [ -n "$tag" ]; then
-            tag="\[$SEB_PROMPT_COL_GIT_TAG\] 󰓻 $tag"
-        fi
+        # Only if there are commits
+        local tag=""
+        local commit=""
+        if git rev-parse --verify HEAD &> /dev/null; then
+            tag="$(git tag --points-at HEAD | paste -sd' ' -)"
+            if [ -n "$tag" ]; then
+                tag="\[$SEB_PROMPT_COL_GIT_TAG\] 󰓻 $tag"
+            fi
 
-        local commit="$(git rev-parse --short HEAD)"
-        if [ -n "$commit" ]; then
-            commit="\[$SEB_PROMPT_COL_GIT_COMMIT\]  $commit"
+            commit="$(git rev-parse --short HEAD)"
+            if [ -n "$commit" ]; then
+                commit="\[$SEB_PROMPT_COL_GIT_COMMIT\]  $commit"
+            fi
         fi
 
         if [ "$is_detached" == false ]; then
