@@ -106,6 +106,9 @@ function _seb_prompt_git() {
             if [[ "$remote_repo" = *gitlab.com* ]]; then
                 provider=󰮠
             fi
+            if [[ "$remote_repo" = *codeberg.org* ]]; then
+                provider=
+            fi
         fi
 
         local is_detached=false
