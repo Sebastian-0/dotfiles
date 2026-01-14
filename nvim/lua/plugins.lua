@@ -31,8 +31,10 @@ require("lazy").setup({
             {"nvim-telescope/telescope-live-grep-args.nvim", commit = "b80ec2c"}
         },
         config = function()
-            -- File search keymaps
             local builtin = require('telescope.builtin')
+            local previewers = require("telescope.previewers")
+
+            -- File search keymaps
             vim.keymap.set('n', '<leader>ff', builtin.find_files, {desc = "Search files"})
             vim.keymap.set('n', '<leader>fF', function()
                 builtin.find_files({no_ignore = true})
@@ -58,9 +60,32 @@ require("lazy").setup({
             end, {desc = "Documentation hover"})
 
             -- Git keymaps
+            local git_bcommits_with_header = function(opts)
+                opts = opts or {}
+
+                -- Also include the commit header with Author, timestamp, etc...
+                opts.previewer = previewers.new_termopen_previewer({
+                    get_command = function(entry)
+                        return {
+                            "git",
+                            "--no-pager",
+                            "show",
+                            "--color=always",
+                            "--pretty=format:%C(yellow)%h%Creset  %C(cyan)%an%Creset  %C(green)%ad%Creset%n%n%C(white)%s%Creset%n%n",
+                            "--date=local",
+                            entry.value,
+                            "--",
+                            entry.current_file
+                        }
+                    end
+                })
+
+                builtin.git_bcommits(opts)
+            end
+
             vim.keymap.set("n", "<leader>gs", builtin.git_stash, {desc = "Git stash view"})
             vim.keymap.set("n", "<leader>gb", builtin.git_branches, {desc = "Git branches view"})
-            vim.keymap.set("n", "<leader>gc", builtin.git_bcommits, {desc = "Git commits view"})
+            vim.keymap.set("n", "<leader>gh", git_bcommits_with_header, {desc = "Git history"})
 
             -- Misc
             vim.keymap.set('n', '<leader>fh', builtin.help_tags, {desc = "Search help files"})
@@ -244,7 +269,7 @@ require("lazy").setup({
         init = function()
             vim.g.git_messenger_no_default_mappings = true
             vim.g.git_messenger_always_into_popup = true
-            vim.keymap.set('n', '<leader>gh', ':GitMessenger<CR>', {desc = "Git history file"})
+            vim.keymap.set('n', '<leader>gH', ':GitMessenger<CR>', {desc = "Git history line"})
         end
     },
     {
