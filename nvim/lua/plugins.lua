@@ -1,3 +1,10 @@
+-- NOTE: Regarding plugins:
+-- - The 'keys' lazy loading option does not work for vimscript plugins
+-- - Setting 'config = true' does not work for vimscript plugins since the default config 
+--   can't find and load vimscript plugins
+-- - Either 'config = true', 'opts = {}' or 'config = function() ... end' are required if
+--   the plugin requires 'setup()' to be called (for registering commands, etc...). I think
+--   this is true but I'm not sure, sometimes it still works evern without these calls...
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not (vim.uv or vim.loop).fs_stat(lazypath) then
     local out = vim.fn.system({
@@ -229,6 +236,7 @@ require("lazy").setup({
             {'nvim-tree/nvim-web-devicons', commit = '1020869'},
             {"MunifTanjim/nui.nvim", version = '0.3.x'}
         },
+        event = "VeryLazy",
         opts = {
             window = {position = "current", mappings = {["l"] = "open"}},
             filesystem = {hijack_netrw_behavior = "open_default"},
@@ -266,6 +274,7 @@ require("lazy").setup({
     {
         "rhysd/git-messenger.vim",
         commit = 'edc603d',
+        event = "VeryLazy",
         init = function()
             vim.g.git_messenger_no_default_mappings = true
             vim.g.git_messenger_always_into_popup = true
@@ -275,6 +284,7 @@ require("lazy").setup({
     {
         "mbbill/undotree",
         commit = 'b951b87',
+        event = "VeryLazy",
         init = function()
             vim.keymap.set('n', '<leader>u', vim.cmd.UndotreeToggle, {desc = "Undotree toggle"})
             vim.opt.undofile = true
@@ -286,6 +296,7 @@ require("lazy").setup({
         'williamboman/mason.nvim',
         version = '1.11.x',
         dependencies = {{'WhoIsSethDaniel/mason-tool-installer.nvim', commit = '1255518'}},
+        event = "VeryLazy",
         config = function()
             require('mason').setup({})
             require('mason-tool-installer').setup {
@@ -307,7 +318,7 @@ require("lazy").setup({
             }
         end
     },
-    {'neovim/nvim-lspconfig', commit = 'bd1d024'},
+    {'neovim/nvim-lspconfig', commit = 'bd1d024', event = "VeryLazy"},
     {
         'hrsh7th/nvim-cmp',
         commit = '1250990',
@@ -317,6 +328,7 @@ require("lazy").setup({
             {'saadparwaiz1/cmp_luasnip', commit = '98d9cb5'},
             {'L3MON4D3/LuaSnip', version = '2.3.x'}
         },
+        event = "VeryLazy",
         config = function()
             local has_words_before = function()
                 unpack = unpack or table.unpack
@@ -388,10 +400,7 @@ require("lazy").setup({
     {
         "saecki/live-rename.nvim",
         commit = "3a3cddf",
-        config = function()
-            local live_rename = require("live-rename")
-            vim.keymap.set("n", "grn", live_rename.rename, {desc = "LSP rename"})
-        end
+        keys = {{"grn", ":lua require('live-rename').rename()<CR>", desc = "LSP rename"}}
     },
     {
         "rest-nvim/rest.nvim",
@@ -402,7 +411,8 @@ require("lazy").setup({
                 opts.ensure_installed = opts.ensure_installed or {}
                 table.insert(opts.ensure_installed, "http")
             end
-        }
+        },
+        ft = "http"
     },
     {
         'rmagatti/auto-session',
@@ -410,13 +420,38 @@ require("lazy").setup({
         lazy = false,
         opts = {args_allow_single_directory = false, close_unsupported_windows = false}
     },
-    {"karb94/neoscroll.nvim", commit = 'f957373', opts = {stop_eof = false, easing_function = "quadratic"}},
+    {
+        "karb94/neoscroll.nvim",
+        commit = 'f957373',
+        opts = {stop_eof = false, easing_function = "quadratic"},
+        event = "VeryLazy"
+    },
     {"ryanoasis/vim-devicons", version = '0.11.x'},
-    {"lambdalisue/suda.vim", version = "1.2.x"},
+    {"lambdalisue/suda.vim", version = "1.2.x", cmd = {"SudaWrite", "SudaRead"}},
     {"Vimjas/vim-python-pep8-indent", commit = '60ba5e1', ft = "python"},
-    {"jupyter-vim/jupyter-vim"},
+    {
+        "jupyter-vim/jupyter-vim",
+        commit = "91eef96",
+        -- NOTE: File type needs to be set here to make sure the plugin is loaded early,
+        -- because vimscript plugins cannot be loaded on keybinds
+        ft = "python",
+        keys = {
+            {ft = "python", '<leader>jrc', ":JupyterSendCell<CR>", desc = "Jupyter run cell"},
+            {ft = "python", '<leader>jrf', ":JupyterRunFile<CR>", desc = "Jupyter run file"},
+            {ft = "python", '<leader>jb', ":PythonSetBreak<CR>", desc = "Jupyter set python breakpoint"},
+            {
+                ft = "python",
+                '<leader>jrfv',
+                ":JupyterRunFile %:p --verbose --plot <CR>",
+                desc = "Jupyter run file (verbose)"
+            },
+            {ft = "python", '<leader>jcd', ":JupyterCd %:p:h<CR>", desc = "Jupyter cd to buffer"},
+            {ft = "python", '<leader>jcc', ":JupyterConnect<CR>", desc = "Jupyter connect"}
+        }
+    },
     {
         "norcalli/nvim-colorizer.lua",
+        event = "VeryLazy",
         config = function()
             require("colorizer").setup()
         end
@@ -425,7 +460,6 @@ require("lazy").setup({
         "vds2212/vim-remotions",
         commit = "1354375",
         event = {"BufRead", "BufWinEnter", "BufNewFile"},
-
         config = function()
             local motions = {
                 line = {backward = "k", forward = "j", repeat_if_count = 1, repeat_count = 1},
@@ -443,33 +477,24 @@ require("lazy").setup({
     {
         "andythigpen/nvim-coverage",
         commit = "a939e42",
-        config = function()
-            local coverage = require("coverage")
-            coverage.setup({
-                auto_reload = true,
-                lang = {
-                    cpp = {
-                        coverage_file = "platform/out/coverage/lcov.info" -- This can be a list of a function which finds the file
-                    }
+        opts = {
+            auto_reload = true,
+            lang = {
+                cpp = {
+                    coverage_file = "platform/out/coverage/lcov.info" -- This can be a list of a function which finds the file
                 }
-            })
-            vim.keymap.set("n", "<leader>cl", function()
-                coverage.load(true)
-            end, {desc = "Code coverage load"})
-            vim.keymap.set("n", "<leader>ct", coverage.toggle, {desc = "Code coverage toggle"})
-            vim.keymap.set("n", "<leader>cs", coverage.summary, {desc = "Code coverage summary"})
-        end
+            }
+        },
+        keys = {
+            {"<leader>cl", ":Coverage<CR>", desc = "Code coverage load"},
+            {"<leader>ct", ":CoverageToggle<CR>", desc = "Code coverage toggle"},
+            {"<leader>cs", ":CoverageSummary<CR>", desc = "Code coverage summary"}
+        }
     },
     {
         "folke/which-key.nvim",
         event = "VeryLazy",
-        opts = {
-            preset = "helix",
-            -- your configuration comes here
-            -- or leave it empty to use the default settings
-            -- refer to the configuration section below
-            icons = {rules = {{pattern = "lsp", icon = " ", color = "azure"}}}
-        },
+        opts = {preset = "helix", icons = {rules = {{pattern = "lsp", icon = " ", color = "azure"}}}},
         keys = {
             {
                 "<leader>?",

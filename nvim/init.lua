@@ -128,21 +128,6 @@ vim.api.nvim_create_user_command("X", "x", {})
 -- Close current buffer but leave window open
 vim.api.nvim_create_user_command("BD", "bp|sp|bn|bd", {})
 
--- Jupyter notebook keybinds
-vim.api.nvim_create_autocmd("FileType", {
-    group = vim.api.nvim_create_augroup("JupyterKeybinds", {clear = true}),
-    pattern = "python",
-    callback = function()
-        -- TODO: Set different keybinds
-        vim.keymap.set('n', '<F5>', ":JupyterSendCell<CR>", {buffer = 0})
-        vim.keymap.set('n', '<F6>', ":JupyterRunFile<CR>", {buffer = 0})
-        vim.keymap.set('n', '<F8>', ":PythonSetBreak<CR>", {buffer = 0})
-        vim.keymap.set('n', '<F9>', ":JupyterRunFile %:p --verbose --plot <CR>", {buffer = 0})
-        vim.keymap.set('n', '<F10>', ":JupyterCd %:p:h<CR>", {buffer = 0})
-        vim.keymap.set('n', '<F11>', ":JupyterConnect<CR>", {buffer = 0})
-    end
-})
-
 -- REST nvim keybinds
 vim.api.nvim_create_autocmd("FileType", {
     group = vim.api.nvim_create_augroup("NvimRestKeybinds", {clear = true}),
