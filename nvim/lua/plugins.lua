@@ -479,6 +479,11 @@ require("lazy").setup({
                 desc = "Buffer Local Keymaps (which-key)"
             }
         }
+    },
+    {
+        "https://codeberg.org/andyg/leap.nvim",
+        commit = "819388c554",
+        keys = {{"<leader>s", "<Plug>(leap)", desc = "Leap.nvim"}}
     }
 })
 
