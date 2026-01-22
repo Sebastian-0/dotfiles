@@ -296,7 +296,6 @@ require("lazy").setup({
         'williamboman/mason.nvim',
         version = '1.11.x',
         dependencies = {{'WhoIsSethDaniel/mason-tool-installer.nvim', commit = '1255518'}},
-        event = "VeryLazy",
         config = function()
             require('mason').setup({})
             require('mason-tool-installer').setup {
