@@ -19,7 +19,7 @@ local function run_formatter(filetype, args, stdin, print_stdout_on_error)
     end
     res = res:wait()
     if res.code ~= 0 and filetype ~= "zig" then -- TODO: Temp fix here because zig returns empty stdout/stderr always, and errors even on success...
-        print("Formatting failed!")
+        print("Formatting failed (" .. args[1] .. ")!")
         if print_stdout_on_error then
             print(res.stdout)
         end
@@ -230,6 +230,10 @@ vim.api.nvim_create_user_command('RunFormatter', function(opts)
         if res then
             buffer = res
         end
+    end
+
+    if vim.bo[buffer].filetype == "" then
+        return
     end
 
     -- Select a formatter
