@@ -8,7 +8,14 @@
 			"cat *": "allow",
 			"head *": "allow",
 			"tail *": "allow",
-			"grep *": "allow"
+			"git status*": "allow",
+			"git log*": "allow",
+			"git diff*": "allow",
+			"grep *": "allow",
+			"zig *": "allow"
+		},
+		"skill": {
+			"*": "ask"
 		},
 		"external_directory": "ask"
 	}

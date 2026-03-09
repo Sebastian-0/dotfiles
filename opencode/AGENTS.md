@@ -13,10 +13,19 @@
 ## Multi-step Execution
 
 - When executing a multi-step plan, commit after each step, not all at once.
+- Code must always compile after EACH STEP!
 - May need SSH key authentication for commits - ask user for help if needed.
+
+## Git Commits
+
+- Before committing:
+  - ALWAYS run `git status` to ensure no files are missing from the commit.
+  - ALWAYS format files according to the SKILL you are using
+- Amend commits with small fixes
 
 ## Code Preservation
 
-- Avoid deleting comments and code without good reason.
-- Comments can be updated/removed only if no longer correct (e.g., adjacent code changed behavior or was removed).
-- Otherwise, preserve existing comments.
+- DO NOT delete existing comments!
+- DO NOT change code you don't need to change!
+- DO NOT do formatting changes to existing code!
+- If unsure about a piece of code ASK ME!
