@@ -1,0 +1,15 @@
+{
+	"$schema": "https://opencode.ai/config.json",
+	"instructions": ["~/.config/opencode/rules.md"],
+	"permission": {
+		"bash": {
+			"*": "ask",
+			"ls *": "allow",
+			"cat *": "allow",
+			"head *": "allow",
+			"tail *": "allow",
+			"grep *": "allow"
+		},
+		"external_directory": "ask"
+	}
+}
