@@ -8,6 +8,7 @@ yazi/plugins
 yazi/flavors
 fcitx5/conf/*
 !fcitx5/conf/keyboard.conf
+!fcitx5/conf/unicode.conf
 
 # Ignore all ipython stuff except the startup scripts
 ipython/profile_default/*
