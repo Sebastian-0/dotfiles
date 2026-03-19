@@ -8,7 +8,7 @@
 
 ## Planning
 
-- When in plan mode, always write the plan to `.opencode/plans/*.md` (descriptive filename) in addition to showing it to the user.
+- When finished planning in plan mode ALWAYS ask the user to switch to build mode and then WRITE THE PLAN to `.opencode/plans/*.md` (descriptive filename)
 
 ## Multi-step Execution
 
@@ -25,7 +25,10 @@
 
 ## Code Preservation
 
-- DO NOT delete existing comments!
+- DO NOT delete existing comments unless they become irrelavant!
 - DO NOT change code you don't need to change!
 - DO NOT do formatting changes to existing code!
 - If unsure about a piece of code ASK ME!
+
+## Skills
+When you get a task ALWAYS check for relevant skills first and load them!
