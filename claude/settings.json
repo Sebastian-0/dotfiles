@@ -1,0 +1,10 @@
+{
+  "env": {
+    "EDITOR": "nvim",
+    "VISUAL": "nvim"
+  },
+  "statusLine": {
+    "type": "command",
+    "command": "bash /home/sebastian/.claude/statusline-command.sh"
+  }
+}

@@ -1,14 +1,25 @@
 pass
+jupyter/migrated
+cached_layouts
+
+# Wallpaper
 i3/wallpaper/**/*.jpg
 i3/wallpaper/**/*.png
 *.zip
-jupyter/migrated
-cached_layouts
+
+# Yazi file manager
 yazi/plugins
 yazi/flavors
+
+# fcitx5 - Chinese pinyin input
 fcitx5/conf/*
 !fcitx5/conf/keyboard.conf
 !fcitx5/conf/unicode.conf
+
+# Claude code
+claude/*
+!claude/settings.json
+!claude/statusline-command.sh
 
 # Ignore all ipython stuff except the startup scripts
 ipython/profile_default/*
