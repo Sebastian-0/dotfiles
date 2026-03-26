@@ -54,6 +54,17 @@ if [ "$TERM" = "xterm-kitty" ]; then
     fi
 fi
 
+# Github CLI alises for managing PRs
+if which gh > /dev/null; then
+    alias ghp="gh pr create --fill"
+    alias ghd="gh pr create --fill --draft"
+    function ghm() {
+        pr_num="$(gh pr status --json number | jq .currentBranch.number)"
+        gh pr ready "$pr_num"
+        gh pr merge "$pr_num"
+    }
+fi
+
 # Misc aliases
 alias sudo='sudo ' # Needed to make aliases work for sudo
 alias ip='ip --color'
