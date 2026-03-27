@@ -28,6 +28,8 @@ C_RATE="\033[35m"
 C_CWD="\033[34m"
 # Dim separator
 C_SEP="\033[2m"
+# Cost: gold
+C_COST=$'\033[38;5;220m'
 
 # --- Extract values ---
 model=$(echo "$input" | jq -r '.model.display_name // "unknown"')
@@ -35,6 +37,7 @@ cwd=$(echo "$input" | jq -r '.cwd // "."')
 
 ctx_used=$(echo "$input" | jq -r '.context_window.used_percentage // empty')
 five_pct=$(echo "$input" | jq -r '.rate_limits.five_hour.used_percentage // empty')
+cost=$(echo "$input" | jq -r '.cost.total_cost_usd // empty')
 
 # Replace home directory prefix with ~
 home_dir="$HOME"
@@ -62,6 +65,11 @@ if [ -n "$five_pct" ]; then
     out="${out}${C_RATE}[${bar}] $(printf '%.0f' "$five_pct")%${RESET}"
 else
     out="${out}${C_RATE}n/a${RESET}"
+fi
+
+# Session cost
+if [ -n "$cost" ]; then
+    out="${out} ${C_SEP}|${RESET} ${C_COST}\$$(printf '%.2f' "$cost")${RESET}"
 fi
 
 # 4) CWD
