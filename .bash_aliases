@@ -55,7 +55,7 @@ if [ "$TERM" = "xterm-kitty" ]; then
 fi
 
 # Github CLI alises for managing PRs
-if which gh > /dev/null; then
+if which gh >&/dev/null; then
     alias ghp="gh pr create --fill"
     alias ghd="gh pr create --fill --draft"
     function ghm() {
