@@ -4,7 +4,6 @@ description: Zig naming conventions and best practices
 ---
 
 ## Naming Conventions
-
 When naming things (module imports, variable names, functions, etc...):
 
 - Avoid abbreviations, e.g. `el` -> `element`
@@ -12,6 +11,9 @@ When naming things (module imports, variable names, functions, etc...):
   - `prev_time_max` -> `time_max_prev`
   - `weight_by_pop_change_output` -> `output_weight_change_by_pop`
 - In other words: start with the larger, generic units and end with the smaller more specific units.
+
+## Code style
+Always you braces for if-statements, for-loops, etc... even if they are one line.
 
 ## Formatting
 To format the code run:
