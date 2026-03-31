@@ -173,7 +173,7 @@ function _seb_prompt_sessions() {
     # care about that so we reduce the count again if that's the case!
     local bash_lvl="$SHLVL"
     if [ -n "$YAZI_LEVEL" ]; then
-        ((bash_lvl--))
+        ((bash_lvl -= YAZI_LEVEL))
     fi
 
     if [ -n "$SSH_CONNECTION" ] || [ -n "$SSH_TTY" ]; then
@@ -183,10 +183,13 @@ function _seb_prompt_sessions() {
         sessions+=(" bash")
     fi
     if [ "$bash_lvl" -gt 2 ]; then
-        sessions+=(" bash ($bash_lvl)")
+        sessions+=(" bash ($((bash_lvl - 1)))")
     fi
-    if [ -n "$YAZI_LEVEL" ]; then
+    if [ "${YAZI_LEVEL:-0}" -eq 1 ]; then
         sessions+=(" yazi")
+    fi
+    if [ "${YAZI_LEVEL:-0}" -gt 1 ]; then
+        sessions+=(" yazi ($YAZI_LEVEL)")
     fi
     if [ -n "$VIRTUAL_ENV" ]; then
         sessions+=("󰌠 venv")
