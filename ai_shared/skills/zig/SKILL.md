@@ -13,7 +13,7 @@ When naming things (module imports, variable names, functions, etc...):
 - In other words: start with the larger, generic units and end with the smaller more specific units.
 
 ## Code style
-Always you braces for if-statements, for-loops, etc... even if they are one line.
+Always use braces for if-statements even if the body is one line.
 
 ## Formatting
 To format the code run:
