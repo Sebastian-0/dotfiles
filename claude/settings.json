@@ -16,7 +16,10 @@
 			"Bash(git add *)",
 			"Bash(git log *)",
 			"Bash(find *)",
+			"Bash(df *)",
+			"Bash(du *)",
 			"Bash(ls *)",
+			"Bash(jq *)",
 			"Bash(grep *)",
 			"Search(*)"
 		]
