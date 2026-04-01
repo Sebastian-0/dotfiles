@@ -9,6 +9,7 @@
 	},
 	"permissions": {
 		"allow": [
+			"Bash(gh repo view *)",
 			"Bash(gh pr *)",
 			"Bash(gh run *)",
 			"Bash(gh api *)",
@@ -21,7 +22,8 @@
 			"Bash(ls *)",
 			"Bash(jq *)",
 			"Bash(grep *)",
-			"Search(*)"
+			"Search(*)",
+			"Write(/tmp/*)"
 		]
 	}
 }
