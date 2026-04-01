@@ -36,7 +36,8 @@ Before reviewing we need to collect all the data we will need.
     3. Status checks `gh pr checks`
 
 - If there is no PR, collect:
-    1. Code diff against default branch
+    1. Check the default branch with `gh repo view --json defaultBranchRef --jq '.defaultBranchRef.name'`
+    2. Code diff against `origin/<default-branch>`
 
 
 ### 3. Perform the review
@@ -51,9 +52,10 @@ For EACH PART of the diffs verify:
 2. Could the change be simplified?
     - Is there an api we can call instead of implementing this change?
     - Is the code unnecessarily complex and could be simplified?
-3. Is the style good?
+3. Are there code quality issues?
     - Look for unused code/imports
     - Is naming/style following conventions?
+    - Is there duplicated code?
 4. Is it performant enough?
     - Verify if performance is important in this part of the code, and if so, is the change performant enough?
 5. Is there any collateral damage?
@@ -73,6 +75,8 @@ Next, for each of the PR comments (if available) consider:
 Check the PR status checks (if available) and make sure CI is building.
 
 Check who approved or didn't approve of the PR (if available).
+
+Check that the PR has a good title and a description.
 
 
 ### 4. Write the report
