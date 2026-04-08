@@ -20,7 +20,7 @@ Always use braces for if-statements even if the body is one line.
 To format the code run:
 zig fmt .
 
-## STD lib documentation
+## Gotchas
 NEVER assume your zig knowledge is up-to-date! Always verify by visiting either:
 - Online STD lib docs: https://ziglang.org/documentation/0.15.2/std
 - On-disk STD lib source: /var/lib/snapd/snap/zig/current/lib/std (example location, look for zig install folder)
