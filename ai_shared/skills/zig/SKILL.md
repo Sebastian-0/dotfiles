@@ -1,6 +1,7 @@
 ---
 name: zig
-description: Zig naming conventions and best practices
+description: >
+    Use when you are about to create or modify a zig file, or when the user asks you to create or modify a zig file.
 ---
 
 ## Naming Conventions
