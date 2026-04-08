@@ -22,6 +22,13 @@
 			"Bash(ls *)",
 			"Bash(jq *)",
 			"Bash(grep *)",
+			"Bash(black *)",
+			"Bash(clang-format *)",
+			"Bash(biome *)",
+			"Bash(rustfmt *)",
+			"Bash(shfmt *)",
+			"Bash(lua-format *)",
+			"Bash(zig fmt *)",
 			"Search(*)",
 			"Write(/tmp/*)"
 		]
