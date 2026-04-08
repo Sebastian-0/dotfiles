@@ -16,6 +16,9 @@ SEB_PROMPT_COL_GIT_BRANCH='\e[38;5;12m'
 SEB_PROMPT_COL_GIT_TAG='\e[38;5;178m'
 SEB_PROMPT_COL_GIT_COMMIT='\e[38;5;60m'
 SEB_PROMPT_COL_GIT_DETACHED='\e[38;5;13m'
+SEB_PROMPT_COL_GIT_ADD='\e[32m'
+SEB_PROMPT_COL_GIT_DEL='\e[38;5;210m'
+SEB_PROMPT_COL_GIT_UNTRACKED='\e[38;5;247m'
 SEB_PROMPT_COL_DIR='\e[37m'
 SEB_PROMPT_COL_SUBSHELL='\e[38;5;98m'
 SEB_PROMPT_COL_ROOT='\e[38;5;220m'
@@ -134,14 +137,37 @@ function _seb_prompt_git() {
             fi
         fi
 
+        # Dirty worktree: sum inserted/deleted lines (staged + unstaged)
+        local dirty=""
+        local ins=0 del=0
+        while IFS=$'\t' read -r a d _; do
+            [ "$a" = "-" ] && continue # skip binary files
+            ins=$((ins + a))
+            del=$((del + d))
+        done < <(git diff --numstat HEAD 2> /dev/null)
+        local untracked
+        untracked=$(git ls-files --others --exclude-standard | head -20 | wc -l)
+        if [ "$ins" -gt 0 ]; then
+            dirty+="\[$SEB_PROMPT_COL_GIT_ADD\]+$ins"
+        fi
+        if [ "$del" -gt 0 ]; then
+            dirty+="${dirty:+ }\[$SEB_PROMPT_COL_GIT_DEL\]-$del"
+        fi
+        if [ "$untracked" -gt 0 ]; then
+            dirty+="${dirty:+ }\[$SEB_PROMPT_COL_GIT_UNTRACKED\]?$untracked"
+        fi
+        if [ -n "$dirty" ]; then
+            dirty=" $dirty"
+        fi
+
         if [ "$is_detached" == false ]; then
-            echo "\[$SEB_PROMPT_R$SEB_PROMPT_COL_GIT\]($provider $branch$tag\[$SEB_PROMPT_COL_GIT\]) "
+            echo "\[$SEB_PROMPT_R$SEB_PROMPT_COL_GIT\]($provider $branch$tag$dirty\[$SEB_PROMPT_COL_GIT\]) "
         else
             # For detached state we want to always show either tag or commit hash
             if [ -z "$tag" ]; then
                 tag="$commit"
             fi
-            echo "\[$SEB_PROMPT_R$SEB_PROMPT_COL_GIT\]($provider \[$SEB_PROMPT_COL_GIT_DETACHED\]DETACHED$tag\[$SEB_PROMPT_COL_GIT\]) "
+            echo "\[$SEB_PROMPT_R$SEB_PROMPT_COL_GIT\]($provider \[$SEB_PROMPT_COL_GIT_DETACHED\]DETACHED$tag$dirty\[$SEB_PROMPT_COL_GIT\]) "
         fi
     fi
 }
