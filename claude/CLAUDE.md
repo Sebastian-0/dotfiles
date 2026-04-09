@@ -8,3 +8,10 @@ Do NOT delete comments in code unless:
 # Skills policy
 
 When you get a task ALWAYS check and load relevant skills first!
+
+
+# Multi-step Execution
+
+When executing a multi-step plan, after each step:
+- Code must compile
+- Commit (may need SSH key authentication - ask user for help)
