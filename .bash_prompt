@@ -146,7 +146,7 @@ function _seb_prompt_git() {
             del=$((del + d))
         done < <(git diff --numstat HEAD 2> /dev/null)
         local untracked
-        untracked=$(git ls-files --others --exclude-standard | head -20 | wc -l)
+        untracked=$(git -C "$(git rev-parse --show-toplevel)" ls-files --others --exclude-standard | head -100 | wc -l)
         if [ "$ins" -gt 0 ]; then
             dirty+="\[$SEB_PROMPT_COL_GIT_ADD\]+$ins"
         fi
