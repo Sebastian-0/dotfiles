@@ -21,6 +21,7 @@ claude/*
 !claude/skills
 !claude/settings.json
 !claude/statusline-command.sh
+!claude/CLAUDE.md
 
 # Ignore all ipython stuff except the startup scripts
 ipython/profile_default/*
