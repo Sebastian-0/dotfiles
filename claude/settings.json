@@ -16,6 +16,7 @@
 			"Bash(git commit *)",
 			"Bash(git add *)",
 			"Bash(git log *)",
+			"Bash(git mv *)",
 			"Bash(find *)",
 			"Bash(df *)",
 			"Bash(du *)",
