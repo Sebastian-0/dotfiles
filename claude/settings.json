@@ -22,6 +22,7 @@
 			"Bash(du *)",
 			"Bash(ls *)",
 			"Bash(jq *)",
+			"Bash(wc *)",
 			"Bash(grep *)",
 			"Bash(black *)",
 			"Bash(clang-format *)",
