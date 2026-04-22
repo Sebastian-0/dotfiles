@@ -1,0 +1,30 @@
+# Domains reachable from inside the sandbox.
+# One per line. Blank lines and '# comments' are ignored.
+# The firewall also always allows api.anthropic.com, registry.npmjs.org,
+# statsig.*, sentry.io, and GitHub's meta CIDR ranges -- edit this file
+# to add anything beyond that. Takes effect on the next `claudesafe` run.
+
+# Python packaging
+pypi.org
+files.pythonhosted.org
+
+# GitHub (beyond api.github.com which is already covered by the meta ranges)
+raw.githubusercontent.com
+codeload.github.com
+objects.githubusercontent.com
+
+# Anthropic docs / console (useful during Claude sessions)
+docs.anthropic.com
+console.anthropic.com
+claude.ai
+
+# Debian apt mirrors (the base image is node:20 -> Debian bookworm)
+deb.debian.org
+security.debian.org
+archive.debian.org
+
+# Ubuntu apt mirrors
+archive.ubuntu.com
+security.ubuntu.com
+ports.ubuntu.com
+keyserver.ubuntu.com

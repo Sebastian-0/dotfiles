@@ -3,10 +3,6 @@
 		"EDITOR": "nvim",
 		"VISUAL": "nvim"
 	},
-	"statusLine": {
-		"type": "command",
-		"command": "bash /home/sebastian/.claude/statusline-command.sh"
-	},
 	"permissions": {
 		"allow": [
 			"Bash(gh repo view *)",
@@ -34,5 +30,9 @@
 			"Search(*)",
 			"Write(/tmp/*)"
 		]
+	},
+	"statusLine": {
+		"type": "command",
+		"command": "bash \"$HOME/.claude/statusline-command.sh\""
 	}
 }
