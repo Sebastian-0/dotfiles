@@ -166,6 +166,7 @@ define_git_alias() {
     fi
 }
 
+define_git_alias gif 'git fetch' 'git fetch --all'
 define_git_alias gip 'git pull' 'git pull'
 define_git_alias gipu 'git push' 'git push'
 define_git_alias gipuf 'git push' 'git push --force-with-lease'
