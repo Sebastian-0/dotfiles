@@ -11,7 +11,7 @@ read -rp "Press enter to start..."
 
 echo "Installing packages..."
 if is_ubuntu; then
-    sudo apt-get install -y --no-install-recommends i3 feh xss-lock wmctrl scrot picom dunst rofi pulseaudio-utils playerctl brightnessctl polybar flameshot imagemagick yad libsass1 python3-virtualenv
+    sudo apt-get install -y --no-install-recommends i3 feh xss-lock wmctrl scrot picom dunst rofi pulseaudio-utils playerctl brightnessctl polybar stalonetray flameshot imagemagick yad libsass1 python3-virtualenv
 
     echo "Building i3lock color..."
     if ! which i3lock >&/dev/null; then
@@ -46,7 +46,7 @@ if is_ubuntu; then
     fi
 elif is_arch; then
     # Manjaro (libsass is needed by GTK theming tool)
-    sudo pacman -S --needed --noconfirm i3-wm feh wmctrl picom yay dunst rofi clipmenu playerctl brightnessctl polybar scrot xss-lock flameshot imagemagick yad libsass python-virtualenv
+    sudo pacman -S --needed --noconfirm i3-wm feh wmctrl picom yay dunst rofi clipmenu playerctl brightnessctl polybar stalonetray scrot xss-lock flameshot imagemagick yad libsass python-virtualenv
     sudo yay -S --noconfirm --ask 4 --useask --answerclean All --answerdiff None i3lock-color
 else
     echo "Unsupported OS!"

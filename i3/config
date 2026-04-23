@@ -244,6 +244,7 @@ focus_follows_mouse no
 # Window rules
 for_window [class="terminal_dropdown"] floating enable
 for_window [title="yad-calendar"] floating enable
+for_window [class="stalonetray"] floating enable, border none, sticky enable
 for_window [class="org.remmina.Remmina"] floating enable
 for_window [class="Intui"] floating enable
 for_window [class="tuxedo-control-center"] floating enable

@@ -14,3 +14,6 @@ polybar -c ~/.config/polybar/config.ini "$bar" 2>&1 | tee -a /tmp/polybar.log &
 disown
 
 echo "Bar launched..."
+
+# Launch stalonetray (hidden by default, toggled via tray module)
+~/.config/polybar/tray.sh --launch &
