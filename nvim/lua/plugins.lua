@@ -474,20 +474,17 @@ require("lazy").setup({
         end
     },
     {
-        "andythigpen/nvim-coverage",
-        commit = "a939e42",
+        "nvim-contrib/nvim-coverage",
+        commit = "f53fef8",
         opts = {
-            auto_reload = true,
-            lang = {
-                cpp = {
-                    coverage_file = "platform/out/coverage/lcov.info" -- This can be a list of a function which finds the file
-                }
-            }
+            auto_reload = {enabled = true},
+            files = {"lcov.info", "kcov-output/lcov.info", "platform/out/coverage/lcov.info"}
         },
         keys = {
-            {"<leader>cl", ":Coverage<CR>", desc = "Code coverage load"},
-            {"<leader>ct", ":CoverageToggle<CR>", desc = "Code coverage toggle"},
-            {"<leader>cs", ":CoverageSummary<CR>", desc = "Code coverage summary"}
+            {"<leader>cl", ":CoverageLoad!<CR>", desc = "Code coverage load"},
+            {"<leader>ct", ":CoverageSigns toggle<CR>", desc = "Code coverage toggle"},
+            {"<leader>cs", ":CoverageReport<CR>", desc = "Code coverage summary"},
+            {"<leader>ch", ":CoverageHeatmap<CR>", desc = "Code coverage heatmap"}
         }
     },
     {
