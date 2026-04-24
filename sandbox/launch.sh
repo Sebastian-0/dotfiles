@@ -18,7 +18,10 @@ set -euo pipefail
 SCRIPT="$(readlink -f "$0")"
 SANDBOX_DIR="$(dirname "$SCRIPT")"
 
-IMAGE="claude-sandbox"
+HOST_UID="$(id -u)"
+HOST_GID="$(id -g)"
+# Tag per-UID so hosts with different user IDs don't collide on a shared image.
+IMAGE="claude-sandbox:uid${HOST_UID}"
 VOLUME_BASE="claude-home"
 
 TASK=""
@@ -50,8 +53,11 @@ done
 
 # Build the image if missing or explicitly asked.
 if [ "$REBUILD" = "1" ] || ! docker image inspect "$IMAGE" > /dev/null 2>&1; then
-    echo "[claudesafe] building image $IMAGE..."
-    docker build --pull -t "$IMAGE" "$SANDBOX_DIR"
+    echo "[claudesafe] building image $IMAGE (HOST_UID=$HOST_UID HOST_GID=$HOST_GID)..."
+    docker build --pull \
+        --build-arg "HOST_UID=$HOST_UID" \
+        --build-arg "HOST_GID=$HOST_GID" \
+        -t "$IMAGE" "$SANDBOX_DIR"
 fi
 
 WORKSPACE_SRC="$PWD"

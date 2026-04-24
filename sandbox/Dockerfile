@@ -1,6 +1,11 @@
 FROM node:20
 
 ARG CLAUDE_CODE_VERSION=latest
+# Remap the built-in `node` user/group to match the host UID/GID so that
+# bind-mounts (credentials, workspace) and named-volume writes stay readable
+# on both sides. Defaults match the upstream image.
+ARG HOST_UID=1000
+ARG HOST_GID=1000
 
 # Tools needed at runtime:
 #   - iptables/ipset/aggregate/jq/dnsutils/curl: firewall setup
@@ -29,6 +34,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
       kitty-terminfo \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
+
+RUN if [ "$HOST_GID" != "1000" ]; then groupmod -g "$HOST_GID" node; fi \
+  && if [ "$HOST_UID" != "1000" ]; then usermod -u "$HOST_UID" node; fi \
+  && chown -R node:node /home/node
 
 RUN mkdir -p /workspace/project /workspace/claude-host /home/node/.claude \
   && chown -R node:node /workspace /home/node/.claude
