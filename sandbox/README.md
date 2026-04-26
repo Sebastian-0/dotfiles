@@ -19,11 +19,11 @@ so it can install packages, run scripts, and delete files without prompting
   CLAUDE.md, statusline-command.sh, skills, plugins, agents, commands)
   read-only at `/workspace/claude-host/` and symlinks them into the
   container's `~/.claude/` so behavior matches your host Claude.
-- Bind-mounts `~/.claude/.credentials.json` **read-only** so you don't have to
-  re-authenticate in the container. Read-only prevents corruption / token
-  refresh races; exfiltration is bounded by the firewall allowlist.
-- Uses a named volume (`claude-home`) for history/cache/sessions. Shareable
-  across parallel containers by default; `--fresh` gives an ephemeral one.
+- Uses a named volume (`claude-home`) for history/cache/sessions **and**
+  credentials. The host's `~/.claude/.credentials.json` is never mounted --
+  log in once with `claude login` inside the container and the token persists
+  in the volume, shared across every container using it. `--fresh` gives an
+  ephemeral volume (and a fresh login).
 
 ## Install
 
@@ -63,8 +63,13 @@ domains into `allowlist.txt` and run `claudesafe`; revert the file after.
 Note: `$PWD` is mounted **read-write**. Claude can create, modify, and delete
 files in the current folder. Everything outside it is unreachable.
 
-## Max-isolation mode
+## Authentication
 
-To keep your host Anthropic token off-limits from the container entirely,
-comment out the `-v "$HOST_CREDS:...":ro"` block in `launch.sh`. You'll be
-prompted to log in once per named volume; the login persists across runs.
+The host's Anthropic token is never exposed to the container. On first run
+(or after `--fresh`), Claude will prompt you to log in; the credentials land
+in the `claude-home` named volume at `/home/node/.claude/.credentials.json`
+and are reused by every subsequent container sharing that volume.
+
+If you'd rather pass an API key instead, export `ANTHROPIC_API_KEY` on the
+host before running `claudesafe` -- it's forwarded into the container and
+overrides the OAuth flow.

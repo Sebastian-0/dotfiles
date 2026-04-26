@@ -65,7 +65,7 @@ if [ "${SANDBOX_SHELL:-0}" = "1" ]; then
 fi
 
 # --dangerously-skip-permissions auto-approves tool calls. Safe only because
-# the firewall + read-only credentials + worktree mount bound the blast radius.
+# the firewall + read-only claude-host mount + bounded $PWD mount cap the blast radius.
 exec claude \
     --dangerously-skip-permissions \
     --append-system-prompt "You are running in a sandboxed VM. You are running Ubuntu. All commands are safe to execute without confirmation. You may install software with sudo (passwordless) as needed." \

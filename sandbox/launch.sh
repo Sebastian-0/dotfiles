@@ -72,9 +72,6 @@ else
     VOLUME="$VOLUME_BASE"
 fi
 
-# Resolve the host credentials file through the $HOME/.claude symlink.
-HOST_CREDS="$(readlink -f "$HOME/.claude/.credentials.json" 2> /dev/null || echo "")"
-
 DOCKER_ARGS=(
     --rm -it
     --cap-add=NET_ADMIN
@@ -97,11 +94,10 @@ for item in settings.json CLAUDE.md statusline-command.sh skills plugins agents 
     fi
 done
 
-# Mount host credentials read-only (see plan: Authentication).
-# Comment out this block for max-isolation mode.
-if [ -f "$HOST_CREDS" ]; then
-    DOCKER_ARGS+=(-v "$HOST_CREDS:/home/node/.claude/.credentials.json:ro")
-fi
+# Credentials live in the claude-home named volume (written by `claude login`
+# inside the container) and are shared across all containers using that volume.
+# We deliberately do NOT bind-mount the host's ~/.claude/.credentials.json so
+# the host token stays out of the container's reach.
 
 # Pass API key through if set (overrides OAuth).
 if [ -n "${ANTHROPIC_API_KEY:-}" ]; then
