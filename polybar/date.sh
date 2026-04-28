@@ -17,10 +17,18 @@ if [ "$1" = "--calendar" ]; then
     YAD_HEIGHT=220
 
     eval "$(xdotool getmouselocation --shell)"
-    eval "$(xdotool getdisplaygeometry --shell)"
 
-    X_POS="$((WIDTH - YAD_WIDTH - 10))"
-    Y_POS="$((HEIGHT - YAD_HEIGHT - POLYBAR_HEIGHT - 10))"
+    # Anchor to the primary monitor so popups land on the right edge of the
+    # primary screen rather than the right edge of the combined desktop.
+    read WIDTH HEIGHT X_OFFSET Y_OFFSET < <(xrandr --query 2> /dev/null | sed -nE 's/.* primary ([0-9]+)x([0-9]+)\+([0-9]+)\+([0-9]+).*/\1 \2 \3 \4/p' | head -1)
+    if [ -z "$WIDTH" ]; then
+        eval "$(xdotool getdisplaygeometry --shell)"
+        X_OFFSET=0
+        Y_OFFSET=0
+    fi
+
+    X_POS="$((X_OFFSET + WIDTH - YAD_WIDTH - 10))"
+    Y_POS="$((Y_OFFSET + HEIGHT - YAD_HEIGHT - POLYBAR_HEIGHT - 10))"
 
     GTK_THEME="Catppuccin-Mocha-Standard-Blue-Dark" yad --calendar \
         --undecorated --fixed --close-on-unfocus --no-buttons \

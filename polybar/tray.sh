@@ -19,15 +19,22 @@ if [ "$1" = "--toggle" ]; then
         i3-msg "[class=\"$TRAY_WIN_NAME\"] move scratchpad" > /dev/null
         rm -f "$STATE_FILE"
     else
-        eval "$(xdotool getdisplaygeometry --shell)"
+        # Anchor to the primary monitor so the popup lands on the right edge of
+        # the primary screen rather than the right edge of the combined desktop.
+        read WIDTH HEIGHT X_OFFSET Y_OFFSET < <(xrandr --query 2> /dev/null | sed -nE 's/.* primary ([0-9]+)x([0-9]+)\+([0-9]+)\+([0-9]+).*/\1 \2 \3 \4/p' | head -1)
+        if [ -z "$WIDTH" ]; then
+            eval "$(xdotool getdisplaygeometry --shell)"
+            X_OFFSET=0
+            Y_OFFSET=0
+        fi
 
         TRAY_WIDTH=$(xdotool getwindowgeometry "$WIN_ID" 2> /dev/null | grep -o "Geometry: [0-9]*x[0-9]*" | cut -d' ' -f2 | cut -dx -f1)
         TRAY_HEIGHT=$(xdotool getwindowgeometry "$WIN_ID" 2> /dev/null | grep -o "Geometry: [0-9]*x[0-9]*" | cut -d' ' -f2 | cut -dx -f2)
         TRAY_WIDTH=${TRAY_WIDTH:-100}
         TRAY_HEIGHT=${TRAY_HEIGHT:-40}
 
-        X_POS="$((WIDTH - TRAY_WIDTH - 14))"
-        Y_POS="$((HEIGHT - TRAY_HEIGHT - POLYBAR_HEIGHT - 10))"
+        X_POS="$((X_OFFSET + WIDTH - TRAY_WIDTH - 14))"
+        Y_POS="$((Y_OFFSET + HEIGHT - TRAY_HEIGHT - POLYBAR_HEIGHT - 10))"
 
         i3-msg "[class=\"$TRAY_WIN_NAME\"] scratchpad show, move position $X_POS $Y_POS" > /dev/null
         xdotool windowraise "$WIN_ID"
