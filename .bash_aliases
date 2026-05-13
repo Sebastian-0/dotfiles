@@ -120,7 +120,7 @@ print_folder() {
 docker_registry_list_tags() {
     if [ -z "$DOCKER_REGISTRY" ]; then
         echo "The DOCKER_REGISTRY environment variable must be set!"
-        exit 1
+        return 1
     fi
     for repo in $(curl -sk "https://$DOCKER_REGISTRY/v2/_catalog" | jq -r '.repositories[]'); do
         echo "=== $repo ==="
