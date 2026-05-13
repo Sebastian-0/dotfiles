@@ -8,7 +8,7 @@
 set -euo pipefail
 
 CLAUDE_HOST=/workspace/claude-host
-CLAUDE_DIR=/home/node/.claude
+CLAUDE_DIR="$HOME/.claude"
 PROJECT=/workspace/project
 
 echo "[sandbox] applying firewall..."
@@ -68,5 +68,5 @@ fi
 # the firewall + read-only claude-host mount + bounded $PWD mount cap the blast radius.
 exec claude \
     --dangerously-skip-permissions \
-    --append-system-prompt "You are running in a sandboxed VM. You are running Ubuntu. All commands are safe to execute without confirmation. You may install software with sudo (passwordless) as needed." \
+    --append-system-prompt "You are running in a sandboxed VM. You are running Ubuntu. All commands are safe to execute without confirmation. Install missing software!" \
     "$@"
