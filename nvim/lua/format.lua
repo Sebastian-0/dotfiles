@@ -108,47 +108,13 @@ local function office_formatters(filetype)
         return
     end
 
-    if string.find("python", filetype) then
-        return true, {"/var/intui/artifacts/x86_64-linux/ruff@0.14.6/ruff", "format", "--stdin-filename", "%"}
-    elseif string.find("cuda,cpp,c,glsl", filetype) then
-        if file_exists(".clang-format") then
-            return true, {
-                "/var/intui/artifacts/x86_64-linux/llvm-project@21.1.5/build/bin/clang-format",
-                "--style=file:.clang-format"
-            }
-        end
-    elseif string.find("sh", filetype) then
-        return true, {
-            "/var/intui/artifacts/x86_64-linux/shfmt@3.12.0/shfmt",
-            "--indent",
-            "4",
-            "--space-redirects",
-            "--case-indent",
-            "--binary-next-line",
-            "--language-dialect",
-            "bash"
-        }
-    elseif string.find("javascript,typescript,json,jsonc", filetype) then
-        return true, {
-            "/var/intui/artifacts/x86_64-linux/biome@2.3.7/biome",
-            "format",
-            "--no-errors-on-unmatched",
-            "--vcs-enabled=false",
-            "--stdin-file-path",
-            "%"
-        }
-        -- elseif string.find("xml", filetype) then
-        --     return true, {
-        --         "python3",
-        --         vim.fn.stdpath("config") .. "/format_xml.py",
-        --         "--indent",
-        --         "2",
-        --         "--input",
-        --         "-",
-        --         "--output",
-        --         "-"
-        --     }
-    elseif string.find("xml", filetype) then
+    -- Inside the intui repo we use 'just format'
+    if os.getenv("BAZELISK_HOME") then
+        return false, {"just", "format", "%"}
+    end
+
+    -- Do not format xmls!
+    if string.find("xml", filetype) then
         return true, {"not_existing_on_purpose"}
     end
 end
