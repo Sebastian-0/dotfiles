@@ -67,24 +67,26 @@ local function create_edit(old_text, new_text, l_start, l_end, c_start, c_end)
     }
 end
 
+local FormatMode = {STDIN = 1, TEMP_FILE = 2, TEMP_FILE_SIBLING = 3}
+
 local function default_formatters(filetype)
     if string.find("python", filetype) then
-        return true, {"black", "--quiet", "-"}
+        return FormatMode.STDIN, {"black", "--quiet", "-"}
     elseif string.find("cuda,cpp,c,glsl", filetype) then
         if file_exists(".clang-format") then
-            return true, {"clang-format", "--style=file:.clang-format"}
+            return FormatMode.STDIN, {"clang-format", "--style=file:.clang-format"}
         else
-            return true, {"clang-format", "--style={IndentWidth: 4}"}
+            return FormatMode.STDIN, {"clang-format", "--style={IndentWidth: 4}"}
         end
     elseif string.find("javascript,typescript,json,jsonc", filetype) then
-        return true, {"biome", "format", "--stdin-file-path", "%"}
+        return FormatMode.STDIN, {"biome", "format", "--stdin-file-path", "%"}
     elseif string.find("rust", filetype) then
-        return true, {"rustfmt"}
+        return FormatMode.STDIN, {"rustfmt"}
     elseif string.find("sh", filetype) then
-        -- return true, {"shfmt", "--indent", "4", "--space-redirects", "--case-indent", "--binary-next-line", "--language-dialect", "bash"}
-        return true, {"shfmt", "-i", "4", "-sr", "-ci", "-bn", "-ln", "bash"} -- Required for old version of shfmt...
+        -- return FormatMode.STDIN, {"shfmt", "--indent", "4", "--space-redirects", "--case-indent", "--binary-next-line", "--language-dialect", "bash"}
+        return FormatMode.STDIN, {"shfmt", "-i", "4", "-sr", "-ci", "-bn", "-ln", "bash"} -- Required for old version of shfmt...
     elseif string.find("lua", filetype) then
-        return true, {
+        return FormatMode.STDIN, {
             "lua-format",
             "--chop-down-table",
             "--chop-down-kv-table",
@@ -93,12 +95,13 @@ local function default_formatters(filetype)
             "--column-limit=120"
         }
     elseif string.find("xml", filetype) then
-        return true, {"python3", vim.fn.stdpath("config") .. "/format_xml.py", "--input", "-", "--output", "-"}
+        return FormatMode.STDIN,
+               {"python3", vim.fn.stdpath("config") .. "/format_xml.py", "--input", "-", "--output", "-"}
     elseif string.find("zig", filetype) then
-        -- return true, {"zig", "fmt", "--stdin"}
-        -- return true, {"zig", "fmt", "--stdin", "--color", "off"}
-        -- return true, {"bash", "-c", "zig fmt --stdin --color off"}
-        return false, {"zig", "fmt", "%"}
+        -- return FormatMode.STDIN, {"zig", "fmt", "--stdin"}
+        -- return FormatMode.STDIN, {"zig", "fmt", "--stdin", "--color", "off"}
+        -- return FormatMode.STDIN, {"bash", "-c", "zig fmt --stdin --color off"}
+        return FormatMode.TEMP_FILE, {"zig", "fmt", "%"}
         -- return {"cat", "%", "|", "zig", "fmt", "--stdin", ">", "%"}
     end
 end
@@ -110,21 +113,27 @@ local function office_formatters(filetype)
 
     -- Inside the intui repo we use 'just format'
     if os.getenv("BAZELISK_HOME") then
-        return false, {"just", "format", "%"}
+        return FormatMode.TEMP_FILE_SIBLING, {"just", "format", "%"}
     end
 
     -- Do not format xmls!
     if string.find("xml", filetype) then
-        return true, {"not_existing_on_purpose"}
+        return FormatMode.STDIN, {"not_existing_on_purpose"}
     end
 end
 
-local function format_with_temp_file(orig_lines, buffer, formatter)
+local function format_with_temp_file(orig_lines, buffer, formatter, create_as_sibling)
     local buf = vim.api.nvim_buf_get_name(buffer)
     local name = buf:match("/([^/]+)$")
 
     -- Create a temporary file and write buffer contents
-    local file_name = os.tmpname() .. "." .. name
+    local file_name
+    if create_as_sibling then
+        local dir = vim.fn.fnamemodify(buf, ":h")
+        file_name = dir .. "/format_tmp." .. name
+    else
+        file_name = os.tmpname() .. "." .. name
+    end
     local file, err = io.open(file_name, "w+")
     if file then
         for idx = 1, #orig_lines do
@@ -205,9 +214,9 @@ vim.api.nvim_create_user_command('RunFormatter', function(opts)
     -- Select a formatter
     local formatter_generators = {office_formatters, default_formatters}
     local formatter = {}
-    local use_stdin = false
+    local format_mode = FormatMode.STDIN
     for _, gen in ipairs(formatter_generators) do
-        use_stdin, formatter = gen(vim.bo[buffer].filetype)
+        format_mode, formatter = gen(vim.bo[buffer].filetype)
         if formatter then
             break
         end
@@ -219,10 +228,14 @@ vim.api.nvim_create_user_command('RunFormatter', function(opts)
 
     local orig_lines = vim.api.nvim_buf_get_lines(buffer, 0, -1, true)
     local new_lines = {}
-    if use_stdin then
+    if format_mode == FormatMode.STDIN then
         new_lines = format_with_stdin(orig_lines, buffer, vim.api.nvim_buf_get_name(buffer), formatter)
+    elseif format_mode == FormatMode.TEMP_FILE or format_mode == FormatMode.TEMP_FILE_SIBLING then
+        new_lines = format_with_temp_file(orig_lines, buffer, formatter, format_mode == FormatMode.TEMP_FILE_SIBLING)
     else
-        new_lines = format_with_temp_file(orig_lines, buffer, formatter)
+        print("Unknown format mode: " .. tostring(format_mode))
+        print(" ")
+        return
     end
 
     if not new_lines then
