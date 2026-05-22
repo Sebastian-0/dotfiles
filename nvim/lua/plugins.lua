@@ -311,6 +311,7 @@ require("lazy").setup({
                     'lua-language-server',
                     'python-lsp-server',
                     'rust-analyzer',
+                    'starpls',
                     'typescript-language-server',
                     'zls'
                 }
