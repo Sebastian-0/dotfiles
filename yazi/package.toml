@@ -5,15 +5,15 @@ hash = "57056b9728006881d580ccabe8154a9c"
 
 [[plugin.deps]]
 use = "KKV9/compress"
-rev = "e2ae983"
-hash = "36b570e2164f6ad2317cfb839e42ef4"
+rev = "e60e122"
+hash = "fbaf0adc8efc59555b748d36aab62d40"
 
 [[plugin.deps]]
 use = "yazi-rs/plugins:chmod"
-rev = "68f7d48"
-hash = "8da0b15a97b5dfd13941d1ecc617ac7c"
+rev = "c2c16c8"
+hash = "f0c8c378184d5f8abd1b095a443d336d"
 
 [[flavor.deps]]
 use = "yazi-rs/flavors:catppuccin-mocha"
-rev = "68326b4"
-hash = "2ac87e1b3a61f5887472899e86535d29"
+rev = "36c49ac"
+hash = "7dfe41c9c3d9be76da8a844263d0bbed"
