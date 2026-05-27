@@ -15,9 +15,9 @@ if is_ubuntu; then
         wget -qO- https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | sudo gpg --dearmor -o /etc/apt/keyrings/gierens.gpg
         echo "deb [signed-by=/etc/apt/keyrings/gierens.gpg] http://deb.gierens.de stable main" | sudo tee /etc/apt/sources.list.d/gierens.list
         sudo chmod 644 /etc/apt/keyrings/gierens.gpg /etc/apt/sources.list.d/gierens.list
-        sudo apt update
+        sudo apt-get update
     fi
-    sudo apt install -y --no-install-recommends eza
+    sudo apt-get install -y --no-install-recommends eza
 elif is_arch; then
     sudo pacman -S --needed --noconfirm git tk calc eza # ttf-fira-code
 else
@@ -28,7 +28,7 @@ fi
 echo "Install fzf"
 # Note that key bindings are registered separately in .bashrc
 if is_ubuntu; then
-    sudo apt install -y --no-install-recommends fzf
+    sudo apt-get install -y --no-install-recommends fzf
 elif is_arch; then
     sudo pacman -S --needed --noconfirm fzf
 else
