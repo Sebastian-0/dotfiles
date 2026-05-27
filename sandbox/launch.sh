@@ -29,6 +29,7 @@ CONTAINER_HOME="/home/$SANDBOX_USER"
 # Tag per-UID so hosts with different user IDs don't collide on a shared image.
 BASE_IMAGE="claude-sandbox-base:uid${HOST_UID}"
 VOLUME_BASE="claude-home"
+GH_VOLUME_BASE="claude-gh"
 
 TASK=""
 SHELL_MODE=0
@@ -86,18 +87,23 @@ if [ -f "$OVERLAY_DOCKERFILE" ]; then
         --build-arg "SANDBOX_USER=$SANDBOX_USER" \
         -f "$OVERLAY_DOCKERFILE" \
         -t "$RUN_IMAGE" \
-        "$OVERLAY_DIR"
+        "$OVERLAY_DIR/.."
 fi
 
 echo "[claudesafe] mounting $WORKSPACE_SRC as /workspace/project (changes hit the real folder)"
 
-# Named volume for ~/.claude. --fresh gives a unique volume per session so
-# state doesn't persist or collide with parallel containers.
+# Named volumes for ~/.claude and ~/.config/gh. --fresh gives a unique volume
+# per session so state doesn't persist or collide with parallel containers.
+# The gh volume is kept separate from claude-home so wiping one doesn't lose
+# the other (auth tokens vs. session/cache state have independent lifecycles).
 if [ "$FRESH" = "1" ]; then
-    VOLUME="${VOLUME_BASE}-$(date +%s)-$$"
-    echo "[claudesafe] fresh mode -- using ephemeral volume $VOLUME"
+    STAMP="$(date +%s)-$$"
+    VOLUME="${VOLUME_BASE}-${STAMP}"
+    GH_VOLUME="${GH_VOLUME_BASE}-${STAMP}"
+    echo "[claudesafe] fresh mode -- using ephemeral volumes $VOLUME, $GH_VOLUME"
 else
     VOLUME="$VOLUME_BASE"
+    GH_VOLUME="$GH_VOLUME_BASE"
 fi
 
 DOCKER_ARGS=(
@@ -106,6 +112,7 @@ DOCKER_ARGS=(
     --cap-add=NET_RAW
     -v "$WORKSPACE_SRC:/workspace/project"
     -v "$VOLUME:$CONTAINER_HOME/.claude"
+    -v "$GH_VOLUME:$CONTAINER_HOME/.config/gh"
     -v "$SANDBOX_DIR/allowlist.txt:/etc/allowlist.txt:ro"
     -e "TERM=${TERM:-xterm-256color}"
     -e "SANDBOX_TASK=${TASK:-}"
@@ -141,6 +148,10 @@ fi
 # inside the container) and are shared across all containers using that volume.
 # We deliberately do NOT bind-mount the host's ~/.claude/.credentials.json so
 # the host token stays out of the container's reach.
+#
+# Same pattern for GitHub: the claude-gh volume holds ~/.config/gh (written by
+# `gh auth login` inside the container). The host's gh config is never
+# exposed; the sandbox's gh token is its own identity, revocable separately.
 
 # Pass API key through if set (overrides OAuth).
 if [ -n "${ANTHROPIC_API_KEY:-}" ]; then

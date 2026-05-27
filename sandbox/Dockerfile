@@ -40,6 +40,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         gnupg \
     && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
     && apt-get install -y --no-install-recommends nodejs \
+    && curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+        -o /usr/share/keyrings/githubcli-archive-keyring.gpg \
+    && chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg \
+    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" \
+        > /etc/apt/sources.list.d/github-cli.list \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends gh \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -49,8 +56,12 @@ COPY remap-user.sh /usr/local/bin/remap-user.sh
 RUN chmod +x /usr/local/bin/remap-user.sh \
     && /usr/local/bin/remap-user.sh "$SANDBOX_USER" "$HOST_UID" "$HOST_GID"
 
-RUN mkdir -p /workspace/project /workspace/claude-host "/home/$SANDBOX_USER/.claude" \
-    && chown -R "$SANDBOX_USER:$SANDBOX_USER" /workspace "/home/$SANDBOX_USER/.claude"
+RUN mkdir -p /workspace/project /workspace/claude-host \
+        "/home/$SANDBOX_USER/.claude" \
+        "/home/$SANDBOX_USER/.config/gh" \
+    && chown -R "$SANDBOX_USER:$SANDBOX_USER" /workspace \
+        "/home/$SANDBOX_USER/.claude" \
+        "/home/$SANDBOX_USER/.config"
 
 # npm global prefix owned by the runtime user (pattern from Anthropic ref).
 RUN mkdir -p /usr/local/share/npm-global \

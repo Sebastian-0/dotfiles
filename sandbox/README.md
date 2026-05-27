@@ -26,6 +26,11 @@ so it can install packages, run scripts, and delete files without prompting
   log in once with `claude login` inside the container and the token persists
   in the volume, shared across every container using it. `--fresh` gives an
   ephemeral volume (and a fresh login).
+- Uses a separate named volume (`claude-gh`) for `~/.config/gh`, so a
+  one-time `gh auth login` inside the sandbox persists across runs. Kept
+  separate from `claude-home` so the two auth domains have independent
+  lifecycles. The host's `~/.config/gh` is never mounted; the sandbox holds
+  its own gh token, revocable separately. `--fresh` also resets this volume.
 
 ## Per-project customization
 
@@ -113,6 +118,7 @@ domains into `allowlist.txt` and run `claudesafe`; revert the file after.
 
 - `~/.claude/history.jsonl` (conversation PII)
 - `~/.claude/projects/`, `sessions/`, `cache/`, `backups/`, `file-history/`
+- `~/.config/gh` (the sandbox uses its own `gh` identity in `claude-gh`)
 - Anything outside `$PWD` and the read-only claude-host mounts
 - The Docker socket (no docker-in-docker)
 
@@ -129,3 +135,9 @@ and are reused by every subsequent container sharing that volume.
 If you'd rather pass an API key instead, export `ANTHROPIC_API_KEY` on the
 host before running `claudesafe` -- it's forwarded into the container and
 overrides the OAuth flow.
+
+For GitHub access, run `gh auth login` once inside the sandbox. The token
+lands in the `claude-gh` named volume and is reused by every container that
+shares it. The host's `~/.config/gh` is never mounted, so the sandbox token
+is a distinct identity -- scope it down or revoke it independently of your
+host token from GitHub's settings page.
