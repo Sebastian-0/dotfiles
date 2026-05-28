@@ -111,13 +111,56 @@ local function office_formatters(filetype)
         return
     end
 
-    -- Inside the intui repo we use 'just format'
-    if os.getenv("BAZELISK_HOME") then
-        return FormatMode.TEMP_FILE_SIBLING, {"just", "format", "%"}
-    end
-
-    -- Do not format xmls!
-    if string.find("xml", filetype) then
+    if string.find("python", filetype) then
+        return FormatMode.STDIN, {
+            "/home/sebastian/IntuiCell/intui/bazel-intui/external/+_repo_rules4+ruff_linux_amd64/ruff",
+            "format",
+            "--stdin-filename",
+            "%"
+        }
+    elseif string.find("cuda,cpp,c,glsl", filetype) then
+        if file_exists(".clang-format") then
+            return FormatMode.STDIN, {
+                "/home/sebastian/IntuiCell/intui/bazel-intui/external/+_repo_rules4+llvm_21/bin/clang-format",
+                "--style=file:.clang-format"
+            }
+        end
+    elseif string.find("sh", filetype) then
+        return FormatMode.STDIN, {
+            "/home/sebastian/IntuiCell/intui/bazel-intui/external/+_repo_rules5+shfmt_linux_amd64/file/shfmt",
+            "--indent",
+            "4",
+            "--space-redirects",
+            "--case-indent",
+            "--binary-next-line",
+            "--language-dialect",
+            "bash"
+        }
+    elseif string.find("javascript,typescript,json,jsonc", filetype) then
+        return FormatMode.STDIN, {
+            "/home/sebastian/IntuiCell/intui/bazel-intui/external/+_repo_rules5+biome_linux_amd64/file/biome",
+            "format",
+            "--no-errors-on-unmatched",
+            "--vcs-enabled=false",
+            "--stdin-file-path",
+            "%"
+        }
+    elseif string.find("bzl", filetype) then
+        return FormatMode.STDIN, {
+            "/home/sebastian/IntuiCell/intui/bazel-intui/external/buildifier_prebuilt++buildifier_prebuilt_deps_extension+buildifier_linux_amd64/file/buildifier"
+        }
+        -- elseif string.find("xml", filetype) then
+        --     return FormatMode.STDIN, {
+        --         "python3",
+        --         vim.fn.stdpath("config") .. "/format_xml.py",
+        --         "--indent",
+        --         "2",
+        --         "--input",
+        --         "-",
+        --         "--output",
+        --         "-"
+        --     }
+    elseif string.find("xml", filetype) then
         return FormatMode.STDIN, {"not_existing_on_purpose"}
     end
 end
