@@ -1,14 +1,19 @@
-FROM ubuntu:24.04
+# The base image is supplied by launch.sh: either ubuntu:24.04 by default, or
+# whatever .claudesafe/Dockerfile / .claudesafe/base-image.sh produces. This
+# Dockerfile is the claudesafe *layer* -- it bolts node/claude/firewall/sudoers
+# onto whatever base it gets, and remaps the `ubuntu` user to the host UID/GID.
+# Assumption: BASE is Debian/Ubuntu-derived and already has a `ubuntu` user.
+ARG BASE=ubuntu:24.04
+FROM ${BASE}
 
 ARG CLAUDE_CODE_VERSION=latest
-# Remap the default `ubuntu` user/group to match the host UID/GID so that
-# bind-mounts (workspace) and named-volume writes stay readable on both sides.
-# ubuntu:24.04 ships with `ubuntu`/`ubuntu` at 1000:1000 already.
 ARG HOST_UID=1000
 ARG HOST_GID=1000
 ARG SANDBOX_USER=ubuntu
 
 ENV DEBIAN_FRONTEND=noninteractive
+
+USER root
 
 # Tools needed at runtime:
 #   - iptables/ipset/aggregate/jq/dnsutils/curl: firewall setup
@@ -91,4 +96,4 @@ RUN npm config set prefix /usr/local/share/npm-global \
     && npm install -g @anthropic-ai/claude-code@${CLAUDE_CODE_VERSION}
 
 WORKDIR /workspace/project
-ENTRYPOINT ["/usr/local/bin/bootstrap.sh"]
+CMD ["/usr/local/bin/bootstrap.sh"]

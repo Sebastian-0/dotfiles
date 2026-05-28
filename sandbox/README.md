@@ -6,10 +6,11 @@ so it can install packages, run scripts, and delete files without prompting
 
 ## What it does
 
-- Builds an Ubuntu-based image (`ubuntu:24.04`) with Claude Code (via
-  NodeSource apt), git, Python, and `iptables`/`ipset` for network filtering.
-  The runtime user is `ubuntu` (UID 1000), remapped at build time to your
-  host UID/GID so bind-mounts stay readable on both sides.
+- Builds a layered image on top of `ubuntu:24.04` (or a custom base image
+  you supply via `.claudesafe/`, see below) with Claude Code (via NodeSource
+  apt), git, Python, and `iptables`/`ipset` for network filtering. The runtime
+  user is `ubuntu` (UID 1000), remapped at build time to your host UID/GID so
+  bind-mounts stay readable on both sides.
 - Applies a default-deny firewall at container start, allowlisting only the
   domains in `allowlist.txt` (plus a hardcoded baseline: `api.anthropic.com`,
   npm, GitHub's published IP ranges, etc.).
@@ -34,48 +35,50 @@ so it can install packages, run scripts, and delete files without prompting
 
 ## Per-project customization
 
-Drop a `.claudesafe/` folder in your project root to extend the sandbox for
-that project only:
+Drop a `.claudesafe/` folder in your project root. The sandbox is built in two
+layers: **(1)** your base image, **(2)** the claudesafe layer
+(`sandbox/Dockerfile`) that adds node + claude-code + the firewall on top and
+remaps the `ubuntu` user to your host UID/GID. You supply layer 1; claudesafe
+always owns layer 2. The base is assumed to be Debian/Ubuntu-derived with a
+`ubuntu` user.
 
-- **`.claudesafe/Dockerfile`** -- extends the base. The build passes a
-  `BASE` build-arg that points at the per-UID base image, so:
+Three ways to supply the base:
+
+- **Nothing** -- defaults to `ubuntu:24.04`.
+
+- **`.claudesafe/Dockerfile`** -- a plain Dockerfile claudesafe builds and
+  uses as the base. Just `FROM` whatever you want and install your tools; no
+  `ARG BASE`, no sudoers, no firewall, no remap. Claudesafe adds those.
 
   ```dockerfile
-  ARG BASE
-  FROM ${BASE}
-
-  ARG SANDBOX_USER
+  FROM ubuntu:24.04
   ARG ZIG_VERSION=0.16.0
 
-  USER root
-  RUN apt-get update && apt-get install -y --no-install-recommends xz-utils
+  RUN apt-get update \
+      && apt-get install -y --no-install-recommends curl xz-utils \
+      && rm -rf /var/lib/apt/lists/*
 
-  USER ${SANDBOX_USER}
+  USER ubuntu
   RUN curl -fsSL https://ziglang.org/download/${ZIG_VERSION}/zig-x86_64-linux-${ZIG_VERSION}.tar.xz \
         | tar -xJ -C $HOME
-  ENV PATH="/home/${SANDBOX_USER}/zig-x86_64-linux-${ZIG_VERSION}:${PATH}"
+  ENV PATH="/home/ubuntu/zig-x86_64-linux-${ZIG_VERSION}:${PATH}"
   ```
 
-  If you wanna completely replace the base image, e.g. to use a CUDA image, ignore the `BASE`
-  arg and `FROM` whatever you want, but copy the firewall + entrypoint scripts over and re-run
-  `remap-user.sh` so the `ubuntu` user matches the host UID:
+- **`.claudesafe/base-image.sh`** -- a script that prints the base image name
+  on stdout. The last non-empty line of stdout is taken as the image name; any
+  other output (progress logs, etc.) is ignored. Use this when the image has
+  a dynamic tag or is produced by an external build:
 
-  ```dockerfile
-  FROM nvidia/cuda:12.4.1-runtime-ubuntu24.04
-  ARG BASE
-  ARG HOST_UID
-  ARG HOST_GID
-  ARG SANDBOX_USER
-  COPY --from=${BASE} \
-       /usr/local/bin/init-firewall.sh \
-       /usr/local/bin/bootstrap.sh \
-       /usr/local/bin/remap-user.sh \
-       /usr/local/bin/
-  # ... install nodejs, claude-code, sudoers ...
-  RUN /usr/local/bin/remap-user.sh "$SANDBOX_USER" "$HOST_UID" "$HOST_GID"
-  USER ${SANDBOX_USER}
-  ENTRYPOINT ["/usr/local/bin/bootstrap.sh"]
+  ```bash
+  #!/bin/bash
+  set -euo pipefail
+  just ci::build-image >&2
+  cat .cache/intui-build-image.txt
   ```
+
+  The script runs with `cwd` set to the project root, so relative paths and
+  project commands (like `just ...`) just work. If both `Dockerfile` and
+  `base-image.sh` exist, `base-image.sh` wins.
 
 - **`.claudesafe/mounts`** -- one extra `-v` per line, comments with `#`.
   `~` and `$VARS` are expanded.
