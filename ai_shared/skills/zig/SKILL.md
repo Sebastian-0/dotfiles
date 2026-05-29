@@ -14,7 +14,8 @@ When naming things (module imports, variable names, functions, etc...):
 - In other words: start with the larger, generic units and end with the smaller more specific units.
 
 ## Code style
-Always use braces for if-statements even if the body is one line.
+- ALWAYS use braces for if-statements even if the body is one line.
+- ALWAYS add a , to line break long parameter lists and struct definitions (that exceed around 100 cols)
 
 ## Formatting
 To format the code run:
