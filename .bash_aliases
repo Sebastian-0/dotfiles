@@ -185,6 +185,7 @@ else
     define_git_alias gid 'git diff' 'git diff'
 fi
 define_git_alias gidw 'git diff' 'git diff --ignore-all-space --ignore-space-change'
+define_git_alias gidm 'git diff' 'git diff --ignore-all-space --color-moved=zebra --color-moved-ws=ignore-all-space'
 
 define_git_alias gia 'git add' 'git add'
 define_git_alias giau 'git add' 'git add -u'
