@@ -152,6 +152,19 @@ else
     echo "[claudesafe] no nvidia runtime -- starting without GPU access"
 fi
 
+# Mount main git folder if we are in a worktree. Note that the main worktree
+# is mounted on the path where it exists on the host to make the .git symlink happy
+if git rev-parse --is-inside-work-tree > /dev/null 2>&1; then
+    GIT_COMMON_DIR="$(readlink -f "$(git rev-parse --git-common-dir)")"
+    case "$GIT_COMMON_DIR" in
+        "$WORKSPACE_SRC" | "$WORKSPACE_SRC"/*) ;;
+        *)
+            echo "[claudesafe] git worktree detected -- mounting shared git dir $GIT_COMMON_DIR"
+            DOCKER_ARGS+=(-v "$GIT_COMMON_DIR:$GIT_COMMON_DIR")
+            ;;
+    esac
+fi
+
 # Mount individual host ~/.claude items read-only into /workspace/claude-host/.
 # bootstrap.sh links these into the named volume at $HOME/.claude.
 # Docker follows host-side symlinks at mount time, so ~/.claude/skills (a
