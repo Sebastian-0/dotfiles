@@ -136,7 +136,6 @@ DOCKER_ARGS=(
     --rm -it
     --cap-add=NET_ADMIN
     --cap-add=NET_RAW
-    --gpus all
     -v "$WORKSPACE_SRC:/workspace/project"
     -v "$VOLUME:$CONTAINER_HOME/.claude"
     -v "$GH_VOLUME:$CONTAINER_HOME/.config/gh"
@@ -144,6 +143,14 @@ DOCKER_ARGS=(
     -e "TERM=${TERM:-xterm-256color}"
     -e "SANDBOX_TASK=${TASK:-}"
 )
+
+# Only request GPUs when Docker actually has the nvidia container runtime
+if docker info --format '{{json .Runtimes}}' 2> /dev/null | grep -q nvidia; then
+    echo "[claudesafe] nvidia runtime detected -- enabling --gpus all"
+    DOCKER_ARGS+=(--gpus all)
+else
+    echo "[claudesafe] no nvidia runtime -- starting without GPU access"
+fi
 
 # Mount individual host ~/.claude items read-only into /workspace/claude-host/.
 # bootstrap.sh links these into the named volume at $HOME/.claude.
