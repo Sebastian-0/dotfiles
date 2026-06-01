@@ -70,6 +70,8 @@ if [ "$REBUILD" = "1" ]; then
     NO_CACHE="--no-cache"
 fi
 
+export DOCKER_BUILDKIT=1
+
 # Step 1: resolve the BASE image. Three sources, in priority order:
 #   - .claudesafe/base-image.sh: last line of stdout is the image name. Lets
 #     the project compute a dynamic tag (e.g. read a hash from a generated
