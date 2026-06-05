@@ -184,6 +184,8 @@ else
     define_git_alias giw 'git show' 'git show'
     define_git_alias gid 'git diff' 'git diff'
 fi
+define_git_alias giww 'git show' 'git show --ignore-all-space --ignore-space-change'
+define_git_alias giwm 'git show' 'git show --ignore-all-space --color-moved=zebra --color-moved-ws=ignore-all-space'
 define_git_alias gidw 'git diff' 'git diff --ignore-all-space --ignore-space-change'
 define_git_alias gidm 'git diff' 'git diff --ignore-all-space --color-moved=zebra --color-moved-ws=ignore-all-space'
 
