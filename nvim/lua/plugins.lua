@@ -171,6 +171,7 @@ require("lazy").setup({
                     "cuda",
                     "dockerfile",
                     "glsl",
+                    "http",
                     "java",
                     "javascript",
                     "lua",
@@ -402,18 +403,7 @@ require("lazy").setup({
         commit = "3a3cddf",
         keys = {{"grn", ":lua require('live-rename').rename()<CR>", desc = "LSP rename"}}
     },
-    {
-        "rest-nvim/rest.nvim",
-        version = "3.12.0",
-        dependencies = {
-            "nvim-treesitter/nvim-treesitter",
-            opts = function(_, opts)
-                opts.ensure_installed = opts.ensure_installed or {}
-                table.insert(opts.ensure_installed, "http")
-            end
-        },
-        ft = "http"
-    },
+    {"rest-nvim/rest.nvim", version = "3.12.0", ft = "http"},
     {
         'rmagatti/auto-session',
         commit = '9c3f977',
