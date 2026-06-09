@@ -17,6 +17,13 @@ When naming things (module imports, variable names, functions, etc...):
 - ALWAYS use braces for if-statements even if the body is one line.
 - ALWAYS add a , to line break long parameter lists and struct definitions (that exceed around 100 cols)
 
+## Declaration ordering
+Order top-level declarations most-abstract-first ("lead with the public type"), relying on Zig's order-independence rather than C-style define-before-use:
+- The file's primary `pub` type/function goes at the TOP, right after imports (especially when the file is named after it, e.g. `process_table.zig` → `pub const ProcessTable`). Its public methods come before private helpers.
+- Everything that type depends on — supporting types, config tables, render/helper fns, companion structs — goes BELOW it as private implementation detail, even though it's referenced from above.
+- Within a struct: fields, then `pub` methods (the API), then private helpers, then `test` blocks.
+- Do NOT mix this with bottom-up "build up to the public type last" ordering — pick most-abstract-first and be consistent across the file.
+
 ## Formatting
 To format the code run:
 zig fmt .
