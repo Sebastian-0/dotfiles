@@ -106,49 +106,68 @@ local function default_formatters(filetype)
     end
 end
 
+-- Bazel's "+_repo_rulesN+" prefix shifts when MODULE.bazel repos change, so match
+-- on the stable suffix and glob the prefix. Only cache hits (Bazel fetches lazily).
+local intui_bazel_external = "/home/sebastian/IntuiCell/intui/bazel-intui/external"
+local resolved_office_tools = {}
+local function office_tool(glob_suffix)
+    if resolved_office_tools[glob_suffix] then
+        return resolved_office_tools[glob_suffix]
+    end
+    local matches = vim.fn.glob(intui_bazel_external .. "/" .. glob_suffix, false, true)
+    if #matches > 0 then
+        resolved_office_tools[glob_suffix] = matches[1]
+        return matches[1]
+    end
+    return nil
+end
+
 local function office_formatters(filetype)
     if os.getenv("NVIM_ENV") ~= "intuicell" then
         return
     end
 
     if string.find("python", filetype) then
-        return FormatMode.STDIN, {
-            "/home/sebastian/IntuiCell/intui/bazel-intui/external/+_repo_rules4+ruff_linux_amd64/ruff",
-            "format",
-            "--stdin-filename",
-            "%"
-        }
+        local ruff = office_tool("*ruff_linux_amd64/ruff")
+        if ruff then
+            return FormatMode.STDIN, {ruff, "format", "--stdin-filename", "%"}
+        end
     elseif string.find("cuda,cpp,c,glsl", filetype) then
-        if file_exists(".clang-format") then
-            return FormatMode.STDIN, {
-                "/home/sebastian/IntuiCell/intui/bazel-intui/external/+_repo_rules4+llvm_21/bin/clang-format",
-                "--style=file:.clang-format"
-            }
+        local clang_format = office_tool("*llvm_21/bin/clang-format")
+        if clang_format and file_exists(".clang-format") then
+            return FormatMode.STDIN, {clang_format, "--style=file:.clang-format"}
         end
     elseif string.find("sh", filetype) then
-        return FormatMode.STDIN, {
-            "/home/sebastian/IntuiCell/intui/bazel-intui/external/+_repo_rules5+shfmt_linux_amd64/file/shfmt",
-            "--indent",
-            "4",
-            "--space-redirects",
-            "--case-indent",
-            "--binary-next-line",
-            "--language-dialect",
-            "bash"
-        }
+        local shfmt = office_tool("*shfmt_linux_amd64/file/shfmt")
+        if shfmt then
+            return FormatMode.STDIN, {
+                shfmt,
+                "--indent",
+                "4",
+                "--space-redirects",
+                "--case-indent",
+                "--binary-next-line",
+                "--language-dialect",
+                "bash"
+            }
+        end
     elseif string.find("javascript,typescript,json,jsonc", filetype) then
-        return FormatMode.STDIN, {
-            "/home/sebastian/IntuiCell/intui/bazel-intui/external/+_repo_rules5+biome_linux_amd64/file/biome",
-            "format",
-            "--no-errors-on-unmatched",
-            "--vcs-enabled=false",
-            "--stdin-file-path",
-            "%"
-        }
+        local biome = office_tool("*biome_linux_amd64/file/biome")
+        if biome then
+            return FormatMode.STDIN, {
+                biome,
+                "format",
+                "--no-errors-on-unmatched",
+                "--vcs-enabled=false",
+                "--stdin-file-path",
+                "%"
+            }
+        end
     elseif string.find("bzl", filetype) then
-        return FormatMode.STDIN, {
-            "/home/sebastian/IntuiCell/intui/bazel-intui/external/buildifier_prebuilt++buildifier_prebuilt_deps_extension+buildifier_linux_amd64/file/buildifier"
-        }
+        local buildifier = office_tool("*buildifier_linux_amd64/file/buildifier")
+        if buildifier then
+            return FormatMode.STDIN, {buildifier}
+        end
         -- elseif string.find("xml", filetype) then
         --     return FormatMode.STDIN, {
         --         "python3",
