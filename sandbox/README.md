@@ -32,6 +32,10 @@ so it can install packages, run scripts, and delete files without prompting
   separate from `claude-home` so the two auth domains have independent
   lifecycles. The host's `~/.config/gh` is never mounted; the sandbox holds
   its own gh token, revocable separately. `--fresh` also resets this volume.
+- For git-over-SSH, forwards a **dedicated** ssh-agent from the host that
+  holds a sandbox-only key (passphrase-encrypted, separate from your personal
+  key, isolated from your normal agent). Only the agent socket enters the
+  container, never the key material. See [SSH access](#ssh-access) below.
 
 ## Per-project customization
 
@@ -122,6 +126,8 @@ domains into `allowlist.txt` and run `claudesafe`; revert the file after.
 - `~/.claude/history.jsonl` (conversation PII)
 - `~/.claude/projects/`, `sessions/`, `cache/`, `backups/`, `file-history/`
 - `~/.config/gh` (the sandbox uses its own `gh` identity in `claude-gh`)
+- `~/.ssh` and your personal SSH key (the sandbox uses its own dedicated key;
+  only that key's agent socket is forwarded in, never any key material)
 - Anything outside `$PWD` and the read-only claude-host mounts
 - The Docker socket (no docker-in-docker)
 
@@ -144,3 +150,54 @@ lands in the `claude-gh` named volume and is reused by every container that
 shares it. The host's `~/.config/gh` is never mounted, so the sandbox token
 is a distinct identity -- scope it down or revoke it independently of your
 host token from GitHub's settings page.
+
+## SSH access
+
+The sandbox authenticates over SSH with a **dedicated key** that lives on the
+host, separate from your personal key. The key material never enters the
+container -- `launch.sh` loads it into its own ssh-agent on the host and
+forwards only the agent *socket* in (`SSH_AUTH_SOCK -> /ssh-agent.sock`). The
+container can ask the agent to sign while the key is unlocked, but cannot read
+the key itself.
+
+**First run.** `launch.sh` generates `~/.ssh/claudesafe_ed25519` on the host
+and prompts for a passphrase (the key is encrypted at rest), then prints the
+public key:
+
+```
+[claudesafe] Register this public key on GitHub (Settings > SSH keys):
+ssh-ed25519 AAAA... claudesafe-sandbox
+```
+
+Copy it into GitHub (Settings > SSH and GPG keys). Add it as a **signing key**
+too if you want the sandbox's commits to show as verified. It's a distinct,
+independently-revocable identity -- it can't authenticate or sign as *you*.
+
+**Unlocking.** Each launch, `launch.sh` ensures a dedicated ssh-agent (kept
+separate from your personal agent, so the personal key is never reachable)
+holds the key, prompting for the passphrase if needed. The key is
+added with a timeout (`CLAUDESAFE_SSH_EXPIRY`, default 10h) and auto-expires
+like the personal-key workflow -- subsequent launches within the window reuse
+it without re-prompting. If you skip the passphrase, the sandbox still starts,
+just without git-over-SSH.
+
+**Re-unlocking after the timeout.** Unlocking is always host-side -- the
+container only has the forwarded socket, never the key or passphrase. To start
+a new session, just run `claudesafe` again (it re-prompts if the key expired).
+To re-enable SSH in an **already-running** session without restarting it, run
+`claudesafe --unlock` from another host terminal: it re-adds the key to the
+same persistent agent, and because the running container forwards that same
+socket, git-over-SSH works again immediately.
+
+The firewall already allows outbound port 22, and `bootstrap.sh` pre-trusts
+GitHub's host key, so `git push`/`git pull` over SSH work with no prompts. To
+rotate the key, delete `~/.ssh/claudesafe_ed25519*` on the host (the next run
+regenerates it; re-register on GitHub).
+
+Why a dedicated key + agent rather than the simpler alternatives? Forwarding
+your *personal* agent would expose your real identity (it signs your commits
+and authenticates everywhere your key is trusted). Storing a dedicated key
+*inside* the container would leave it plaintext, never-expiring, and
+exfiltratable. This approach is the union of the good properties: separate
+revocable identity, encrypted at rest, time-boxed, and key material kept out
+of the container.

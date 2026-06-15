@@ -18,6 +18,7 @@
 #   claudesafe --shell               # drop to bash inside the container
 #   claudesafe --fresh               # use a per-session ~/.claude volume
 #   claudesafe --rebuild             # force rebuild of the image
+#   claudesafe --unlock              # re-unlock the sandbox SSH key, then exit
 set -euo pipefail
 
 # Resolve the sandbox dir from the script's own path (works regardless of
@@ -36,6 +37,7 @@ TASK=""
 SHELL_MODE=0
 FRESH=0
 REBUILD=0
+UNLOCK=0
 CLAUDE_ARGS=()
 
 while [ $# -gt 0 ]; do
@@ -43,13 +45,14 @@ while [ $# -gt 0 ]; do
         --shell) SHELL_MODE=1 ;;
         --fresh) FRESH=1 ;;
         --rebuild) REBUILD=1 ;;
+        --unlock) UNLOCK=1 ;;
         --)
             shift
             CLAUDE_ARGS=("$@")
             break
             ;;
         -h | --help)
-            sed -n '3,20p' "$SCRIPT"
+            sed -n '3,21p' "$SCRIPT"
             exit 0
             ;;
         *)
@@ -58,6 +61,71 @@ while [ $# -gt 0 ]; do
     esac
     shift
 done
+
+# --- Dedicated sandbox SSH key + its own ssh-agent ------------------------
+# A sandbox-only key (separate from your personal one), passphrase-encrypted on
+# the host and held in a dedicated, isolated agent. Only the agent socket is
+# forwarded in -- key material never enters the container, so Claude can sign
+# while unlocked but cannot exfiltrate it. Auto-expires after
+# CLAUDESAFE_SSH_EXPIRY seconds (default 10h).
+CLAUDE_SSH_KEY="$HOME/.ssh/claudesafe_ed25519"
+CLAUDE_SSH_ENV="$HOME/.ssh/claudesafe-agent-env"
+CLAUDE_SSH_EXPIRY="${CLAUDESAFE_SSH_EXPIRY:-36000}"
+
+# Ensure the key exists and is loaded in the dedicated agent (generating and
+# unlocking interactively as needed). On success leaves SSH_AUTH_SOCK pointing
+# at that agent; returns non-zero if the key isn't available.
+unlock_sandbox_ssh() {
+    # Generate on first use (prompts for a passphrase).
+    if [ ! -f "$CLAUDE_SSH_KEY" ]; then
+        echo "[claudesafe] no sandbox SSH key found -- generating $CLAUDE_SSH_KEY"
+        echo "[claudesafe] set a passphrase to encrypt it at rest:"
+        if ssh-keygen -t ed25519 -C "claudesafe-sandbox" -f "$CLAUDE_SSH_KEY"; then
+            echo "[claudesafe] ----------------------------------------------------------"
+            echo "[claudesafe] Register this public key on GitHub (Settings > SSH keys):"
+            cat "$CLAUDE_SSH_KEY.pub"
+            echo "[claudesafe] ----------------------------------------------------------"
+        else
+            echo "[claudesafe] key generation skipped"
+        fi
+    fi
+
+    # Talk ONLY to the dedicated agent -- the ambient $SSH_AUTH_SOCK may point
+    # at your personal agent and would leak that key.
+    unset SSH_AUTH_SOCK SSH_AGENT_PID
+    if [ -f "$CLAUDE_SSH_ENV" ]; then
+        . "$CLAUDE_SSH_ENV" > /dev/null 2>&1 || true
+    fi
+
+    # ssh-add -l: 0 = key loaded, 1 = agent up but no key, 2 = no agent.
+    local rc=0
+    ssh-add -l > /dev/null 2>&1 || rc=$?
+    if [ "$rc" = "2" ]; then
+        echo "[claudesafe] starting dedicated ssh-agent for the sandbox key..."
+        ssh-agent -s > "$CLAUDE_SSH_ENV"
+        chmod 600 "$CLAUDE_SSH_ENV"
+        . "$CLAUDE_SSH_ENV" > /dev/null
+        rc=1
+    fi
+    if [ "$rc" = "1" ] && [ -f "$CLAUDE_SSH_KEY" ]; then
+        echo "[claudesafe] unlocking sandbox SSH key (auto-expires after ${CLAUDE_SSH_EXPIRY}s)..."
+        ssh-add -t "$CLAUDE_SSH_EXPIRY" "$CLAUDE_SSH_KEY" || true
+    fi
+
+    # Success = the key is now loaded.
+    ssh-add -l > /dev/null 2>&1 && [ -n "${SSH_AUTH_SOCK:-}" ] && [ -S "${SSH_AUTH_SOCK:-}" ]
+}
+
+# --unlock: re-load the key after the timeout without launching a container --
+# re-enables git-over-SSH in an already-running session (same agent socket).
+if [ "$UNLOCK" = "1" ]; then
+    if unlock_sandbox_ssh; then
+        echo "[claudesafe] sandbox SSH key is unlocked and ready"
+        exit 0
+    fi
+    echo "[claudesafe] failed to unlock the sandbox SSH key" >&2
+    exit 1
+fi
 
 WORKSPACE_SRC="$PWD"
 OVERLAY_DIR="$WORKSPACE_SRC/.claudesafe"
@@ -189,6 +257,17 @@ if [ -f "$MOUNTS_FILE" ]; then
         echo "[claudesafe] extra mount: $expanded"
         DOCKER_ARGS+=(-v "$expanded")
     done < "$MOUNTS_FILE"
+fi
+
+# Unlock the sandbox key and forward only its agent socket (key stays on host).
+if unlock_sandbox_ssh; then
+    echo "[claudesafe] forwarding sandbox ssh-agent ($SSH_AUTH_SOCK)"
+    DOCKER_ARGS+=(
+        -v "$SSH_AUTH_SOCK:/ssh-agent.sock"
+        -e "SSH_AUTH_SOCK=/ssh-agent.sock"
+    )
+else
+    echo "[claudesafe] sandbox SSH key unavailable -- continuing without git-over-SSH"
 fi
 
 # Credentials live in the claude-home named volume (written by `claude login`

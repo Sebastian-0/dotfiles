@@ -58,6 +58,15 @@ link_if_present "$CLAUDE_HOST/plugins" "$CLAUDE_DIR/plugins"
 link_if_present "$CLAUDE_HOST/agents" "$CLAUDE_DIR/agents"
 link_if_present "$CLAUDE_HOST/commands" "$CLAUDE_DIR/commands"
 
+# SSH auth comes from the host's forwarded agent (launch.sh); no key lives here.
+# Pre-trust GitHub's host key so git-over-SSH doesn't prompt (TOFU).
+mkdir -p "$HOME/.ssh"
+chmod 700 "$HOME/.ssh"
+KNOWN_HOSTS="$HOME/.ssh/known_hosts"
+if ! grep -q "github.com" "$KNOWN_HOSTS" 2> /dev/null; then
+    ssh-keyscan -t ed25519,rsa github.com >> "$KNOWN_HOSTS" 2> /dev/null || true
+fi
+
 cd "$PROJECT"
 
 if [ "${SANDBOX_SHELL:-0}" = "1" ]; then
