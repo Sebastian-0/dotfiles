@@ -28,3 +28,6 @@ archive.ubuntu.com
 security.ubuntu.com
 ports.ubuntu.com
 keyserver.ubuntu.com
+
+# IntuiCell core server
+core.hw.intuicell.com
