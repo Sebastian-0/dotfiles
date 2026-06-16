@@ -292,7 +292,7 @@ require("lazy").setup({
             vim.g.undotree_SetFocusWhenToggle = true
         end
     },
-    {"folke/lazydev.nvim", version = "1.9.x", ft = "lua", opts = {}},
+    {"folke/lazydev.nvim", version = "1.10.x", ft = "lua", opts = {}},
     {
         'williamboman/mason.nvim',
         version = '1.11.x',
