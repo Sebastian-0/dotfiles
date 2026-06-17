@@ -58,6 +58,15 @@ link_if_present "$CLAUDE_HOST/plugins" "$CLAUDE_DIR/plugins"
 link_if_present "$CLAUDE_HOST/agents" "$CLAUDE_DIR/agents"
 link_if_present "$CLAUDE_HOST/commands" "$CLAUDE_DIR/commands"
 
+# Mirror the host's global git identity (forwarded by launch.sh). Written
+# global, so a repo-local [user] still overrides it -- same as on the host.
+if [ -n "${CLAUDESAFE_GIT_USER_NAME:-}" ]; then
+    git config --global user.name "$CLAUDESAFE_GIT_USER_NAME"
+fi
+if [ -n "${CLAUDESAFE_GIT_USER_EMAIL:-}" ]; then
+    git config --global user.email "$CLAUDESAFE_GIT_USER_EMAIL"
+fi
+
 # SSH auth comes from the host's forwarded agent (launch.sh); no key lives here.
 # Pre-trust GitHub's host key so git-over-SSH doesn't prompt (TOFU).
 mkdir -p "$HOME/.ssh"

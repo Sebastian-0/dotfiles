@@ -212,6 +212,17 @@ DOCKER_ARGS=(
     -e "SANDBOX_TASK=${TASK:-}"
 )
 
+# Forward the host's GLOBAL git identity (not the effective config, which a
+# repo-local [user] could shadow) so bootstrap.sh can mirror it in-container.
+HOST_GIT_NAME="$(git config --global user.name 2>/dev/null || true)"
+HOST_GIT_EMAIL="$(git config --global user.email 2>/dev/null || true)"
+if [ -n "$HOST_GIT_NAME" ]; then
+    DOCKER_ARGS+=(-e "CLAUDESAFE_GIT_USER_NAME=$HOST_GIT_NAME")
+fi
+if [ -n "$HOST_GIT_EMAIL" ]; then
+    DOCKER_ARGS+=(-e "CLAUDESAFE_GIT_USER_EMAIL=$HOST_GIT_EMAIL")
+fi
+
 # Only request GPUs when Docker actually has the nvidia container runtime
 if docker info --format '{{json .Runtimes}}' 2> /dev/null | grep -q nvidia; then
     echo "[claudesafe] nvidia runtime detected -- enabling --gpus all"
