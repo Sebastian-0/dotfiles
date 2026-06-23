@@ -174,6 +174,8 @@ require("lazy").setup({
                     "http",
                     "java",
                     "javascript",
+                    "jinja",
+                    "just",
                     "lua",
                     "python",
                     "rust",

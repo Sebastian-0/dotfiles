@@ -52,6 +52,20 @@ vim.api.nvim_create_autocmd({"BufRead", "BufNewFile"}, {
     command = [[set filetype=glsl]]
 })
 
+-- Set filetype for just
+vim.api.nvim_create_autocmd({"BufRead", "BufNewFile"}, {
+    group = vim.api.nvim_create_augroup("JustType", {clear = true}),
+    pattern = {"*.justfile"},
+    command = [[set filetype=just]]
+})
+
+-- Set filetype for jinja
+vim.api.nvim_create_autocmd({"BufRead", "BufNewFile"}, {
+    group = vim.api.nvim_create_augroup("JinjaType", {clear = true}),
+    pattern = {"*.j2"},
+    command = [[set filetype=jinja]]
+})
+
 -- Set comment character for certain file types
 vim.api.nvim_create_autocmd("FileType", {
     group = vim.api.nvim_create_augroup("CommentString", {clear = true}),
