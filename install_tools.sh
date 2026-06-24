@@ -3,6 +3,9 @@ set -euo pipefail
 
 . utils.sh
 
+tmp="$(mktemp -d)"
+trap 'rm -rf "$tmp"' EXIT
+
 ./install_font.sh
 
 echo "Install git, calc & exa/eza..."
@@ -64,13 +67,11 @@ else
     echo "Unsupported OS!"
     exit 1
 fi
-git clone https://github.com/catppuccin/btop
+git clone https://github.com/catppuccin/btop "$tmp/btop"
 mkdir -p ~/.config/btop/themes
-cp -r btop/themes/* ~/.config/btop/themes/
-rm -rf btop
+cp -r "$tmp"/btop/themes/* ~/.config/btop/themes/
 
 echo "Install difftastic"
-wget -q https://github.com/Wilfred/difftastic/releases/download/0.67.0/difft-x86_64-unknown-linux-gnu.tar.gz
-tar xvf difft-x86_64-unknown-linux-gnu.tar.gz
-rm difft-x86_64-unknown-linux-gnu.tar.gz
-mv difft ~/.local/bin/
+wget -qO "$tmp/difft.tar.gz" https://github.com/Wilfred/difftastic/releases/download/0.67.0/difft-x86_64-unknown-linux-gnu.tar.gz
+tar xf "$tmp/difft.tar.gz" -C "$tmp"
+mv "$tmp/difft" ~/.local/bin/

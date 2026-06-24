@@ -12,11 +12,10 @@ if ! which tdrop >&/dev/null; then
     else
         sudo pacman -S --needed --noconfirm xorg-xprop xdotool xorg-xwininfo gawk make
     fi
-    git clone https://github.com/noctuid/tdrop.git
-    cd tdrop
-    sudo make install
-    cd ..
-    rm -rf tdrop
+    tmp="$(mktemp -d)"
+    trap 'rm -rf "$tmp"' EXIT
+    git clone https://github.com/noctuid/tdrop.git "$tmp/tdrop"
+    (cd "$tmp/tdrop" && sudo make install)
 fi
 
 echo "Install Kitty terminal..."

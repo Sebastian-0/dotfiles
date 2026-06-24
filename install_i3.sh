@@ -9,6 +9,9 @@ echo "This script installs i3, assuming you are running Ubuntu or Manjaro!"
 echo ""
 read -rp "Press enter to start..."
 
+tmp="$(mktemp -d)"
+trap 'rm -rf "$tmp"' EXIT
+
 echo "Installing packages..."
 if is_ubuntu; then
     sudo apt-get install -y --no-install-recommends i3 feh xss-lock wmctrl scrot picom dunst rofi pulseaudio-utils playerctl brightnessctl polybar stalonetray flameshot imagemagick yad libsass1 python3-virtualenv
@@ -17,11 +20,8 @@ if is_ubuntu; then
     if ! which i3lock >&/dev/null; then
         sudo apt-get install -y --no-install-recommends autoconf gcc make pkg-config libpam0g-dev libcairo2-dev libfontconfig1-dev libxcb-composite0-dev libev-dev libx11-xcb-dev libxcb-xkb-dev libxcb-xinerama0-dev libxcb-randr0-dev libxcb-image0-dev libxcb-util-dev libxcb-xrm-dev libxkbcommon-dev libxkbcommon-x11-dev libjpeg-dev libgif-dev
 
-        git clone https://github.com/Raymo111/i3lock-color.git
-        cd i3lock-color
-        ./install-i3lock-color.sh
-        cd ..
-        rm -rf i3lock-color
+        git clone https://github.com/Raymo111/i3lock-color.git "$tmp/i3lock-color"
+        (cd "$tmp/i3lock-color" && ./install-i3lock-color.sh)
     else
         echo "... skipping!"
     fi
@@ -30,17 +30,11 @@ if is_ubuntu; then
     if ! which clipmenu >&/dev/null; then
         sudo apt-get install -y --no-install-recommends xsel libxcomposite-dev
 
-        git clone https://github.com/cdown/clipnotify.git
-        cd clipnotify
-        sudo make install
-        cd ..
-        sudo rm -rf clipnotify
+        git clone https://github.com/cdown/clipnotify.git "$tmp/clipnotify"
+        (cd "$tmp/clipnotify" && sudo make install)
 
-        git clone https://github.com/cdown/clipmenu.git
-        cd clipmenu
-        sudo make install
-        cd ..
-        sudo rm -rf clipmenu
+        git clone https://github.com/cdown/clipmenu.git "$tmp/clipmenu"
+        (cd "$tmp/clipmenu" && sudo make install)
     else
         echo "... skipping!"
     fi
@@ -68,11 +62,8 @@ fi
 
 echo "Install rofi themes..."
 if [ ! -f ~/.config/rofi/colors/catppuccin.rasi ]; then
-    git clone --depth=1 https://github.com/adi1090x/rofi.git
-    cd rofi
-    ./setup.sh
-    cd ..
-    rm -rf rofi
+    git clone --depth=1 https://github.com/adi1090x/rofi.git "$tmp/rofi"
+    (cd "$tmp/rofi" && ./setup.sh)
     sed -i 's|@import .*|@import "~/.config/rofi/colors/catppuccin.rasi"|g' ~/.config/rofi/launchers/type-4/shared/colors.rasi
     sed -i 's|@import .*|@import "~/.config/rofi/colors/catppuccin.rasi"|g' ~/.config/rofi/powermenu/type-1/shared/colors.rasi
     sed -i "s/theme='style-1'/theme='style-3'/g" ~/.config/rofi/powermenu/type-1/powermenu.sh
@@ -84,14 +75,12 @@ fi
 echo "Install GTK theme..."
 if ! compgen -G ~/.local/share/themes/catppuccin*/gtk* >&/dev/null; then
     (
-        git clone --recurse-submodules https://github.com/catppuccin/gtk
-        cd gtk
+        git clone --recurse-submodules https://github.com/catppuccin/gtk "$tmp/gtk"
+        cd "$tmp/gtk"
         python3 -m venv venv
         . venv/bin/activate
         pip install -r requirements.txt
         python3 install.py mocha blue
-        cd -
-        rm -rf gtk
     )
 else
     echo "... skipping!"
