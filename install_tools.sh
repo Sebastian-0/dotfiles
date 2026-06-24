@@ -72,6 +72,7 @@ mkdir -p ~/.config/btop/themes
 cp -r "$tmp"/btop/themes/* ~/.config/btop/themes/
 
 echo "Install difftastic"
-wget -qO "$tmp/difft.tar.gz" https://github.com/Wilfred/difftastic/releases/download/0.67.0/difft-x86_64-unknown-linux-gnu.tar.gz
+# uname -m returns x86_64 / aarch64, matching difftastic's asset naming
+wget -qO "$tmp/difft.tar.gz" "https://github.com/Wilfred/difftastic/releases/download/0.67.0/difft-$(uname -m)-unknown-linux-gnu.tar.gz"
 tar xf "$tmp/difft.tar.gz" -C "$tmp"
 mv "$tmp/difft" ~/.local/bin/
