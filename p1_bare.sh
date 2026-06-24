@@ -3,7 +3,7 @@ set -euo pipefail
 
 echo "This will only install the bashrc aliases."
 echo ""
-read -rp "Press enter to continue..."
+if [ -t 0 ]; then read -rp "Press enter to continue..."; fi
 
 ./install_bashrc.sh
 

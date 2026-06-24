@@ -7,7 +7,7 @@ set -euo pipefail
 
 echo "This script installs i3, assuming you are running Ubuntu or Manjaro!"
 echo ""
-read -rp "Press enter to start..."
+if [ -t 0 ]; then read -rp "Press enter to start..."; fi
 
 tmp="$(mktemp -d)"
 trap 'rm -rf "$tmp"' EXIT

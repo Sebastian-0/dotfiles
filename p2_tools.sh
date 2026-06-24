@@ -3,7 +3,7 @@ set -euo pipefail
 
 echo "This will install the bashrc aliases, nvim and tools."
 echo ""
-read -rp "Press enter to continue..."
+if [ -t 0 ]; then read -rp "Press enter to continue..."; fi
 
 ./install_bashrc.sh
 ./install_tools.sh
