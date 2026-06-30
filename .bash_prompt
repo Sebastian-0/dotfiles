@@ -179,7 +179,7 @@ function _seb_prompt_git() {
         fi
 
         if [ "$is_detached" == false ]; then
-            echo "\[$SEB_PROMPT_R$SEB_PROMPT_COL_GIT\]($provider $branch$ahead_behind$tag$dirty\[$SEB_PROMPT_COL_GIT\]) "
+            echo "\[$SEB_PROMPT_R$SEB_PROMPT_COL_GIT\]($provider $branch$tag$ahead_behind$dirty\[$SEB_PROMPT_COL_GIT\]) "
         else
             # For detached state we want to always show either tag or commit hash
             if [ -z "$tag" ]; then
