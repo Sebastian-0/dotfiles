@@ -31,3 +31,9 @@ keyserver.ubuntu.com
 
 # IntuiCell core server
 core.hw.intuicell.com
+
+# Nvidia mirrors
+developer.download.nvidia.com
+
+# Pytorch mirror
+download.pytorch.org
