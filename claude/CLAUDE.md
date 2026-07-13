@@ -18,3 +18,9 @@ When you get a task ALWAYS check and load relevant skills first!
 When executing a multi-step plan, after each step:
 - Code must compile
 - Commit (may need SSH key authentication - ask user for help)
+
+
+# Commit Messages
+
+Prefer a subject line only. Include a body only when necessary for
+clarification, and keep it brief.
