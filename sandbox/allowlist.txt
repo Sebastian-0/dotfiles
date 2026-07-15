@@ -29,8 +29,9 @@ security.ubuntu.com
 ports.ubuntu.com
 keyserver.ubuntu.com
 
-# IntuiCell core server
+# Intui resources
 core.hw.intuicell.com
+jetson-1.hw.intuicell.com
 
 # Nvidia mirrors
 developer.download.nvidia.com
