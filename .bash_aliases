@@ -230,11 +230,13 @@ giri() {
 }
 define_git_alias girib 'git rebase'
 girib() {
-    if [ "$#" -eq 1 ]; then
-        git rebase --interactive "$(git merge-base "origin/$1" HEAD)"
-    else
+    if [ "$#" -lt 1 ]; then
         echo "Missing target branch"
+        return 1
     fi
+    local branch="$1"
+    shift
+    git rebase --interactive "$(git merge-base "origin/$branch" HEAD)" "$@"
 }
 
 define_git_alias gic 'git commit'
