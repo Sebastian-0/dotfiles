@@ -1,4 +1,4 @@
-# Code Comments Policy
+# Comments Policy
 
 Keep comments brief. Omit them when the code is self-explanatory; comment only
 the non-obvious "why", not the "what". Applies to all languages.
@@ -6,6 +6,8 @@ the non-obvious "why", not the "what". Applies to all languages.
 Do NOT delete comments in code unless:
 1. The code they refer to is being removed
 2. They are factually incorrect and cannot be reasonably corrected
+
+Never reference memories or local-only files in the code!
 
 
 # Skills policy
