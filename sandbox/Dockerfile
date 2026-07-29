@@ -20,6 +20,8 @@ USER root
 #   - sudo: bootstrap invokes the firewall script as root
 #   - git: worktree operations and general use inside the sandbox
 #   - python3/pip/pipx/ripgrep: common tooling users want when running scripts
+#   - bubblewrap/socat: Claude Code's command sandbox; org remote settings set
+#     sandbox.failIfUnavailable, so claude refuses to start unless both exist.
 #   - nodejs/npm: needed for claude-code; pulled from NodeSource for a newer
 #     toolchain than ubuntu:24.04's archive (still apt-managed).
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -30,6 +32,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         iptables \
         ipset \
         aggregate \
+        bubblewrap \
+        socat \
         iproute2 \
         jq \
         less \
