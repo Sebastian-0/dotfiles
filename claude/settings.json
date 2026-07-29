@@ -28,7 +28,7 @@
 			"Bash(lua-format *)",
 			"Bash(zig fmt *)",
 			"Search(*)",
-			"Write(/tmp/*)"
+			"Edit(/tmp/*)"
 		]
 	},
 	"statusLine": {
