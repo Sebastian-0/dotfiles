@@ -108,18 +108,32 @@ end
 
 -- Bazel's "+_repo_rulesN+" prefix shifts when MODULE.bazel repos change, so match
 -- on the stable suffix and glob the prefix. Only cache hits (Bazel fetches lazily).
-local intui_bazel_external = "/home/sebastian/IntuiCell/intui/bazel-intui/external"
-local resolved_office_tools = {}
+local intui_workspace = "/home/sebastian/IntuiCell/intui"
+
+-- bazel-intui is a symlink so read it each time in case it is invalidated
+local function get_bazel_external()
+    local execroot = vim.uv.fs_readlink(intui_workspace .. "/bazel-intui")
+    if not execroot then
+        return nil
+    end
+    return vim.fn.fnamemodify(execroot, ":h:h") .. "/external"
+end
+
 local function office_tool(glob_suffix)
-    if resolved_office_tools[glob_suffix] then
-        return resolved_office_tools[glob_suffix]
+    local base = get_bazel_external()
+    if not base then
+        return nil
     end
-    local matches = vim.fn.glob(intui_bazel_external .. "/" .. glob_suffix, false, true)
-    if #matches > 0 then
-        resolved_office_tools[glob_suffix] = matches[1]
-        return matches[1]
+    -- Re-glob every call; the cached paths would go stale.
+    local matches = vim.fn.glob(base .. "/" .. glob_suffix, false, true)
+    local best, best_mtime = nil, -1
+    for _, m in ipairs(matches) do
+        local mt = vim.fn.getftime(m)
+        if mt > best_mtime then
+            best, best_mtime = m, mt
+        end
     end
-    return nil
+    return best
 end
 
 local function office_formatters(filetype)
@@ -154,14 +168,8 @@ local function office_formatters(filetype)
     elseif string.find("javascript,typescript,json,jsonc", filetype) then
         local biome = office_tool("*biome_linux_amd64/file/biome")
         if biome then
-            return FormatMode.STDIN, {
-                biome,
-                "format",
-                "--no-errors-on-unmatched",
-                "--vcs-enabled=false",
-                "--stdin-file-path",
-                "%"
-            }
+            return FormatMode.STDIN,
+                   {biome, "format", "--no-errors-on-unmatched", "--vcs-enabled=false", "--stdin-file-path", "%"}
         end
     elseif string.find("bzl", filetype) then
         local buildifier = office_tool("*buildifier_linux_amd64/file/buildifier")
