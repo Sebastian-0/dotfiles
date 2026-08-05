@@ -3,6 +3,12 @@
 Keep comments brief. Omit them when the code is self-explanatory; comment only
 the non-obvious "why", not the "what". Applies to all languages.
 
+Explain the "why" as cause and observable effect, not the underlying mechanism.
+Use plain language over jargon, and lead with the decision or constraint the
+reader must preserve. E.g. prefer "must be a directory because a file mount
+isn't updated when the file is overwritten, so reload has no effect" over "a
+file mount pins the inode at container start, so the atomic rename is not seen".
+
 Do NOT delete comments in code unless:
 1. The code they refer to is being removed
 2. They are factually incorrect and cannot be reasonably corrected
