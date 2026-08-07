@@ -12,6 +12,14 @@ files.pythonhosted.org
 raw.githubusercontent.com
 codeload.github.com
 objects.githubusercontent.com
+github.blog
+
+# TODO Use wildcards here when we have a better allow list (*.blob.core.windows.net)
+# Github actions artifacts
+productionresultssa17.blob.core.windows.net
+productionresultssa8.blob.core.windows.net
+productionresultssa5.blob.core.windows.net
+azureopendatastorage.blob.core.windows.net
 
 # Anthropic docs / console (useful during Claude sessions)
 docs.anthropic.com
