@@ -29,6 +29,15 @@
 			"Bash(zig fmt *)",
 			"Search(*)",
 			"Edit(/tmp/*)"
+		],
+		"deny": [
+			"mcp__Nuclino__create_item",
+			"mcp__Nuclino__update_item",
+			"mcp__Nuclino__edit_item_content",
+			"mcp__Nuclino__delete_item",
+			"mcp__Nuclino__create_field",
+			"mcp__Nuclino__update_field",
+			"mcp__Nuclino__delete_field"
 		]
 	},
 	"statusLine": {
