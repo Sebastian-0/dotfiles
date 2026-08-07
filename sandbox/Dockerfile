@@ -100,5 +100,7 @@ USER ${SANDBOX_USER}
 RUN npm config set prefix /usr/local/share/npm-global \
     && npm install -g @anthropic-ai/claude-code@${CLAUDE_CODE_VERSION}
 
+RUN gh extension install github/gh-stack
+
 WORKDIR /workspace/project
 CMD ["/usr/local/bin/bootstrap.sh"]
