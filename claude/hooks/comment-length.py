@@ -83,16 +83,19 @@ def syntax_for(path: str) -> Optional[Syntax]:
 
 def added_lines(path: str) -> Optional[set[int]]:
     """Line numbers this working tree adds to `path`, or None if git can't say."""
+    # -C the file's own directory: the hook inherits the session's cwd, so a
+    # file in any other repo would look untracked and every line would count.
+    repo = os.path.dirname(os.path.abspath(path)) or "."
     try:
         tracked = subprocess.run(
-            ["git", "ls-files", "--error-unmatch", path],
+            ["git", "-C", repo, "ls-files", "--error-unmatch", path],
             capture_output=True,
             timeout=5,
         )
         if tracked.returncode != 0:
             return None  # untracked: the whole file is new, so every line counts
         diff = subprocess.run(
-            ["git", "diff", "-U0", "HEAD", "--", path],
+            ["git", "-C", repo, "diff", "-U0", "HEAD", "--", path],
             capture_output=True,
             text=True,
             timeout=5,
