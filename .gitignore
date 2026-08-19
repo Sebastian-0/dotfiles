@@ -23,6 +23,7 @@ claude/*
 !claude/statusline-command.sh
 !claude/CLAUDE.md
 !claude/hooks
+claude/hooks/__pycache__
 
 # Ignore all ipython stuff except the startup scripts
 ipython/profile_default/*
