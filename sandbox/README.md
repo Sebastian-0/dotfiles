@@ -100,6 +100,10 @@ Three ways to supply the base:
 ./install.sh            # symlinks launch.sh to ~/.local/bin/claudesafe
 ```
 
+This also installs bash completion for the flags (as
+`~/.local/share/bash-completion/completions/claudesafe`); it scrapes them from
+`launch.sh`'s usage header, so new flags complete on their own.
+
 Open a new shell (or `source ~/.bashrc`). The first `claudesafe` invocation
 triggers the image build (a few minutes; cached afterwards).
 

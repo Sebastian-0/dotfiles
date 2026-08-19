@@ -25,4 +25,12 @@ if ! which claudesafe > /dev/null 2>&1; then
     log_warn "$BIN_DIR not found on PATH; claudesafe will fail until it's added to path."
 fi
 
-log_info "done. Run 'claudesafe' from any folder."
+COMPLETION_DIR="$HOME/.local/share/bash-completion/completions"
+mkdir -p "$COMPLETION_DIR"
+ln -sfn "$SANDBOX_DIR/completion.bash" "$COMPLETION_DIR/claudesafe"
+log_info "linked $COMPLETION_DIR/claudesafe -> $SANDBOX_DIR/completion.bash"
+if [ ! -r /usr/share/bash-completion/bash_completion ]; then
+    log_warn "bash-completion not installed; source completion.bash from .bashrc instead"
+fi
+
+log_info "done. Run 'claudesafe' from any folder (open a new shell for completion)."

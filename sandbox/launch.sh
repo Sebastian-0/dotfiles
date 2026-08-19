@@ -22,6 +22,7 @@
 #   claudesafe --allow-docker        # expose the host Docker socket (DANGEROUS)
 #   claudesafe --allow-bypass        # run Claude with all permission checks off
 #   claudesafe --allow-full-internet # skip the firewall entirely (DANGEROUS)
+#   claudesafe --help                # print this header
 set -euo pipefail
 
 # Resolve the sandbox dir from the script's own path (works regardless of
