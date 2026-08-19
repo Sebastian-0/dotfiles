@@ -1,8 +1,9 @@
 # `claudesafe` -- sandboxed Claude Code
 
-Run Claude Code in a Docker container with `--dangerously-skip-permissions`
-so it can install packages, run scripts, and delete files without prompting
--- without the host being at risk.
+Run Claude Code in a Docker container so it can install packages, run scripts,
+and edit files freely -- without the host being at risk. The session starts in
+auto mode, so genuinely risky calls still surface; pass `--allow-bypass` to skip
+permission checks entirely.
 
 ## What it does
 
@@ -111,18 +112,24 @@ claudesafe --shell                   # drop to bash inside the container
 claudesafe --fresh                   # ephemeral ~/.claude volume
 claudesafe --rebuild                 # rebuild the image
 claudesafe --allow-docker            # expose the host Docker socket (DANGEROUS)
+claudesafe --allow-bypass            # skip all permission checks
 claudesafe -- -p "do the thing"      # pass args through to `claude`
 ```
 
 ## Opting into extra capabilities
 
 `--allow-*` flags relax the sandbox for a single run; nothing is persisted, so
-the next `claudesafe` is back to the default. Only one exists today:
+the next `claudesafe` is back to the defaults.
 
 - `--allow-docker` -- bind-mounts `/var/run/docker.sock`. Talking to the host
   Docker daemon is equivalent to being root on the host (the container can
   start a privileged container that mounts `/`), so use it only for tasks that
   genuinely have to drive Docker, and only when you trust the session.
+- `--allow-bypass` -- starts Claude with `--dangerously-skip-permissions`
+  instead of auto mode. Nothing is classified and nothing is asked, which is
+  what you want for a long unattended run -- including `-- -p "..."`, where
+  there is nobody around to answer a permission prompt. Without it, bypass is
+  still available to switch into mid-session with shift+tab.
 
 ## Customizing the allowlist
 

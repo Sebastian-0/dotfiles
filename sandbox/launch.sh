@@ -2,9 +2,9 @@
 # `claudesafe` -- launch Claude Code in the sandbox container.
 #
 # Bind-mounts the current directory ($PWD) as /workspace/project inside the
-# container. Claude runs with --dangerously-skip-permissions; the firewall
-# + named-volume ~/.claude + container isolation bound the blast radius.
-# Files Claude creates/edits land directly in $PWD on the host.
+# container. Claude runs in auto mode, so it still classifies each tool call;
+# the firewall + named-volume ~/.claude + container isolation bound the blast
+# radius. Files Claude creates/edits land directly in $PWD on the host.
 #
 # Per-project customization:
 #   .claudesafe/Dockerfile        # built first; becomes the BASE for the claudesafe layer
@@ -20,6 +20,7 @@
 #   claudesafe --rebuild             # force rebuild of the image
 #   claudesafe --unlock              # re-unlock the sandbox SSH key, then exit
 #   claudesafe --allow-docker        # expose the host Docker socket (DANGEROUS)
+#   claudesafe --allow-bypass        # run Claude with all permission checks off
 set -euo pipefail
 
 # Resolve the sandbox dir from the script's own path (works regardless of
@@ -40,6 +41,7 @@ FRESH=0
 REBUILD=0
 UNLOCK=0
 ALLOW_DOCKER=0
+ALLOW_BYPASS=0
 CLAUDE_ARGS=()
 
 while [ $# -gt 0 ]; do
@@ -49,6 +51,7 @@ while [ $# -gt 0 ]; do
         --rebuild) REBUILD=1 ;;
         --unlock) UNLOCK=1 ;;
         --allow-docker) ALLOW_DOCKER=1 ;;
+        --allow-bypass) ALLOW_BYPASS=1 ;;
         # A mistyped --allow-* would otherwise become the task name, leaving
         # the capability silently off.
         --allow-*)
@@ -221,6 +224,7 @@ DOCKER_ARGS=(
     -v "$SANDBOX_DIR/allowlist.txt:/etc/allowlist.txt:ro"
     -e "TERM=${TERM:-xterm-256color}"
     -e "SANDBOX_TASK=${TASK:-}"
+    -e "SANDBOX_ALLOW_BYPASS=$ALLOW_BYPASS"
 )
 
 # Reaching the host Docker daemon is equivalent to root on the host: anything

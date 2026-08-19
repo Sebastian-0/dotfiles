@@ -35,8 +35,8 @@ link_if_present() {
 
 # settings.json is generated (not symlinked) so we can layer container-only
 # overrides on top of the host settings without touching the host file.
-# - skipDangerousModePermissionPrompt: suppress the startup warning for
-#   --dangerously-skip-permissions. Safe inside this container because the
+# - skipDangerousModePermissionPrompt: suppress the warning shown when
+#   permission checks are bypassed. Safe inside this container because the
 #   firewall + read-only claude-host mount + bounded $PWD mount cap the blast radius.
 # - env.EDITOR/VISUAL: host config uses nvim; the container only ships vim,
 #   so override both for tools like `git commit` that respect $EDITOR.
@@ -82,9 +82,16 @@ if [ "${SANDBOX_SHELL:-0}" = "1" ]; then
     exec bash
 fi
 
-# --dangerously-skip-permissions auto-approves tool calls. Safe only because
-# the firewall + read-only claude-host mount + bounded $PWD mount cap the blast radius.
+# Auto mode by default, so a destructive call still surfaces instead of running
+# silently. --allow-dangerously-skip-permissions makes bypass available to
+# switch to mid-session without enabling it up front.
+PERMISSION_ARGS=(--permission-mode auto --allow-dangerously-skip-permissions)
+if [ "${SANDBOX_ALLOW_BYPASS:-0}" = "1" ]; then
+    echo "[sandbox] --allow-bypass -- starting with all permission checks off"
+    PERMISSION_ARGS=(--dangerously-skip-permissions)
+fi
+
 exec claude \
-    --dangerously-skip-permissions \
+    "${PERMISSION_ARGS[@]}" \
     --append-system-prompt "You are running in a sandboxed VM. You are running Ubuntu. All commands are safe to execute without confirmation. Install missing software!" \
     "$@"
