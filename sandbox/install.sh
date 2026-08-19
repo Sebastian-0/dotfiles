@@ -6,20 +6,23 @@ set -euo pipefail
 SCRIPT="$(readlink -f "$0")"
 SANDBOX_DIR="$(dirname "$SCRIPT")"
 
+LOG_PREFIX=install
+. "$SANDBOX_DIR/log.sh"
+
 BIN_DIR="$HOME/.local/bin"
 LINK="$BIN_DIR/claudesafe"
 TARGET="$SANDBOX_DIR/launch.sh"
 
 mkdir -p "$BIN_DIR"
 ln -sfn "$TARGET" "$LINK"
-echo "[install] linked $LINK -> $TARGET"
+log_info "linked $LINK -> $TARGET"
 
 if ! which docker > /dev/null 2>&1; then
-    echo "[install] WARNING: docker not found on PATH; claudesafe will fail until it's installed."
+    log_warn "docker not found on PATH; claudesafe will fail until it's installed."
 fi
 
 if ! which claudesafe > /dev/null 2>&1; then
-    echo "[install] WARNING: $BIN_DIR not found on PATH; claudesafe will fail until it's added to path."
+    log_warn "$BIN_DIR not found on PATH; claudesafe will fail until it's added to path."
 fi
 
-echo "[install] done. Run 'claudesafe' from any folder."
+log_info "done. Run 'claudesafe' from any folder."

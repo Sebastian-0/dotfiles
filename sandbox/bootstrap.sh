@@ -7,6 +7,9 @@
 #   3. Hand off to `claude` (or a shell if SANDBOX_SHELL=1).
 set -euo pipefail
 
+LOG_PREFIX=sandbox
+. /usr/local/lib/log.sh
+
 CLAUDE_HOST=/workspace/claude-host
 CLAUDE_DIR="$HOME/.claude"
 PROJECT=/workspace/project
@@ -14,9 +17,9 @@ PROJECT=/workspace/project
 # The firewall is what stops a prompt-injected agent from reaching anything but
 # the allowlist, so skipping it has to be asked for.
 if [ "${SANDBOX_ALLOW_FULL_INTERNET:-0}" = "1" ]; then
-    echo "[sandbox] --allow-full-internet -- skipping the firewall, all egress is open"
+    log_info "--allow-full-internet -- skipping the firewall, all egress is open"
 else
-    echo "[sandbox] applying firewall..."
+    log_info "applying firewall..."
     sudo /usr/local/bin/init-firewall.sh
 fi
 
@@ -93,7 +96,7 @@ fi
 # switch to mid-session without enabling it up front.
 PERMISSION_ARGS=(--permission-mode auto --allow-dangerously-skip-permissions)
 if [ "${SANDBOX_ALLOW_BYPASS:-0}" = "1" ]; then
-    echo "[sandbox] --allow-bypass -- starting with all permission checks off"
+    log_info "--allow-bypass -- starting with all permission checks off"
     PERMISSION_ARGS=(--dangerously-skip-permissions)
 fi
 

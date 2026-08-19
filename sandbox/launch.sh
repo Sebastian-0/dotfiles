@@ -29,6 +29,9 @@ set -euo pipefail
 SCRIPT="$(readlink -f "$0")"
 SANDBOX_DIR="$(dirname "$SCRIPT")"
 
+LOG_PREFIX=claudesafe
+. "$SANDBOX_DIR/log.sh"
+
 HOST_UID="$(id -u)"
 HOST_GID="$(id -g)"
 SANDBOX_USER="ubuntu"
@@ -58,7 +61,7 @@ while [ $# -gt 0 ]; do
         # A mistyped --allow-* would otherwise become the task name, leaving
         # the capability silently off.
         --allow-*)
-            echo "[claudesafe] unknown capability flag: $1" >&2
+            log_error "unknown capability flag: $1"
             exit 1
             ;;
         --)
@@ -95,15 +98,15 @@ CLAUDE_SSH_EXPIRY="${CLAUDESAFE_SSH_EXPIRY:-36000}"
 unlock_sandbox_ssh() {
     # Generate on first use (prompts for a passphrase).
     if [ ! -f "$CLAUDE_SSH_KEY" ]; then
-        echo "[claudesafe] no sandbox SSH key found -- generating $CLAUDE_SSH_KEY"
-        echo "[claudesafe] set a passphrase to encrypt it at rest:"
+        log_info "no sandbox SSH key found -- generating $CLAUDE_SSH_KEY"
+        log_info "set a passphrase to encrypt it at rest:"
         if ssh-keygen -t ed25519 -C "claudesafe-sandbox" -f "$CLAUDE_SSH_KEY"; then
-            echo "[claudesafe] ----------------------------------------------------------"
-            echo "[claudesafe] Register this public key on GitHub (Settings > SSH keys):"
+            log_info "----------------------------------------------------------"
+            log_info "Register this public key on GitHub (Settings > SSH keys):"
             cat "$CLAUDE_SSH_KEY.pub"
-            echo "[claudesafe] ----------------------------------------------------------"
+            log_info "----------------------------------------------------------"
         else
-            echo "[claudesafe] key generation skipped"
+            log_info "key generation skipped"
         fi
     fi
 
@@ -118,14 +121,14 @@ unlock_sandbox_ssh() {
     local rc=0
     ssh-add -l > /dev/null 2>&1 || rc=$?
     if [ "$rc" = "2" ]; then
-        echo "[claudesafe] starting dedicated ssh-agent for the sandbox key..."
+        log_info "starting dedicated ssh-agent for the sandbox key..."
         ssh-agent -s > "$CLAUDE_SSH_ENV"
         chmod 600 "$CLAUDE_SSH_ENV"
         . "$CLAUDE_SSH_ENV" > /dev/null
         rc=1
     fi
     if [ "$rc" = "1" ] && [ -f "$CLAUDE_SSH_KEY" ]; then
-        echo "[claudesafe] unlocking sandbox SSH key (auto-expires after ${CLAUDE_SSH_EXPIRY}s)..."
+        log_info "unlocking sandbox SSH key (auto-expires after ${CLAUDE_SSH_EXPIRY}s)..."
         ssh-add -t "$CLAUDE_SSH_EXPIRY" "$CLAUDE_SSH_KEY" || true
     fi
 
@@ -137,10 +140,10 @@ unlock_sandbox_ssh() {
 # re-enables git-over-SSH in an already-running session (same agent socket).
 if [ "$UNLOCK" = "1" ]; then
     if unlock_sandbox_ssh; then
-        echo "[claudesafe] sandbox SSH key is unlocked and ready"
+        log_info "sandbox SSH key is unlocked and ready"
         exit 0
     fi
-    echo "[claudesafe] failed to unlock the sandbox SSH key" >&2
+    log_error "failed to unlock the sandbox SSH key"
     exit 1
 fi
 
@@ -165,17 +168,17 @@ export DOCKER_BUILDKIT=1
 #   - neither: default to ubuntu:24.04.
 # The claudesafe layer (sandbox/Dockerfile) is then built on top of BASE.
 if [ -f "$BASE_SCRIPT" ]; then
-    echo "[claudesafe] resolving base image via $BASE_SCRIPT..."
+    log_info "resolving base image via $BASE_SCRIPT..."
     BASE_OUTPUT="$(cd "$WORKSPACE_SRC" && bash "$BASE_SCRIPT")"
     BASE="$(printf '%s\n' "$BASE_OUTPUT" | awk 'NF{line=$0} END{print line}')"
     if [ -z "$BASE" ]; then
-        echo "[claudesafe] error: base-image.sh produced no output" >&2
+        log_error "base-image.sh produced no output"
         exit 1
     fi
-    echo "[claudesafe] base image: $BASE"
+    log_info "base image: $BASE"
 elif [ -f "$USER_DOCKERFILE" ]; then
     BASE="claude-sandbox-userbase:${PROJ_HASH}-uid${HOST_UID}"
-    echo "[claudesafe] building user base $BASE from $USER_DOCKERFILE..."
+    log_info "building user base $BASE from $USER_DOCKERFILE..."
     docker build $NO_CACHE \
         -f "$USER_DOCKERFILE" \
         -t "$BASE" \
@@ -192,7 +195,7 @@ if [ -f "$USER_DOCKERFILE" ] || [ -f "$BASE_SCRIPT" ]; then
 else
     RUN_IMAGE="claude-sandbox:default-uid${HOST_UID}"
 fi
-echo "[claudesafe] building claudesafe layer $RUN_IMAGE on top of $BASE..."
+log_info "building claudesafe layer $RUN_IMAGE on top of $BASE..."
 docker build $NO_CACHE \
     --build-arg "BASE=$BASE" \
     --build-arg "HOST_UID=$HOST_UID" \
@@ -201,7 +204,7 @@ docker build $NO_CACHE \
     -t "$RUN_IMAGE" \
     "$SANDBOX_DIR"
 
-echo "[claudesafe] mounting $WORKSPACE_SRC as /workspace/project (changes hit the real folder)"
+log_info "mounting $WORKSPACE_SRC as /workspace/project (changes hit the real folder)"
 
 # Named volumes for ~/.claude and ~/.config/gh. --fresh gives a unique volume
 # per session so state doesn't persist or collide with parallel containers.
@@ -211,7 +214,7 @@ if [ "$FRESH" = "1" ]; then
     STAMP="$(date +%s)-$$"
     VOLUME="${VOLUME_BASE}-${STAMP}"
     GH_VOLUME="${GH_VOLUME_BASE}-${STAMP}"
-    echo "[claudesafe] fresh mode -- using ephemeral volumes $VOLUME, $GH_VOLUME"
+    log_info "fresh mode -- using ephemeral volumes $VOLUME, $GH_VOLUME"
 else
     VOLUME="$VOLUME_BASE"
     GH_VOLUME="$GH_VOLUME_BASE"
@@ -233,7 +236,7 @@ DOCKER_ARGS=(
 
 # Unfiltered egress gives a prompt injection somewhere to send the repo.
 if [ "$ALLOW_FULL_INTERNET" = "1" ]; then
-    echo "[claudesafe] WARNING: --allow-full-internet -- no egress filtering this run"
+    log_warn "--allow-full-internet -- no egress filtering this run"
 fi
 
 # Reaching the host Docker daemon is equivalent to root on the host: anything
@@ -241,10 +244,10 @@ fi
 DOCKER_SOCKET="/var/run/docker.sock"
 if [ "$ALLOW_DOCKER" = "1" ]; then
     if [ ! -S "$DOCKER_SOCKET" ]; then
-        echo "[claudesafe] error: --allow-docker given but $DOCKER_SOCKET is not a socket" >&2
+        log_error "--allow-docker given but $DOCKER_SOCKET is not a socket"
         exit 1
     fi
-    echo "[claudesafe] WARNING: --allow-docker -- exposing $DOCKER_SOCKET (equivalent to host root)"
+    log_warn "--allow-docker -- exposing $DOCKER_SOCKET (equivalent to host root)"
     DOCKER_ARGS+=(
         -v "$DOCKER_SOCKET:$DOCKER_SOCKET"
         --group-add "$(stat -c %g "$DOCKER_SOCKET")"
@@ -264,10 +267,10 @@ fi
 
 # Only request GPUs when Docker actually has the nvidia container runtime
 if docker info --format '{{json .Runtimes}}' 2> /dev/null | grep -q nvidia; then
-    echo "[claudesafe] nvidia runtime detected -- enabling --gpus all"
+    log_info "nvidia runtime detected -- enabling --gpus all"
     DOCKER_ARGS+=(--gpus all)
 else
-    echo "[claudesafe] no nvidia runtime -- starting without GPU access"
+    log_info "no nvidia runtime -- starting without GPU access"
 fi
 
 # Mount main git folder if we are in a worktree. Note that the main worktree
@@ -277,7 +280,7 @@ if git rev-parse --is-inside-work-tree > /dev/null 2>&1; then
     case "$GIT_COMMON_DIR" in
         "$WORKSPACE_SRC" | "$WORKSPACE_SRC"/*) ;;
         *)
-            echo "[claudesafe] git worktree detected -- mounting shared git dir $GIT_COMMON_DIR"
+            log_info "git worktree detected -- mounting shared git dir $GIT_COMMON_DIR"
             DOCKER_ARGS+=(-v "$GIT_COMMON_DIR:$GIT_COMMON_DIR")
             ;;
     esac
@@ -304,20 +307,20 @@ if [ -f "$MOUNTS_FILE" ]; then
         [ -z "$line" ] && continue
         # eval to expand ~ and $VARS; the file is user-controlled local config.
         expanded="$(eval printf '%s' "\"$line\"")"
-        echo "[claudesafe] extra mount: $expanded"
+        log_info "extra mount: $expanded"
         DOCKER_ARGS+=(-v "$expanded")
     done < "$MOUNTS_FILE"
 fi
 
 # Unlock the sandbox key and forward only its agent socket (key stays on host).
 if unlock_sandbox_ssh; then
-    echo "[claudesafe] forwarding sandbox ssh-agent ($SSH_AUTH_SOCK)"
+    log_info "forwarding sandbox ssh-agent ($SSH_AUTH_SOCK)"
     DOCKER_ARGS+=(
         -v "$SSH_AUTH_SOCK:/ssh-agent.sock"
         -e "SSH_AUTH_SOCK=/ssh-agent.sock"
     )
 else
-    echo "[claudesafe] sandbox SSH key unavailable -- continuing without git-over-SSH"
+    log_warn "sandbox SSH key unavailable -- continuing without git-over-SSH"
 fi
 
 # Credentials live in the claude-home named volume (written by `claude login`
@@ -338,5 +341,5 @@ if [ "$SHELL_MODE" = "1" ]; then
     DOCKER_ARGS+=(-e "SANDBOX_SHELL=1")
 fi
 
-echo "[claudesafe] starting container ($RUN_IMAGE)..."
+log_info "starting container ($RUN_IMAGE)..."
 exec docker run "${DOCKER_ARGS[@]}" "$RUN_IMAGE" "${CLAUDE_ARGS[@]}"

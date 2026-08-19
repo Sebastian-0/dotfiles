@@ -117,6 +117,9 @@ claudesafe --allow-full-internet     # skip the firewall (DANGEROUS)
 claudesafe -- -p "do the thing"      # pass args through to `claude`
 ```
 
+Warnings and errors are tagged `[WARNING]`/`[ERROR]` and colored when the output
+is a terminal; set `NO_COLOR` to suppress the color.
+
 ## Opting into extra capabilities
 
 `--allow-*` flags relax the sandbox for a single run; nothing is persisted, so

@@ -8,6 +8,9 @@
 set -euo pipefail
 IFS=$'\n\t'
 
+LOG_PREFIX=firewall
+. /usr/local/lib/log.sh
+
 ALLOWLIST_FILE="${ALLOWLIST_FILE:-/etc/allowlist.txt}"
 
 # 1. Save Docker's internal DNS NAT rules before we flush.
@@ -22,7 +25,7 @@ iptables -t mangle -X
 ipset destroy allowed-domains 2> /dev/null || true
 
 if [ -n "$DOCKER_DNS_RULES" ]; then
-    echo "Restoring Docker DNS rules..."
+    log_info "restoring Docker DNS rules..."
     iptables -t nat -N DOCKER_OUTPUT 2> /dev/null || true
     iptables -t nat -N DOCKER_POSTROUTING 2> /dev/null || true
     echo "$DOCKER_DNS_RULES" | xargs -L 1 iptables -t nat
@@ -40,7 +43,7 @@ iptables -A OUTPUT -o lo -j ACCEPT
 ipset create allowed-domains hash:net
 
 # GitHub IP ranges (dynamic; GitHub publishes them via their meta endpoint).
-echo "Fetching GitHub IP ranges..."
+log_info "fetching GitHub IP ranges..."
 gh_ranges=$(curl -fsS https://api.github.com/meta || true)
 if [ -n "$gh_ranges" ] && echo "$gh_ranges" | jq -e '.web and .api and .git' > /dev/null; then
     while read -r cidr; do
@@ -49,7 +52,7 @@ if [ -n "$gh_ranges" ] && echo "$gh_ranges" | jq -e '.web and .api and .git' > /
         fi
     done < <(echo "$gh_ranges" | jq -r '(.web + .api + .git)[]' | aggregate -q 2> /dev/null || echo "$gh_ranges" | jq -r '(.web + .api + .git)[]')
 else
-    echo "WARNING: could not fetch GitHub IP ranges; continuing without them."
+    log_warn "could not fetch GitHub IP ranges; continuing without them"
 fi
 
 # Baseline domains (always allowed even if allowlist.txt is missing) plus any
@@ -69,16 +72,16 @@ if [ -f "$ALLOWLIST_FILE" ]; then
         line="${line//[[:space:]]/}"
         [ -n "$line" ] && extra+=("$line")
     done < "$ALLOWLIST_FILE"
-    echo "Loaded ${#extra[@]} extra domains from $ALLOWLIST_FILE"
+    log_info "loaded ${#extra[@]} extra domains from $ALLOWLIST_FILE"
 else
-    echo "No $ALLOWLIST_FILE found; using baseline only."
+    log_warn "no $ALLOWLIST_FILE found; using baseline only"
 fi
 
 for domain in "${baseline[@]}" "${extra[@]}"; do
-    echo "Resolving $domain..."
+    log_info "resolving $domain..."
     ips=$(dig +noall +answer +time=3 +tries=1 A "$domain" | awk '$4 == "A" {print $5}')
     if [ -z "$ips" ]; then
-        echo "WARNING: could not resolve $domain; skipping."
+        log_warn "could not resolve $domain; skipping"
         continue
     fi
     while read -r ip; do
@@ -106,16 +109,16 @@ iptables -A OUTPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
 iptables -A OUTPUT -m set --match-set allowed-domains dst -j ACCEPT
 iptables -A OUTPUT -j REJECT --reject-with icmp-admin-prohibited
 
-echo "Firewall configuration complete"
+log_info "firewall configuration complete"
 
 # Quick sanity check: confirm we're blocking the obvious stuff and allowing
 # api.anthropic.com (the one thing that MUST work for Claude to talk to its API).
 if curl --connect-timeout 5 -sS https://example.com > /dev/null 2>&1; then
-    echo "ERROR: firewall verification failed -- reached https://example.com"
+    log_error "firewall verification failed -- reached https://example.com"
     exit 1
 fi
 if ! curl --connect-timeout 5 -sS https://api.anthropic.com > /dev/null 2>&1; then
-    echo "ERROR: firewall verification failed -- could not reach https://api.anthropic.com"
+    log_error "firewall verification failed -- could not reach https://api.anthropic.com"
     exit 1
 fi
-echo "Firewall verification passed"
+log_info "firewall verification passed"

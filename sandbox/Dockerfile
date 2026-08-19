@@ -77,6 +77,9 @@ RUN mkdir -p /workspace/project /workspace/claude-host \
 RUN mkdir -p /usr/local/share/npm-global \
     && chown -R "$SANDBOX_USER:$SANDBOX_USER" /usr/local/share/npm-global
 
+# Sourced, not executed -- hence lib/ and no chmod below.
+COPY log.sh /usr/local/lib/log.sh
+
 # Firewall script is owned by root, but the runtime user needs passwordless
 # sudo to run it from bootstrap.sh (same pattern as Anthropic's reference
 # devcontainer).
