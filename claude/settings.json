@@ -44,5 +44,19 @@
 		"type": "command",
 		"command": "bash \"$HOME/.claude/statusline-command.sh\""
 	},
-	"skipAutoPermissionPrompt": true
+	"skipAutoPermissionPrompt": true,
+	"hooks": {
+		"PostToolUse": [
+			{
+				"matcher": "Write|Edit",
+				"hooks": [
+					{
+						"type": "command",
+						"command": "python3 \"$HOME/.claude/hooks/comment-length.py\"",
+						"timeout": 10
+					}
+				]
+			}
+		]
+	}
 }

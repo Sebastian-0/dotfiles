@@ -290,7 +290,7 @@ fi
 # bootstrap.sh links these into the named volume at $HOME/.claude.
 # Docker follows host-side symlinks at mount time, so ~/.claude/skills (a
 # symlink to the dotfiles ai_shared/skills) resolves to the real directory.
-for item in settings.json CLAUDE.md statusline-command.sh skills plugins agents commands; do
+for item in settings.json CLAUDE.md statusline-command.sh skills plugins agents commands hooks; do
     src="$HOME/.claude/$item"
     if [ -e "$src" ]; then
         DOCKER_ARGS+=(-v "$src:/workspace/claude-host/$item:ro")

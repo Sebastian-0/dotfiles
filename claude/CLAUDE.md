@@ -1,13 +1,33 @@
 # Comments Policy
 
-Keep comments brief. Omit them when the code is self-explanatory; comment only
-the non-obvious "why", not the "what". Applies to all languages.
+Default to NO comment. Applies to all languages. Write one only when the code
+alone would mislead: a reader would "simplify" it and break something, or it
+encodes an outside constraint they cannot see from here (an API quirk, device
+behavior, version skew, a bug being worked around).
+
+Rationale does NOT go in the code. A comment states the constraint to preserve;
+the argument for the decision goes in the commit message. If a comment reads as
+a defense of the choice, that is the tell.
+
+Past 2 lines, a comment must be earning it -- naming something that would cost
+real time to rediscover. A genuine landmine can take as many lines as it needs;
+justification cannot take even one. Check the length before committing, not
+while writing: the drift is never obvious in the moment.
 
 Explain the "why" as cause and observable effect, not the underlying mechanism.
 Use plain language over jargon, and lead with the decision or constraint the
-reader must preserve. E.g. prefer "must be a directory because a file mount
-isn't updated when the file is overwritten, so reload has no effect" over "a
-file mount pins the inode at container start, so the atomic rename is not seen".
+reader must preserve.
+
+    good: must be a directory because a file mount isn't updated when the file
+          is overwritten, so reload has no effect
+    bad:  a file mount pins the inode at container start, so the atomic rename
+          is not seen                                    (mechanism, jargon)
+
+    bad:  Hands the container the host Docker daemon, which means full root on
+          the host: anything inside can start a privileged container mounting
+          /. This defeats the sandbox; it is here only for a task that needs
+          to drive Docker.                          (3 lines arguing a choice)
+    good: Reaching the host Docker daemon is equivalent to root on the host.
 
 Do NOT delete comments in code unless:
 1. The code they refer to is being removed

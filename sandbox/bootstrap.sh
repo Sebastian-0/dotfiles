@@ -66,6 +66,7 @@ link_if_present "$CLAUDE_HOST/skills" "$CLAUDE_DIR/skills"
 link_if_present "$CLAUDE_HOST/plugins" "$CLAUDE_DIR/plugins"
 link_if_present "$CLAUDE_HOST/agents" "$CLAUDE_DIR/agents"
 link_if_present "$CLAUDE_HOST/commands" "$CLAUDE_DIR/commands"
+link_if_present "$CLAUDE_HOST/hooks" "$CLAUDE_DIR/hooks"
 
 # Mirror the host's global git identity (forwarded by launch.sh). Written
 # global, so a repo-local [user] still overrides it -- same as on the host.
