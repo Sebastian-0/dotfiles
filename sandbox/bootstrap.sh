@@ -1,6 +1,6 @@
 #!/bin/bash
 # Container entrypoint. Runs as `node`.
-#   1. Apply the firewall (via passwordless sudo).
+#   1. Apply the firewall (via passwordless sudo), unless --allow-full-internet.
 #   2. Link host ~/.claude items from /workspace/claude-host/ into
 #      /home/node/.claude/ so Claude Code picks up the host's
 #      skills/settings/CLAUDE.md.
@@ -11,8 +11,14 @@ CLAUDE_HOST=/workspace/claude-host
 CLAUDE_DIR="$HOME/.claude"
 PROJECT=/workspace/project
 
-echo "[sandbox] applying firewall..."
-sudo /usr/local/bin/init-firewall.sh
+# The firewall is what stops a prompt-injected agent from reaching anything but
+# the allowlist, so skipping it has to be asked for.
+if [ "${SANDBOX_ALLOW_FULL_INTERNET:-0}" = "1" ]; then
+    echo "[sandbox] --allow-full-internet -- skipping the firewall, all egress is open"
+else
+    echo "[sandbox] applying firewall..."
+    sudo /usr/local/bin/init-firewall.sh
+fi
 
 mkdir -p "$CLAUDE_DIR"
 
@@ -93,5 +99,5 @@ fi
 
 exec claude \
     "${PERMISSION_ARGS[@]}" \
-    --append-system-prompt "You are running in a sandboxed VM. You are running Ubuntu. All commands are safe to execute without confirmation. Install missing software!" \
+    --append-system-prompt "You are running in a sandboxed VM. You are running Ubuntu. Install missing software!" \
     "$@"

@@ -14,7 +14,7 @@ permission checks entirely.
   bind-mounts stay readable on both sides.
 - Applies a default-deny firewall at container start, allowlisting only the
   domains in `allowlist.txt` (plus a hardcoded baseline: `api.anthropic.com`,
-  npm, GitHub's published IP ranges, etc.).
+  npm, GitHub's published IP ranges, etc.) -- unless `--allow-full-internet`.
 - **Bind-mounts `$PWD` as `/workspace/project`** -- Claude's edits land
   directly in the current folder on the host. No worktree, no copy. Works
   whether or not the folder is a git repo. If you want a throwaway copy,
@@ -113,6 +113,7 @@ claudesafe --fresh                   # ephemeral ~/.claude volume
 claudesafe --rebuild                 # rebuild the image
 claudesafe --allow-docker            # expose the host Docker socket (DANGEROUS)
 claudesafe --allow-bypass            # skip all permission checks
+claudesafe --allow-full-internet     # skip the firewall (DANGEROUS)
 claudesafe -- -p "do the thing"      # pass args through to `claude`
 ```
 
@@ -125,6 +126,12 @@ the next `claudesafe` is back to the defaults.
   Docker daemon is equivalent to being root on the host (the container can
   start a privileged container that mounts `/`), so use it only for tasks that
   genuinely have to drive Docker, and only when you trust the session.
+- `--allow-full-internet` -- skips `init-firewall.sh`, leaving egress
+  unfiltered. The allowlist is the main thing standing between a prompt
+  injection (or a compromised dependency) and your repo leaving the machine, so
+  prefer adding the domain you need to `allowlist.txt`; reach for this only when
+  you don't know the domains up front, e.g. a dependency install that fans out
+  across mirrors.
 - `--allow-bypass` -- starts Claude with `--dangerously-skip-permissions`
   instead of auto mode. Nothing is classified and nothing is asked, which is
   what you want for a long unattended run -- including `-- -p "..."`, where
@@ -137,7 +144,8 @@ Edit `allowlist.txt`. One domain per line. No rebuild needed -- the file is
 mounted fresh each run.
 
 If you need broader access for a specific session only, drop additional
-domains into `allowlist.txt` and run `claudesafe`; revert the file after.
+domains into `allowlist.txt` and run `claudesafe`; revert the file after. To
+turn filtering off altogether for one run, use `--allow-full-internet`.
 
 ## What's NOT exposed to the container
 

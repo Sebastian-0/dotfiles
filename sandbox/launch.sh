@@ -21,6 +21,7 @@
 #   claudesafe --unlock              # re-unlock the sandbox SSH key, then exit
 #   claudesafe --allow-docker        # expose the host Docker socket (DANGEROUS)
 #   claudesafe --allow-bypass        # run Claude with all permission checks off
+#   claudesafe --allow-full-internet # skip the firewall entirely (DANGEROUS)
 set -euo pipefail
 
 # Resolve the sandbox dir from the script's own path (works regardless of
@@ -42,6 +43,7 @@ REBUILD=0
 UNLOCK=0
 ALLOW_DOCKER=0
 ALLOW_BYPASS=0
+ALLOW_FULL_INTERNET=0
 CLAUDE_ARGS=()
 
 while [ $# -gt 0 ]; do
@@ -52,6 +54,7 @@ while [ $# -gt 0 ]; do
         --unlock) UNLOCK=1 ;;
         --allow-docker) ALLOW_DOCKER=1 ;;
         --allow-bypass) ALLOW_BYPASS=1 ;;
+        --allow-full-internet) ALLOW_FULL_INTERNET=1 ;;
         # A mistyped --allow-* would otherwise become the task name, leaving
         # the capability silently off.
         --allow-*)
@@ -225,7 +228,13 @@ DOCKER_ARGS=(
     -e "TERM=${TERM:-xterm-256color}"
     -e "SANDBOX_TASK=${TASK:-}"
     -e "SANDBOX_ALLOW_BYPASS=$ALLOW_BYPASS"
+    -e "SANDBOX_ALLOW_FULL_INTERNET=$ALLOW_FULL_INTERNET"
 )
+
+# Unfiltered egress gives a prompt injection somewhere to send the repo.
+if [ "$ALLOW_FULL_INTERNET" = "1" ]; then
+    echo "[claudesafe] WARNING: --allow-full-internet -- no egress filtering this run"
+fi
 
 # Reaching the host Docker daemon is equivalent to root on the host: anything
 # inside can start a privileged container that mounts /.
