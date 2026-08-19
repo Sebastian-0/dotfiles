@@ -110,8 +110,19 @@ claudesafe my-task                   # tag the session (used as SANDBOX_TASK env
 claudesafe --shell                   # drop to bash inside the container
 claudesafe --fresh                   # ephemeral ~/.claude volume
 claudesafe --rebuild                 # rebuild the image
+claudesafe --allow-docker            # expose the host Docker socket (DANGEROUS)
 claudesafe -- -p "do the thing"      # pass args through to `claude`
 ```
+
+## Opting into extra capabilities
+
+`--allow-*` flags relax the sandbox for a single run; nothing is persisted, so
+the next `claudesafe` is back to the default. Only one exists today:
+
+- `--allow-docker` -- bind-mounts `/var/run/docker.sock`. Talking to the host
+  Docker daemon is equivalent to being root on the host (the container can
+  start a privileged container that mounts `/`), so use it only for tasks that
+  genuinely have to drive Docker, and only when you trust the session.
 
 ## Customizing the allowlist
 
@@ -129,7 +140,7 @@ domains into `allowlist.txt` and run `claudesafe`; revert the file after.
 - `~/.ssh` and your personal SSH key (the sandbox uses its own dedicated key;
   only that key's agent socket is forwarded in, never any key material)
 - Anything outside `$PWD` and the read-only claude-host mounts
-- The Docker socket (no docker-in-docker)
+- The Docker socket (no docker-in-docker) unless `--allow-docker` is passed
 
 Note: `$PWD` is mounted **read-write**. Claude can create, modify, and delete
 files in the current folder. Everything outside it is unreachable.

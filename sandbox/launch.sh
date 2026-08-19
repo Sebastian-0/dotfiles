@@ -19,6 +19,7 @@
 #   claudesafe --fresh               # use a per-session ~/.claude volume
 #   claudesafe --rebuild             # force rebuild of the image
 #   claudesafe --unlock              # re-unlock the sandbox SSH key, then exit
+#   claudesafe --allow-docker        # expose the host Docker socket (DANGEROUS)
 set -euo pipefail
 
 # Resolve the sandbox dir from the script's own path (works regardless of
@@ -38,6 +39,7 @@ SHELL_MODE=0
 FRESH=0
 REBUILD=0
 UNLOCK=0
+ALLOW_DOCKER=0
 CLAUDE_ARGS=()
 
 while [ $# -gt 0 ]; do
@@ -46,13 +48,22 @@ while [ $# -gt 0 ]; do
         --fresh) FRESH=1 ;;
         --rebuild) REBUILD=1 ;;
         --unlock) UNLOCK=1 ;;
+        --allow-docker) ALLOW_DOCKER=1 ;;
+        # A mistyped --allow-* would otherwise become the task name, leaving
+        # the capability silently off.
+        --allow-*)
+            echo "[claudesafe] unknown capability flag: $1" >&2
+            exit 1
+            ;;
         --)
             shift
             CLAUDE_ARGS=("$@")
             break
             ;;
         -h | --help)
-            sed -n '3,21p' "$SCRIPT"
+            # Stops at the first line of code, so added usage lines need no
+            # line-number bump here.
+            awk 'NR > 2 && !/^#/ { exit } NR > 2' "$SCRIPT"
             exit 0
             ;;
         *)
@@ -211,6 +222,21 @@ DOCKER_ARGS=(
     -e "TERM=${TERM:-xterm-256color}"
     -e "SANDBOX_TASK=${TASK:-}"
 )
+
+# Reaching the host Docker daemon is equivalent to root on the host: anything
+# inside can start a privileged container that mounts /.
+DOCKER_SOCKET="/var/run/docker.sock"
+if [ "$ALLOW_DOCKER" = "1" ]; then
+    if [ ! -S "$DOCKER_SOCKET" ]; then
+        echo "[claudesafe] error: --allow-docker given but $DOCKER_SOCKET is not a socket" >&2
+        exit 1
+    fi
+    echo "[claudesafe] WARNING: --allow-docker -- exposing $DOCKER_SOCKET (equivalent to host root)"
+    DOCKER_ARGS+=(
+        -v "$DOCKER_SOCKET:$DOCKER_SOCKET"
+        --group-add "$(stat -c %g "$DOCKER_SOCKET")"
+    )
+fi
 
 # Forward the host's GLOBAL git identity (not the effective config, which a
 # repo-local [user] could shadow) so bootstrap.sh can mirror it in-container.
