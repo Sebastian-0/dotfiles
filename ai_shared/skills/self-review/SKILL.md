@@ -40,8 +40,9 @@ file (or commit it) so it appears in the diff the reviewer reads.
 
 ### 2. Launch the reviewer
 
-Use the Agent tool with `subagent_type: "general-purpose"`. Fill the placeholders
-in; send nothing else.
+Use the Agent tool with `subagent_type: "general-purpose"` (in a harness without
+that tool, spawn a fresh session on the repo instead). Fill the placeholders in;
+send nothing else.
 
 ```
 Review the changes on branch <branch> of the repository at <path>, against <base>.
@@ -101,10 +102,11 @@ Once the findings are addressed:
 python3 "$HOME/.claude/hooks/self-review.py" --mark      # skip where the hook is not installed
 ```
 
-This records the reviewed diff. The Stop hook stops you whenever the branch's diff
-differs from the recorded ones, which is what makes a later edit require a new
-round. Only mark a diff you actually reviewed; marking is not a way to get past the
-hook, and the user can see in your reply that you took it.
+This records the reviewed diff. A hook refuses `git push`, `gh pr create` and
+`git merge` while the branch's diff differs from the recorded ones, which is what
+makes a later edit require a new round before the work can be handed on. Only mark
+a diff you actually reviewed; marking is not a way to get past the gate, and the
+user can see in your reply that you took it.
 
 Marking without a review fits a change with no source in it, or work the user asked
 to keep throwaway. If untracked scratch files keep waking the check, they belong in

@@ -57,9 +57,9 @@ branch, or reporting a feature complete, run the `self-review` skill.
 
 Every further code change invalidates the last review, including the fixes you
 make in response to one: address the feedback, then review the new diff again.
-A Stop hook checks this when you finish a turn: it stops you once whenever the
-branch's diff differs from the ones recorded as reviewed. It is a check, not a
-fence -- it can only ask, so the rule above is yours to keep.
+A hook refuses `git push`, `gh pr create` and `git merge` while the branch's diff
+differs from the ones recorded as reviewed. It only guards that boundary, so
+finishing a change without pushing it is still yours to get right.
 
 
 # Commit Messages

@@ -13,6 +13,7 @@
 			"Bash(git add *)",
 			"Bash(git log *)",
 			"Bash(git mv *)",
+			"Bash(python3 \"$HOME/.claude/hooks/self-review.py\" --mark)",
 			"Bash(find *)",
 			"Bash(df *)",
 			"Bash(du *)",
@@ -46,6 +47,18 @@
 	},
 	"skipAutoPermissionPrompt": true,
 	"hooks": {
+		"PreToolUse": [
+			{
+				"matcher": "Bash",
+				"hooks": [
+					{
+						"type": "command",
+						"command": "python3 \"$HOME/.claude/hooks/self-review.py\"",
+						"timeout": 20
+					}
+				]
+			}
+		],
 		"PostToolUse": [
 			{
 				"matcher": "Write|Edit",
@@ -54,17 +67,6 @@
 						"type": "command",
 						"command": "python3 \"$HOME/.claude/hooks/comment-length.py\"",
 						"timeout": 10
-					}
-				]
-			}
-		],
-		"Stop": [
-			{
-				"hooks": [
-					{
-						"type": "command",
-						"command": "python3 \"$HOME/.claude/hooks/self-review.py\"",
-						"timeout": 20
 					}
 				]
 			}

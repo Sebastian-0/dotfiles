@@ -65,12 +65,12 @@ def make_clone(root: Path, branch: str = "main") -> Path:
     return clone
 
 
-def write(repo: Path, name: str, text: str) -> None:
-    (repo / name).write_text(text, encoding="utf-8")
-
-
-def run_hook(cwd: Path, stop_hook_active: bool = False) -> tuple[int, str]:
-    payload = json.dumps({"cwd": str(cwd), "stop_hook_active": stop_hook_active})
+def run_hook(
+    cwd: Path, command: str = "git push", tool: str = "Bash"
+) -> tuple[int, str]:
+    payload = json.dumps(
+        {"cwd": str(cwd), "tool_name": tool, "tool_input": {"command": command}}
+    )
     done = subprocess.run(
         ["python3", str(HOOK)],
         input=payload,
@@ -95,18 +95,24 @@ def run_mark(cwd: Path) -> int:
     return done.returncode
 
 
-def blocked(stdout: str) -> Optional[str]:
+def denied(stdout: str) -> Optional[str]:
     if not stdout:
         return None
-    payload = json.loads(stdout)
-    return payload["reason"] if payload.get("decision") == "block" else None
+    output = json.loads(stdout)["hookSpecificOutput"]
+    if output["permissionDecision"] != "deny":
+        return None
+    return output["permissionDecisionReason"]
+
+
+def write(repo: Path, name: str, text: str) -> None:
+    (repo / name).write_text(text, encoding="utf-8")
 
 
 class FingerprintTest(unittest.TestCase):
     def test_clean_tree_has_nothing_to_review(self) -> None:
         with tempfile.TemporaryDirectory() as root:
-            repo = make_repo(Path(root))
-            self.assertIsNone(mod.fingerprint(str(repo)))
+            clone = make_clone(Path(root))
+            self.assertIsNone(mod.fingerprint(str(clone)))
 
     def test_uncommitted_edit_counts(self) -> None:
         with tempfile.TemporaryDirectory() as root:
@@ -129,11 +135,31 @@ class FingerprintTest(unittest.TestCase):
             git(repo, "commit", "-am", "feature")
             self.assertIsNotNone(mod.fingerprint(str(repo)))
 
+    def test_pushed_commits_still_count(self) -> None:
+        with tempfile.TemporaryDirectory() as root:
+            clone = make_clone(Path(root))
+            git(clone, "checkout", "-b", "feature")
+            write(clone, "feature.py", "print('feature')\n")
+            git(clone, "add", "feature.py")
+            git(clone, "commit", "-m", "feature")
+            git(clone, "push", "-u", "origin", "feature")
+            self.assertIsNotNone(mod.fingerprint(str(clone)))
+
     def test_new_file_counts(self) -> None:
         with tempfile.TemporaryDirectory() as root:
             repo = make_repo(Path(root))
             write(repo, "feature.py", "print('new')\n")
             self.assertIsNotNone(mod.fingerprint(str(repo)))
+
+    def test_new_file_is_seen_from_a_subdirectory(self) -> None:
+        with tempfile.TemporaryDirectory() as root:
+            repo = make_repo(Path(root))
+            (repo / "sub").mkdir()
+            write(repo, "sub/kept.py", "print('kept')\n")
+            git(repo, "add", "sub/kept.py")
+            git(repo, "commit", "-m", "sub")
+            write(repo, "feature.py", "print('new')\n")
+            self.assertIsNotNone(mod.fingerprint(mod.repo_root(str(repo / "sub"))))
 
     def test_editing_a_new_file_changes_the_fingerprint(self) -> None:
         with tempfile.TemporaryDirectory() as root:
@@ -143,14 +169,41 @@ class FingerprintTest(unittest.TestCase):
             write(repo, "feature.py", "print('newer')\n")
             self.assertNotEqual(first, mod.fingerprint(str(repo)))
 
-    def test_ignored_files_are_not_changes(self) -> None:
+    def test_editing_a_new_file_with_a_non_ascii_name(self) -> None:
         with tempfile.TemporaryDirectory() as root:
             repo = make_repo(Path(root))
-            write(repo, ".gitignore", "*.log\n")
-            git(repo, "add", ".gitignore")
-            git(repo, "commit", "-m", "ignore logs")
-            write(repo, "scratch.log", "noise\n")
-            self.assertIsNone(mod.fingerprint(str(repo)))
+            write(repo, "caf\u00e9.py", "print('new')\n")
+            first = mod.fingerprint(str(repo))
+            write(repo, "caf\u00e9.py", "print('newer')\n")
+            self.assertNotEqual(first, mod.fingerprint(str(repo)))
+
+    def test_new_file_past_the_untracked_cap_still_shows_up(self) -> None:
+        with tempfile.TemporaryDirectory() as root:
+            repo = make_repo(Path(root))
+            for step in range(mod.MAX_UNTRACKED + 5):
+                write(repo, f"scratch{step:04d}.txt", "noise\n")
+            first = mod.fingerprint(str(repo))
+            write(repo, "zz_feature.py", "print('new')\n")
+            self.assertNotEqual(first, mod.fingerprint(str(repo)))
+
+    def test_staged_work_on_an_unborn_branch_counts(self) -> None:
+        with tempfile.TemporaryDirectory() as root:
+            repo = Path(root) / "repo"
+            repo.mkdir()
+            git(repo, "init", "-b", "main")
+            write(repo, "feature.py", "print('new')\n")
+            git(repo, "add", "feature.py")
+            self.assertIsNotNone(mod.fingerprint(str(repo)))
+
+    def test_ignored_files_are_not_changes(self) -> None:
+        with tempfile.TemporaryDirectory() as root:
+            clone = make_clone(Path(root))
+            write(clone, ".gitignore", "*.log\n")
+            git(clone, "add", ".gitignore")
+            git(clone, "commit", "-m", "ignore logs")
+            self.assertEqual(run_mark(clone), 0)
+            write(clone, "scratch.log", "noise\n")
+            self.assertIn(mod.fingerprint(str(clone)), mod.reviewed(str(clone)))
 
     def test_committed_work_on_a_default_branch_named_otherwise(self) -> None:
         with tempfile.TemporaryDirectory() as root:
@@ -159,18 +212,12 @@ class FingerprintTest(unittest.TestCase):
             git(clone, "commit", "-am", "feature")
             self.assertIsNotNone(mod.fingerprint(str(clone)))
 
-    def test_committed_work_without_a_remote_counts_once_reviews_started(self) -> None:
+    def test_committed_work_without_a_remote_counts(self) -> None:
         with tempfile.TemporaryDirectory() as root:
             repo = make_repo(Path(root))
             write(repo, "app.py", "print('feature')\n")
-            run_mark(repo)
             git(repo, "commit", "-am", "feature")
             self.assertIsNotNone(mod.fingerprint(str(repo)))
-
-    def test_untouched_repo_without_a_remote_is_left_alone(self) -> None:
-        with tempfile.TemporaryDirectory() as root:
-            repo = make_repo(Path(root))
-            self.assertIsNone(mod.fingerprint(str(repo)))
 
     def test_detached_head(self) -> None:
         with tempfile.TemporaryDirectory() as root:
@@ -195,98 +242,141 @@ class FingerprintTest(unittest.TestCase):
             self.assertIsNone(mod.state_path(root))
 
 
-class HookTest(unittest.TestCase):
-    def test_silent_without_changes(self) -> None:
+class GateTest(unittest.TestCase):
+    def test_denies_a_push_of_unreviewed_changes(self) -> None:
         with tempfile.TemporaryDirectory() as root:
-            repo = make_repo(Path(root))
-            code, stdout = run_hook(repo)
+            clone = make_clone(Path(root))
+            write(clone, "app.py", "print('bye')\n")
+            code, stdout = run_hook(clone, "git push -u origin feature")
             self.assertEqual(code, 0)
-            self.assertEqual(stdout, "")
-
-    def test_blocks_on_unreviewed_changes(self) -> None:
-        with tempfile.TemporaryDirectory() as root:
-            repo = make_repo(Path(root))
-            write(repo, "app.py", "print('bye')\n")
-            code, stdout = run_hook(repo)
-            self.assertEqual(code, 0)
-            reason = blocked(stdout)
+            reason = denied(stdout)
             assert reason is not None
             self.assertIn("self-review", reason)
 
-    def test_blocks_on_a_new_file_alone(self) -> None:
+    def test_denies_a_pull_request_and_a_merge(self) -> None:
         with tempfile.TemporaryDirectory() as root:
-            repo = make_repo(Path(root))
-            write(repo, "feature.py", "print('new')\n")
-            self.assertIsNotNone(blocked(run_hook(repo)[1]))
+            clone = make_clone(Path(root))
+            write(clone, "app.py", "print('bye')\n")
+            for command in (
+                "gh pr create --fill",
+                "gh pr merge 3",
+                "git merge feature",
+            ):
+                self.assertIsNotNone(denied(run_hook(clone, command)[1]), command)
 
-    def test_mark_silences_until_the_diff_changes(self) -> None:
+    def test_allows_commands_that_hand_nothing_on(self) -> None:
         with tempfile.TemporaryDirectory() as root:
-            repo = make_repo(Path(root))
-            write(repo, "app.py", "print('bye')\n")
-            self.assertEqual(run_mark(repo), 0)
-            self.assertIsNone(blocked(run_hook(repo)[1]))
+            clone = make_clone(Path(root))
+            write(clone, "app.py", "print('bye')\n")
+            for command in (
+                "git status",
+                "git commit -am wip",
+                "git merge-base main HEAD",
+                "git log --oneline",
+            ):
+                self.assertEqual(run_hook(clone, command), (0, ""), command)
 
-            write(repo, "app.py", "print('bye again')\n")
-            self.assertIsNotNone(blocked(run_hook(repo)[1]))
+    def test_ignores_other_tools(self) -> None:
+        with tempfile.TemporaryDirectory() as root:
+            clone = make_clone(Path(root))
+            write(clone, "app.py", "print('bye')\n")
+            self.assertEqual(run_hook(clone, "git push", tool="Write"), (0, ""))
 
-    def test_committing_reviewed_work_stays_silent(self) -> None:
+    def test_allows_a_push_with_nothing_to_review(self) -> None:
+        with tempfile.TemporaryDirectory() as root:
+            clone = make_clone(Path(root))
+            self.assertEqual(run_hook(clone), (0, ""))
+
+    def test_mark_opens_the_gate_until_the_diff_changes(self) -> None:
+        with tempfile.TemporaryDirectory() as root:
+            clone = make_clone(Path(root))
+            write(clone, "app.py", "print('bye')\n")
+            self.assertEqual(run_mark(clone), 0)
+            self.assertIsNone(denied(run_hook(clone)[1]))
+
+            write(clone, "app.py", "print('bye again')\n")
+            self.assertIsNotNone(denied(run_hook(clone)[1]))
+
+    def test_committing_reviewed_work_keeps_the_gate_open(self) -> None:
         with tempfile.TemporaryDirectory() as root:
             clone = make_clone(Path(root))
             git(clone, "checkout", "-b", "feature")
             write(clone, "app.py", "print('feature')\n")
             self.assertEqual(run_mark(clone), 0)
             git(clone, "commit", "-am", "feature")
-            self.assertIsNone(blocked(run_hook(clone)[1]))
+            self.assertIsNone(denied(run_hook(clone)[1]))
+
+    def test_marking_from_a_subdirectory_matches_the_gate(self) -> None:
+        with tempfile.TemporaryDirectory() as root:
+            clone = make_clone(Path(root))
+            (clone / "sub").mkdir()
+            write(clone, "app.py", "print('bye')\n")
+            self.assertEqual(run_mark(clone / "sub"), 0)
+            self.assertIsNone(denied(run_hook(clone)[1]))
 
     def test_switching_branches_keeps_both_reviews(self) -> None:
         with tempfile.TemporaryDirectory() as root:
-            repo = make_repo(Path(root))
-            git(repo, "checkout", "-b", "one")
-            write(repo, "app.py", "print('one')\n")
-            git(repo, "commit", "-am", "one")
-            self.assertEqual(run_mark(repo), 0)
+            clone = make_clone(Path(root))
+            git(clone, "checkout", "-b", "one")
+            write(clone, "app.py", "print('one')\n")
+            git(clone, "commit", "-am", "one")
+            self.assertEqual(run_mark(clone), 0)
 
-            git(repo, "checkout", "-b", "two", "main")
-            write(repo, "app.py", "print('two')\n")
-            git(repo, "commit", "-am", "two")
-            self.assertIsNotNone(blocked(run_hook(repo)[1]))
-            self.assertEqual(run_mark(repo), 0)
+            git(clone, "checkout", "-b", "two", "main")
+            write(clone, "app.py", "print('two')\n")
+            git(clone, "commit", "-am", "two")
+            self.assertIsNotNone(denied(run_hook(clone)[1]))
+            self.assertEqual(run_mark(clone), 0)
 
-            git(repo, "checkout", "one")
-            self.assertIsNone(blocked(run_hook(repo)[1]))
+            git(clone, "checkout", "one")
+            self.assertIsNone(denied(run_hook(clone)[1]))
 
     def test_marking_in_a_worktree_keeps_the_other_review(self) -> None:
         with tempfile.TemporaryDirectory() as root:
-            repo = make_repo(Path(root))
-            write(repo, "app.py", "print('main tree')\n")
-            self.assertEqual(run_mark(repo), 0)
+            clone = make_clone(Path(root))
+            write(clone, "app.py", "print('main tree')\n")
+            self.assertEqual(run_mark(clone), 0)
 
             tree = Path(root) / "linked"
-            git(repo, "worktree", "add", "-b", "linked", str(tree))
+            git(clone, "worktree", "add", "-b", "linked", str(tree))
             write(tree, "app.py", "print('linked tree')\n")
             self.assertEqual(run_mark(tree), 0)
 
-            self.assertIsNone(blocked(run_hook(repo)[1]))
-            self.assertIsNone(blocked(run_hook(tree)[1]))
+            self.assertIsNone(denied(run_hook(clone)[1]))
+            self.assertIsNone(denied(run_hook(tree)[1]))
 
     def test_mark_keeps_only_the_recent_history(self) -> None:
         with tempfile.TemporaryDirectory() as root:
-            repo = make_repo(Path(root))
+            clone = make_clone(Path(root))
             for step in range(mod.HISTORY + 3):
-                write(repo, "app.py", f"print({step})\n")
-                self.assertEqual(run_mark(repo), 0)
-            self.assertEqual(len(mod.reviewed(str(repo))), mod.HISTORY)
+                write(clone, "app.py", f"print({step})\n")
+                self.assertEqual(run_mark(clone), 0)
+            self.assertEqual(len(mod.reviewed(str(clone))), mod.HISTORY)
 
-    def test_stop_hook_active_does_not_loop(self) -> None:
+    def test_unreadable_state_file_still_denies(self) -> None:
         with tempfile.TemporaryDirectory() as root:
-            repo = make_repo(Path(root))
-            write(repo, "app.py", "print('bye')\n")
-            self.assertEqual(run_hook(repo, stop_hook_active=True), (0, ""))
+            clone = make_clone(Path(root))
+            write(clone, "app.py", "print('bye')\n")
+            state = mod.state_path(str(clone))
+            assert state is not None
+            Path(state).write_bytes(b"\xff\xfe not text at all")
+            self.assertIsNotNone(denied(run_hook(clone)[1]))
+            self.assertEqual(run_mark(clone), 0)
+            self.assertIsNone(denied(run_hook(clone)[1]))
 
     def test_outside_a_repository(self) -> None:
         with tempfile.TemporaryDirectory() as root:
             self.assertEqual(run_hook(Path(root)), (0, ""))
             self.assertEqual(run_mark(Path(root)), 1)
+
+    def test_unknown_arguments_are_refused(self) -> None:
+        done = subprocess.run(
+            ["python3", str(HOOK), "--marks"],
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+        self.assertEqual(done.returncode, 2)
 
 
 if __name__ == "__main__":
