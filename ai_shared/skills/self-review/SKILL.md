@@ -99,12 +99,13 @@ that is a sign the change needs a rethink rather than another patch.
 Once the findings are addressed:
 
 ```bash
-python3 "$HOME/.claude/hooks/self-review.py" --mark      # skip where the hook is not installed
+python3 "$HOME/.claude/hooks/self-review.py" --mark
 ```
 
-This records the reviewed diff. A hook refuses `git push`, `gh pr create` and
-`git merge` while the branch's diff differs from the recorded ones, which is what
-makes a later edit require a new round before the work can be handed on. Only mark
+Skip that where the hook is not installed. It records the reviewed diff: the hook
+refuses `git push`, `git merge` and `gh pr create`/`merge`/`ready` while the
+branch's diff differs from the recorded ones, which is what makes a later edit
+require a new round before the work can be handed on. Only mark
 a diff you actually reviewed; marking is not a way to get past the gate, and the
 user can see in your reply that you took it.
 

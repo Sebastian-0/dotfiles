@@ -13,7 +13,7 @@ end of every turn, which fires while the work is still being written.
 import hashlib
 import json
 import os
-import re
+import shlex
 import subprocess
 import sys
 from typing import Optional
@@ -27,11 +27,19 @@ HISTORY = 20
 MAX_UNTRACKED = 200
 MAX_UNTRACKED_BYTES = 256 * 1024
 
-GATED_COMMANDS = (
-    re.compile(r"\bgit\b[^&|;]*\bpush(?![-\w])"),
-    re.compile(r"\bgit\b[^&|;]*\bmerge(?![-\w])"),
-    re.compile(r"\bgh\b[^&|;]*\bpr\s+(?:create|merge)(?![-\w])"),
-)
+# Every ref costs a merge-base call, and the hook has one timeout for all of them.
+MAX_BASE_REFS = 3
+
+GIT_HANDS_ON = ("push", "merge")
+
+# --abort and friends end a merge instead of making one.
+MERGE_ESCAPES = ("--abort", "--continue", "--quit")
+
+GH_PR_HANDS_ON = ("create", "merge", "ready")
+
+SEPARATORS = ("&&", "||", ";", "|", "&")
+
+GIT_GLOBAL_WITH_VALUE = ("-C", "-c", "--git-dir", "--work-tree", "--namespace")
 
 BASE_CANDIDATES = (
     "refs/remotes/origin/main",
@@ -44,17 +52,20 @@ BASE_CANDIDATES = (
 )
 
 
-def git(repo: str, *args: str) -> Optional[str]:
+def git(repo: str, *args: str, keep_edges: bool = False) -> Optional[str]:
     try:
         done = subprocess.run(
             ["git", "-C", repo, *args],
             capture_output=True,
             text=True,
-            timeout=10,
+            errors="replace",
+            timeout=5,
         )
-    except (OSError, subprocess.SubprocessError):
+    except (OSError, subprocess.SubprocessError, ValueError):
         return None
-    return done.stdout.strip() if done.returncode == 0 else None
+    if done.returncode != 0:
+        return None
+    return done.stdout if keep_edges else done.stdout.strip()
 
 
 def repo_root(path: str) -> str:
@@ -63,18 +74,18 @@ def repo_root(path: str) -> str:
 
 
 def base_refs(repo: str) -> list[str]:
+    # The upstream comes first because it is the tightest base. Work that is
+    # already on it passed this same gate on its way out.
+    upstream = git(repo, "rev-parse", "--symbolic-full-name", "@{upstream}")
     origin_head = git(repo, "symbolic-ref", "--quiet", "refs/remotes/origin/HEAD")
     listed = git(repo, "for-each-ref", "--format=%(refname)", *BASE_CANDIDATES) or ""
     existing = set(listed.split())
     ordered = [ref for ref in BASE_CANDIDATES if ref in existing]
-    # The branch's own upstream comes last: once the branch is pushed it points
-    # at HEAD, and taking it as the base would hide everything already pushed.
-    upstream = git(repo, "rev-parse", "--symbolic-full-name", "@{upstream}")
     refs: list[str] = []
-    for ref in [origin_head, *ordered, upstream]:
+    for ref in [upstream, origin_head, *ordered]:
         if ref and ref not in refs:
             refs.append(ref)
-    return refs
+    return refs[:MAX_BASE_REFS]
 
 
 def base_commit(repo: str) -> Optional[str]:
@@ -102,6 +113,7 @@ def untracked(repo: str) -> str:
         "-z",
         "--others",
         "--exclude-standard",
+        keep_edges=True,
     )
     names = sorted(name for name in (listed or "").split("\0") if name)
     if not names:
@@ -128,7 +140,12 @@ def fingerprint(repo: str) -> Optional[str]:
     """Hash of everything the branch changes, or None when it changes nothing."""
     head = git(repo, "rev-parse", "HEAD")
     if head is None:
-        return combine(git(repo, "diff", "--cached") or "", untracked(repo))
+        if git(repo, "rev-parse", "--is-inside-work-tree") != "true":
+            return None
+        staged = git(repo, "diff", "--cached")
+        if staged is None:
+            return digest("git unavailable")
+        return combine(staged, git(repo, "diff") or "", untracked(repo))
 
     base = base_commit(repo)
     diff = git(repo, "diff", base or head)
@@ -185,8 +202,63 @@ def mark(repo: str) -> int:
     return 0
 
 
-def gated(command: str) -> bool:
-    return any(pattern.search(command) for pattern in GATED_COMMANDS)
+def segments(command: str) -> list[list[str]]:
+    try:
+        tokens = shlex.split(command, comments=True)
+    except ValueError:
+        return []
+    groups: list[list[str]] = [[]]
+    for token in tokens:
+        if token in SEPARATORS:
+            groups.append([])
+        else:
+            groups[-1].append(token)
+    return [group for group in groups if group]
+
+
+def git_subcommand(args: list[str]) -> tuple[str, str, list[str]]:
+    """The -C directory, the subcommand, and its arguments, past git's own options."""
+    directory = ""
+    index = 0
+    while index < len(args):
+        token = args[index]
+        if token in GIT_GLOBAL_WITH_VALUE:
+            if token == "-C" and index + 1 < len(args):
+                directory = args[index + 1]
+            index += 2
+            continue
+        if token.startswith("-"):
+            index += 1
+            continue
+        return directory, token, args[index + 1 :]
+    return directory, "", []
+
+
+def hands_work_on(command: str) -> Optional[str]:
+    """Directory a command would hand work out of, or None when it keeps it here."""
+    directory = ""
+    for tokens in segments(command):
+        name = os.path.basename(tokens[0])
+        if name == "cd" and len(tokens) > 1:
+            directory = tokens[1]
+        elif name == "git":
+            target, subcommand, args = git_subcommand(tokens[1:])
+            if subcommand in GIT_HANDS_ON and not set(args) & set(MERGE_ESCAPES):
+                return target or directory
+        elif name == "gh":
+            args = [token for token in tokens[1:] if not token.startswith("-")]
+            if args[:1] == ["pr"] and args[1:2] and args[1] in GH_PR_HANDS_ON:
+                return directory
+    return None
+
+
+def mark_command() -> str:
+    """Spelled as the settings allowlist has it, so running it does not prompt."""
+    path = os.path.abspath(__file__)
+    installed = os.path.join(os.path.expanduser("~"), ".claude", "hooks")
+    if os.path.dirname(path) == installed:
+        return 'python3 "$HOME/.claude/hooks/self-review.py" --mark'
+    return f"python3 {path} --mark"
 
 
 def main() -> int:
@@ -201,12 +273,16 @@ def main() -> int:
         payload = json.load(sys.stdin)
     except (json.JSONDecodeError, ValueError):
         return 0
-
-    tool_input = payload.get("tool_input") or {}
-    if payload.get("tool_name") != "Bash" or not gated(tool_input.get("command") or ""):
+    if payload.get("tool_name") != "Bash":
         return 0
 
-    repo = repo_root(payload.get("cwd") or os.getcwd())
+    tool_input = payload.get("tool_input") or {}
+    directory = hands_work_on(tool_input.get("command") or "")
+    if directory is None:
+        return 0
+
+    cwd = payload.get("cwd") or os.getcwd()
+    repo = repo_root(os.path.join(cwd, directory))
     current = fingerprint(repo)
     if current is None or current in reviewed(repo):
         return 0
@@ -220,9 +296,10 @@ def main() -> int:
                     "permissionDecisionReason": (
                         "This branch has changes that no independent reviewer has "
                         "seen: the diff differs from the ones recorded as reviewed. "
-                        "Run the self-review skill on it, address what comes back, "
-                        "and record it before handing the work on: python3 "
-                        f"{os.path.abspath(__file__)} --mark"
+                        "Run the self-review skill on it and address what comes "
+                        "back. If a review does not apply to this diff, say so in "
+                        "your reply. Either way it is recorded with: "
+                        f"{mark_command()}"
                     ),
                 }
             }

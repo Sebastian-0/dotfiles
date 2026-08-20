@@ -18,12 +18,12 @@ mod = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(mod)
 
 
-def env(root: Path) -> dict[str, str]:
+def env() -> dict[str, str]:
     """Git config the user running the tests cannot leak into, e.g. commit.gpgsign."""
     return {
         **os.environ,
-        "GIT_CONFIG_GLOBAL": str(root / "gitconfig"),
-        "GIT_CONFIG_SYSTEM": str(root / "gitconfig"),
+        "GIT_CONFIG_GLOBAL": "/nonexistent/gitconfig",
+        "GIT_CONFIG_SYSTEM": "/nonexistent/gitconfig",
     }
 
 
@@ -33,7 +33,7 @@ def git(repo: Path, *args: str) -> None:
         check=True,
         capture_output=True,
         timeout=30,
-        env=env(repo.parent),
+        env=env(),
     )
 
 
@@ -58,7 +58,7 @@ def make_clone(root: Path, branch: str = "main") -> Path:
         check=True,
         capture_output=True,
         timeout=30,
-        env=env(root),
+        env=env(),
     )
     git(clone, "config", "user.email", "test@example.com")
     git(clone, "config", "user.name", "Test")
@@ -78,7 +78,7 @@ def run_hook(
         text=True,
         cwd=str(cwd),
         timeout=30,
-        env=env(Path(cwd).parent),
+        env=env(),
     )
     return done.returncode, done.stdout.strip()
 
@@ -90,7 +90,7 @@ def run_mark(cwd: Path) -> int:
         text=True,
         cwd=str(cwd),
         timeout=30,
-        env=env(Path(cwd).parent),
+        env=env(),
     )
     return done.returncode
 
@@ -135,14 +135,19 @@ class FingerprintTest(unittest.TestCase):
             git(repo, "commit", "-am", "feature")
             self.assertIsNotNone(mod.fingerprint(str(repo)))
 
-    def test_pushed_commits_still_count(self) -> None:
+    def test_commits_made_after_a_push_count(self) -> None:
         with tempfile.TemporaryDirectory() as root:
             clone = make_clone(Path(root))
             git(clone, "checkout", "-b", "feature")
             write(clone, "feature.py", "print('feature')\n")
             git(clone, "add", "feature.py")
             git(clone, "commit", "-m", "feature")
+            run_mark(clone)
             git(clone, "push", "-u", "origin", "feature")
+            self.assertIsNone(mod.fingerprint(str(clone)))
+
+            write(clone, "feature.py", "print('more')\n")
+            git(clone, "commit", "-am", "more")
             self.assertIsNotNone(mod.fingerprint(str(clone)))
 
     def test_new_file_counts(self) -> None:
@@ -193,6 +198,15 @@ class FingerprintTest(unittest.TestCase):
             git(repo, "init", "-b", "main")
             write(repo, "feature.py", "print('new')\n")
             git(repo, "add", "feature.py")
+            first = mod.fingerprint(str(repo))
+            self.assertIsNotNone(first)
+            write(repo, "feature.py", "print('newer')\n")
+            self.assertNotEqual(first, mod.fingerprint(str(repo)))
+
+    def test_new_file_whose_name_is_not_valid_utf8(self) -> None:
+        with tempfile.TemporaryDirectory() as root:
+            repo = make_repo(Path(root))
+            (repo / os.fsdecode(b"bad\xff.py")).write_bytes(b"print('new')\n")
             self.assertIsNotNone(mod.fingerprint(str(repo)))
 
     def test_ignored_files_are_not_changes(self) -> None:
@@ -242,6 +256,38 @@ class FingerprintTest(unittest.TestCase):
             self.assertIsNone(mod.state_path(root))
 
 
+class CommandTest(unittest.TestCase):
+    def test_commands_that_hand_work_on(self) -> None:
+        for command in (
+            "git push",
+            "git push -u origin feature",
+            "git status && git push",
+            "git merge feature",
+            "gh pr create --fill",
+            "gh pr merge 3",
+            "gh pr ready",
+        ):
+            self.assertEqual(mod.hands_work_on(command), "", command)
+
+    def test_commands_that_keep_work_here(self) -> None:
+        for command in (
+            'git commit -m "Gate the review at push and merge"',
+            "git add src/merge.py",
+            "git stash push",
+            "git log --grep=merge",
+            "git merge --abort",
+            "git merge-base main HEAD",
+            'grep -rn "git push" claude/',
+            "gh pr view 3",
+            "git status",
+        ):
+            self.assertIsNone(mod.hands_work_on(command), command)
+
+    def test_the_directory_a_command_acts_on(self) -> None:
+        self.assertEqual(mod.hands_work_on("git -C /other/repo push"), "/other/repo")
+        self.assertEqual(mod.hands_work_on("cd /other/repo && git push"), "/other/repo")
+
+
 class GateTest(unittest.TestCase):
     def test_denies_a_push_of_unreviewed_changes(self) -> None:
         with tempfile.TemporaryDirectory() as root:
@@ -252,6 +298,17 @@ class GateTest(unittest.TestCase):
             reason = denied(stdout)
             assert reason is not None
             self.assertIn("self-review", reason)
+
+    def test_denies_the_first_push_of_committed_work(self) -> None:
+        with tempfile.TemporaryDirectory() as root:
+            clone = make_clone(Path(root))
+            git(clone, "checkout", "-b", "feature")
+            write(clone, "feature.py", "print('feature')\n")
+            git(clone, "add", "feature.py")
+            git(clone, "commit", "-m", "feature")
+            self.assertIsNotNone(
+                denied(run_hook(clone, "git push -u origin feature")[1])
+            )
 
     def test_denies_a_pull_request_and_a_merge(self) -> None:
         with tempfile.TemporaryDirectory() as root:
@@ -368,6 +425,27 @@ class GateTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as root:
             self.assertEqual(run_hook(Path(root)), (0, ""))
             self.assertEqual(run_mark(Path(root)), 1)
+
+    def test_denies_a_push_of_another_repository(self) -> None:
+        with tempfile.TemporaryDirectory() as root:
+            here = make_clone(Path(root))
+            elsewhere = Path(root) / "elsewhere"
+            elsewhere.mkdir()
+            there = make_clone(elsewhere)
+            write(there, "app.py", "print('unreviewed')\n")
+            self.assertIsNotNone(denied(run_hook(here, f"git -C {there} push")[1]))
+            self.assertIsNone(denied(run_hook(there, f"git -C {here} push")[1]))
+
+    def test_allows_a_pushed_branch_with_nothing_new(self) -> None:
+        with tempfile.TemporaryDirectory() as root:
+            clone = make_clone(Path(root))
+            git(clone, "checkout", "-b", "develop")
+            write(clone, "feature.py", "print('feature')\n")
+            git(clone, "add", "feature.py")
+            git(clone, "commit", "-m", "feature")
+            self.assertEqual(run_mark(clone), 0)
+            git(clone, "push", "-u", "origin", "develop")
+            self.assertIsNone(denied(run_hook(clone, "git merge other")[1]))
 
     def test_unknown_arguments_are_refused(self) -> None:
         done = subprocess.run(

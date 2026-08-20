@@ -57,9 +57,10 @@ branch, or reporting a feature complete, run the `self-review` skill.
 
 Every further code change invalidates the last review, including the fixes you
 make in response to one: address the feedback, then review the new diff again.
-A hook refuses `git push`, `gh pr create` and `git merge` while the branch's diff
-differs from the ones recorded as reviewed. It only guards that boundary, so
-finishing a change without pushing it is still yours to get right.
+A hook refuses the commands that hand work on -- `git push`, `git merge`, and
+`gh pr create`, `merge` and `ready` -- while the branch's diff differs from the
+ones recorded as reviewed. It only guards that boundary, so finishing a change
+without pushing it is still yours to get right.
 
 
 # Commit Messages

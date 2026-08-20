@@ -54,7 +54,7 @@
 					{
 						"type": "command",
 						"command": "python3 \"$HOME/.claude/hooks/self-review.py\"",
-						"timeout": 20
+						"timeout": 30
 					}
 				]
 			}
