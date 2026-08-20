@@ -48,6 +48,19 @@ When executing a multi-step plan, after each step:
 - Commit (may need SSH key authentication - ask user for help)
 
 
+# Finishing a change
+
+A change is not done when it compiles and you believe it is right -- it is done
+when a reviewer who does not share your context has seen it. When you have
+finished what was asked, and always before opening a PR, merging to the main
+branch, or reporting a feature complete, run the `self-review` skill.
+
+Every further code change invalidates the last review, including the fixes you
+make in response to one: address the feedback, then review the new diff again.
+A Stop hook holds the turn while the branch's diff differs from the last diff
+recorded as reviewed.
+
+
 # Commit Messages
 
 Prefer a subject line only. Include a body only when necessary for
