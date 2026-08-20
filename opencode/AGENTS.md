@@ -30,5 +30,13 @@
 - DO NOT do formatting changes to existing code!
 - If unsure about a piece of code ASK ME!
 
+## Finishing a change
+
+- A change is done when a reviewer who does not share your context has seen it.
+- When you have finished what was asked, and always before opening a PR or merging
+  to the main branch, load the `self-review` skill and follow it.
+- Every further code change, including the fixes made after a review, needs another
+  round.
+
 ## Skills
 When you get a task ALWAYS check for relevant skills first and load them!

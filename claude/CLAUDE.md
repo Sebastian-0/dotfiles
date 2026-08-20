@@ -57,8 +57,9 @@ branch, or reporting a feature complete, run the `self-review` skill.
 
 Every further code change invalidates the last review, including the fixes you
 make in response to one: address the feedback, then review the new diff again.
-A Stop hook holds the turn while the branch's diff differs from the last diff
-recorded as reviewed.
+A Stop hook checks this when you finish a turn: it stops you once whenever the
+branch's diff differs from the ones recorded as reviewed. It is a check, not a
+fence -- it can only ask, so the rule above is yours to keep.
 
 
 # Commit Messages

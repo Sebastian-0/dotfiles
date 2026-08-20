@@ -29,12 +29,14 @@ that carries the *request* but none of your *reasoning*.
 ```bash
 git rev-parse --abbrev-ref HEAD
 gh repo view --json defaultBranchRef -q .defaultBranchRef.name    # or: git remote show origin
+git merge-base <default-branch> HEAD                              # the base to diff from
 git diff <base>                    # everything the branch changes, committed or not
+git status --short                 # new files, which the diff above does not show
 git log --oneline <base>..HEAD
 ```
 
-Make sure every edit you want reviewed is written to disk. Untracked new files are
-invisible to `git diff` -- `git add -N` them (or commit) so they show up.
+Make sure every edit you want reviewed is written to disk, and `git add -N` any new
+file (or commit it) so it appears in the diff the reviewer reads.
 
 ### 2. Launch the reviewer
 
@@ -55,6 +57,8 @@ The change was requested as, verbatim:
     <the user's request, quoted exactly>
 
 Load the `review-pr` skill and apply its review rubric to every part of this diff.
+Skip its PR-collection steps: the commands above are the source, and some of what
+you are reviewing is not committed.
 Read the surrounding files, not only the diff -- most defects are in how the change
 meets code it did not touch. Check CLAUDE.md and any language skill for conventions
 the change has to follow, and run the tests or build if the repo has them.
@@ -94,16 +98,17 @@ that is a sign the change needs a rethink rather than another patch.
 Once the findings are addressed:
 
 ```bash
-python3 "$HOME/.claude/hooks/self-review.py" --mark
+python3 "$HOME/.claude/hooks/self-review.py" --mark      # skip where the hook is not installed
 ```
 
-This records the reviewed diff. The Stop hook holds the turn whenever the branch's
-diff differs from the recorded one, which is what makes a later edit require a new
+This records the reviewed diff. The Stop hook stops you whenever the branch's diff
+differs from the recorded ones, which is what makes a later edit require a new
 round. Only mark a diff you actually reviewed; marking is not a way to get past the
-hook.
+hook, and the user can see in your reply that you took it.
 
-The one case for marking without a review is a change that has no source in it at
-all, or work the user explicitly asked to keep throwaway.
+Marking without a review fits a change with no source in it, or work the user asked
+to keep throwaway. If untracked scratch files keep waking the check, they belong in
+`.gitignore` rather than in a mark.
 
 ### 6. Report
 

@@ -23,6 +23,9 @@ git diff --stat origin/<base-branch>..HEAD         # files changed
 
 Only the listed commits go into the PR — leave unrelated untracked/scratch files alone unless asked.
 
+If those commits have not been through the `self-review` skill, do that first: a
+review belongs before the PR, not after it.
+
 ### 2. Push over SSH
 
 ```bash
