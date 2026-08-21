@@ -5,7 +5,8 @@ description: >
     does not share your context, and address it before the change counts as
     done. Use when you have finished building or fixing what was asked, and
     always before opening a PR, merging to the main branch, or telling the user
-    the work is complete. Any further code change needs another round.
+    the work is complete. One round per change: the next piece of work gets its
+    own review, the fixes from this one do not.
 ---
 
 Hand your own diff to a reviewer that was not there when you wrote it, then act on
@@ -85,14 +86,18 @@ a hypothesis to test against the code, not a defect report -- verify with a grep
 build, a test run, or the file itself. Accepting a wrong finding costs more than
 rejecting a right one, since it lands in the code.
 
-### 4. Fix, then review again
+Real is not the same as worth fixing. Fix what breaks the change as asked for, or
+what will mislead the next reader. Leave what is real but latent -- the edge case
+nothing reaches, the failure mode that costs a command to recover from -- and say
+you left it. A reviewer with no context always finds more than a change needs.
 
-Fix what is real. Then note that you have changed the code: the review you just got
-no longer describes the diff, so go back to step 1 and get another one. Stop when a
-review comes back with no must-fix findings.
+### 4. Fix, and stop at one round
 
-If a third round still turns up must-fix findings, stop and bring it to the user --
-that is a sign the change needs a rethink rather than another patch.
+One review per change. Fix what you decided to fix, and do not commission a second
+review of your own fixes: the yield does not pay for the round, and a change that
+needs a second opinion on its patches needs the user, not another reviewer.
+
+The next round belongs to the next change, not to this one.
 
 ### 5. Record the review
 
@@ -104,10 +109,10 @@ python3 "$HOME/.claude/hooks/self-review.py" --mark
 
 Skip that where the hook is not installed. It records the reviewed diff: the hook
 refuses `git push`, `git merge` and `gh pr create`/`merge`/`ready` while the
-branch's diff differs from the recorded ones, which is what makes a later edit
-require a new round before the work can be handed on. Only mark
-a diff you actually reviewed; marking is not a way to get past the gate, and the
-user can see in your reply that you took it.
+branch's diff differs from the recorded ones, so the next piece of work gets its
+own review before it can be handed on. Only mark a diff you actually reviewed;
+marking is not a way to get past the gate, and the user can see in your reply that
+you took it.
 
 Marking without a review fits a change with no source in it, or work the user asked
 to keep throwaway. If untracked scratch files keep waking the check, they belong in
@@ -115,6 +120,8 @@ to keep throwaway. If untracked scratch files keep waking the check, they belong
 
 ### 6. Report
 
-Tell the user what the review found, what you fixed, and what you rejected with the
-evidence for rejecting it. If you disagreed with the reviewer on something that
-matters, say so plainly so they can overrule you.
+Tell the user what the review found, what you fixed, what you rejected with the
+evidence for rejecting it, and what you left standing on purpose. The last one
+matters most: a known gap the user can weigh is worth more than a clean-sounding
+report. If you disagreed with the reviewer on something that matters, say so
+plainly so they can overrule you.

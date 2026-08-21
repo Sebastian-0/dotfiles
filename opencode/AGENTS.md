@@ -35,8 +35,8 @@
 - A change is done when a reviewer who does not share your context has seen it.
 - When you have finished what was asked, and always before opening a PR or merging
   to the main branch, load the `self-review` skill and follow it.
-- Every further code change, including the fixes made after a review, needs another
-  round.
+- One round per change: the next piece of work gets its own review, the fixes made
+  after this one do not.
 
 ## Skills
 When you get a task ALWAYS check for relevant skills first and load them!

@@ -55,8 +55,10 @@ when a reviewer who does not share your context has seen it. When you have
 finished what was asked, and always before opening a PR, merging to the main
 branch, or reporting a feature complete, run the `self-review` skill.
 
-Every further code change invalidates the last review, including the fixes you
-make in response to one: address the feedback, then review the new diff again.
+One round per change: the next piece of work gets its own review, the fixes you
+make in response to this one do not. Not every finding has to be fixed either --
+leave what is real but latent, and say that you left it.
+
 A hook refuses the commands that hand work on -- `git push`, `git merge`, and
 `gh pr create`, `merge` and `ready` -- while the branch's diff differs from the
 ones recorded as reviewed. It only guards that boundary, so finishing a change
