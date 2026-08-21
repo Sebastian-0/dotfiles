@@ -13,6 +13,7 @@ end of every turn, which fires while the work is still being written.
 import hashlib
 import json
 import os
+import re
 import shlex
 import subprocess
 import sys
@@ -37,7 +38,24 @@ MERGE_ESCAPES = ("--abort", "--continue", "--quit")
 
 GH_PR_HANDS_ON = ("create", "merge", "ready")
 
-SEPARATORS = ("&&", "||", ";", "|", "&")
+# --undo puts a pull request back to draft, which withdraws work instead.
+GH_ESCAPES = ("--undo",)
+
+# Stands in for a newline, which separates commands unless it is inside quotes.
+LINE_BREAK = "\0"
+
+SEPARATORS = ("&&", "||", ";", "|", "&", "(", ")", LINE_BREAK)
+
+# Commands that run another command: the one that matters is behind them.
+WRAPPERS = ("sudo", "env", "command", "time", "nohup", "xargs", "exec")
+SHELLS = ("bash", "sh", "zsh", "dash")
+
+# Shell syntax standing between a separator and the command it introduces.
+KEYWORDS = ("then", "else", "elif", "do", "done", "fi", "esac", "{", "}", "!")
+
+ASSIGNMENT = re.compile(r"^\w+=")
+
+HEREDOC = re.compile(r"<<-?\s*[\"']?(?P<word>\w+)[\"']?")
 
 GIT_GLOBAL_WITH_VALUE = ("-C", "-c", "--git-dir", "--work-tree", "--namespace")
 
@@ -202,9 +220,31 @@ def mark(repo: str) -> int:
     return 0
 
 
+def without_heredocs(command: str) -> str:
+    """A heredoc body is data: a line of documentation may well say `git push`."""
+    lines = command.splitlines()
+    kept: list[str] = []
+    index = 0
+    while index < len(lines):
+        line = lines[index]
+        kept.append(line)
+        index += 1
+        for match in HEREDOC.finditer(line):
+            while index < len(lines) and lines[index].strip() != match.group("word"):
+                index += 1
+            index += 1
+    return "\n".join(kept)
+
+
 def segments(command: str) -> list[list[str]]:
+    lexer = shlex.shlex(
+        without_heredocs(command).replace("\n", f" {LINE_BREAK} "),
+        posix=True,
+        punctuation_chars=True,
+    )
+    lexer.whitespace_split = True
     try:
-        tokens = shlex.split(command, comments=True)
+        tokens = list(lexer)
     except ValueError:
         return []
     groups: list[list[str]] = [[]]
@@ -214,6 +254,17 @@ def segments(command: str) -> list[list[str]]:
         else:
             groups[-1].append(token)
     return [group for group in groups if group]
+
+
+def unwrap(tokens: list[str]) -> list[str]:
+    while tokens:
+        if tokens[0] in KEYWORDS or ASSIGNMENT.match(tokens[0]):
+            tokens = tokens[1:]
+        elif os.path.basename(tokens[0]) in WRAPPERS:
+            tokens = tokens[1:]
+        else:
+            return tokens
+    return tokens
 
 
 def git_subcommand(args: list[str]) -> tuple[str, str, list[str]]:
@@ -237,9 +288,16 @@ def git_subcommand(args: list[str]) -> tuple[str, str, list[str]]:
 def hands_work_on(command: str) -> Optional[str]:
     """Directory a command would hand work out of, or None when it keeps it here."""
     directory = ""
-    for tokens in segments(command):
+    for tokens in map(unwrap, segments(command)):
+        if not tokens:
+            continue
         name = os.path.basename(tokens[0])
-        if name == "cd" and len(tokens) > 1:
+        if name in SHELLS:
+            script = shell_script(tokens[1:])
+            inner = hands_work_on(script) if script else None
+            if inner is not None:
+                return inner or directory
+        elif name == "cd" and len(tokens) > 1:
             directory = tokens[1]
         elif name == "git":
             target, subcommand, args = git_subcommand(tokens[1:])
@@ -247,8 +305,18 @@ def hands_work_on(command: str) -> Optional[str]:
                 return target or directory
         elif name == "gh":
             args = [token for token in tokens[1:] if not token.startswith("-")]
+            escaped = set(tokens[1:]) & set(GH_ESCAPES)
             if args[:1] == ["pr"] and args[1:2] and args[1] in GH_PR_HANDS_ON:
-                return directory
+                if not escaped:
+                    return directory
+    return None
+
+
+def shell_script(args: list[str]) -> Optional[str]:
+    """The script a `sh -c` style invocation would run."""
+    for index, token in enumerate(args):
+        if token.startswith("-") and "c" in token.lstrip("-"):
+            return args[index + 1] if index + 1 < len(args) else None
     return None
 
 
@@ -282,7 +350,11 @@ def main() -> int:
         return 0
 
     cwd = payload.get("cwd") or os.getcwd()
-    repo = repo_root(os.path.join(cwd, directory))
+    repo = repo_root(os.path.join(cwd, os.path.expanduser(directory)))
+    if git(repo, "rev-parse", "--is-inside-work-tree") != "true":
+        # An unexpanded ~ or $VAR names no repository; fall back to the one here
+        # rather than reading a missing directory as nothing to review.
+        repo = repo_root(cwd)
     current = fingerprint(repo)
     if current is None or current in reviewed(repo):
         return 0

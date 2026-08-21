@@ -266,6 +266,17 @@ class CommandTest(unittest.TestCase):
             "gh pr create --fill",
             "gh pr merge 3",
             "gh pr ready",
+            "git add -A\ngit commit -m x\ngit push -u origin feature",
+            "echo hi; git push",
+            "git status;git push",
+            "if true; then git push; fi",
+            "for r in a b; do git push $r; done",
+            "FOO=1 git push",
+            "sudo git push",
+            "env FOO=1 git push",
+            "time git push",
+            "echo main | xargs git push origin",
+            'bash -c "git push"',
         ):
             self.assertEqual(mod.hands_work_on(command), "", command)
 
@@ -279,13 +290,17 @@ class CommandTest(unittest.TestCase):
             "git merge-base main HEAD",
             'grep -rn "git push" claude/',
             "gh pr view 3",
+            "gh pr ready --undo",
             "git status",
+            'git commit -m "one line\nanother that says git push"',
+            "cat > notes.md <<'MD'\ngit push -u origin main\nMD",
         ):
             self.assertIsNone(mod.hands_work_on(command), command)
 
     def test_the_directory_a_command_acts_on(self) -> None:
         self.assertEqual(mod.hands_work_on("git -C /other/repo push"), "/other/repo")
         self.assertEqual(mod.hands_work_on("cd /other/repo && git push"), "/other/repo")
+        self.assertEqual(mod.hands_work_on("(cd sub && git push)"), "sub")
 
 
 class GateTest(unittest.TestCase):
@@ -425,6 +440,12 @@ class GateTest(unittest.TestCase):
         with tempfile.TemporaryDirectory() as root:
             self.assertEqual(run_hook(Path(root)), (0, ""))
             self.assertEqual(run_mark(Path(root)), 1)
+
+    def test_denies_a_push_of_an_unresolvable_directory(self) -> None:
+        with tempfile.TemporaryDirectory() as root:
+            clone = make_clone(Path(root))
+            write(clone, "app.py", "print('bye')\n")
+            self.assertIsNotNone(denied(run_hook(clone, "git -C $REPO push")[1]))
 
     def test_denies_a_push_of_another_repository(self) -> None:
         with tempfile.TemporaryDirectory() as root:
