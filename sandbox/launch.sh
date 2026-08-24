@@ -19,6 +19,7 @@
 #   claudesafe --fresh               # use a per-session ~/.claude volume
 #   claudesafe --rebuild             # force rebuild of the image
 #   claudesafe --unlock              # re-unlock the sandbox SSH key, then exit
+#   claudesafe --strict              # block everything but Claude Code's own endpoints
 #   claudesafe --allow-docker        # expose the host Docker socket (DANGEROUS)
 #   claudesafe --allow-bypass        # run Claude with all permission checks off
 #   claudesafe --allow-full-internet # skip the firewall entirely (DANGEROUS)
@@ -45,6 +46,7 @@ SHELL_MODE=0
 FRESH=0
 REBUILD=0
 UNLOCK=0
+STRICT=0
 ALLOW_DOCKER=0
 ALLOW_BYPASS=0
 ALLOW_FULL_INTERNET=0
@@ -56,6 +58,7 @@ while [ $# -gt 0 ]; do
         --fresh) FRESH=1 ;;
         --rebuild) REBUILD=1 ;;
         --unlock) UNLOCK=1 ;;
+        --strict) STRICT=1 ;;
         --allow-docker) ALLOW_DOCKER=1 ;;
         --allow-bypass) ALLOW_BYPASS=1 ;;
         --allow-full-internet) ALLOW_FULL_INTERNET=1 ;;
@@ -82,6 +85,14 @@ while [ $# -gt 0 ]; do
     esac
     shift
 done
+
+if [ "$STRICT" = "1" ] && [ "$ALLOW_FULL_INTERNET" = "1" ]; then
+    log_error "--strict and --allow-full-internet contradict each other"
+    exit 1
+fi
+if [ "$STRICT" = "1" ] && [ "$ALLOW_DOCKER" = "1" ]; then
+    log_warn "--allow-docker can reach the host daemon and undo --strict"
+fi
 
 # --- Dedicated sandbox SSH key + its own ssh-agent ------------------------
 # A sandbox-only key (separate from your personal one), passphrase-encrypted on
@@ -233,7 +244,12 @@ DOCKER_ARGS=(
     -e "SANDBOX_TASK=${TASK:-}"
     -e "SANDBOX_ALLOW_BYPASS=$ALLOW_BYPASS"
     -e "SANDBOX_ALLOW_FULL_INTERNET=$ALLOW_FULL_INTERNET"
+    -e "SANDBOX_STRICT=$STRICT"
 )
+
+if [ "$STRICT" = "1" ]; then
+    log_info "--strict -- egress limited to Claude Code's own endpoints"
+fi
 
 # Unfiltered egress gives a prompt injection somewhere to send the repo.
 if [ "$ALLOW_FULL_INTERNET" = "1" ]; then
@@ -314,7 +330,9 @@ if [ -f "$MOUNTS_FILE" ]; then
 fi
 
 # Unlock the sandbox key and forward only its agent socket (key stays on host).
-if unlock_sandbox_ssh; then
+if [ "$STRICT" = "1" ]; then
+    log_info "strict mode -- no ssh-agent forwarded (outbound SSH is blocked)"
+elif unlock_sandbox_ssh; then
     log_info "forwarding sandbox ssh-agent ($SSH_AUTH_SOCK)"
     DOCKER_ARGS+=(
         -v "$SSH_AUTH_SOCK:/ssh-agent.sock"

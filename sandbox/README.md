@@ -15,6 +15,8 @@ permission checks entirely.
 - Applies a default-deny firewall at container start, allowlisting only the
   domains in `allowlist.txt` (plus a hardcoded baseline: `api.anthropic.com`,
   npm, GitHub's published IP ranges, etc.) -- unless `--allow-full-internet`.
+  `--strict` goes the other way and cuts egress down to Claude Code's own
+  endpoints, see [Strict mode](#strict-mode).
 - **Bind-mounts `$PWD` as `/workspace/project`** -- Claude's edits land
   directly in the current folder on the host. No worktree, no copy. Works
   whether or not the folder is a git repo. If you want a throwaway copy,
@@ -115,6 +117,7 @@ claudesafe my-task                   # tag the session (used as SANDBOX_TASK env
 claudesafe --shell                   # drop to bash inside the container
 claudesafe --fresh                   # ephemeral ~/.claude volume
 claudesafe --rebuild                 # rebuild the image
+claudesafe --strict                  # only Claude Code's own endpoints reach out
 claudesafe --allow-docker            # expose the host Docker socket (DANGEROUS)
 claudesafe --allow-bypass            # skip all permission checks
 claudesafe --allow-full-internet     # skip the firewall (DANGEROUS)
@@ -133,6 +136,8 @@ the next `claudesafe` is back to the defaults.
   Docker daemon is equivalent to being root on the host (the container can
   start a privileged container that mounts `/`), so use it only for tasks that
   genuinely have to drive Docker, and only when you trust the session.
+- `--strict` -- the one flag that *tightens* things: only Claude Code's own
+  endpoints stay reachable. See [Strict mode](#strict-mode).
 - `--allow-full-internet` -- skips `init-firewall.sh`, leaving egress
   unfiltered. The allowlist is the main thing standing between a prompt
   injection (or a compromised dependency) and your repo leaving the machine, so
@@ -145,6 +150,39 @@ the next `claudesafe` is back to the defaults.
   there is nobody around to answer a permission prompt. Without it, bypass is
   still available to switch into mid-session with shift+tab.
 
+## Strict mode
+
+`claudesafe --strict` is the opposite of `--allow-full-internet`: egress is cut
+down to the endpoints Claude Code itself uses, and nothing else. For a session
+where Claude reads a repo full of untrusted content, it removes essentially
+every route the repo could take out of the machine.
+
+What stays reachable:
+
+- `api.anthropic.com` (the model), `console.anthropic.com` and `claude.ai`
+  (the OAuth login flow), `statsig.*` and `sentry.io` (feature flags and error
+  reporting), `registry.npmjs.org` (Claude Code's own updates).
+- DNS, but only to the resolvers in the container's `/etc/resolv.conf` --
+  queries to an arbitrary server are themselves a way to send data out.
+
+What is dropped compared to a normal run:
+
+- Everything in `allowlist.txt` -- the file is ignored, not merged.
+- GitHub's IP ranges, so `git`/`gh` over HTTPS cannot reach github.com.
+- Outbound SSH (port 22), so `git push`/`git pull` over SSH are out too. The
+  sandbox ssh-agent isn't forwarded at all in this mode, so there's no
+  passphrase prompt either.
+- The host/bridge network, so services on the host and in sibling containers
+  are unreachable.
+- IPv6, which the normal ruleset doesn't filter at all.
+
+The trade-off is that package installs, `apt`, anything git-remote, and
+Claude's own `WebFetch` stop working -- do that work in a normal run, then
+re-enter with `--strict` for the part where Claude chews on untrusted input.
+
+`--strict` and `--allow-full-internet` are mutually exclusive; `--allow-docker`
+is allowed but warned about, since the host daemon can undo the whole thing.
+
 ## Customizing the allowlist
 
 Edit `allowlist.txt`. One domain per line. No rebuild needed -- the file is
@@ -152,7 +190,8 @@ mounted fresh each run.
 
 If you need broader access for a specific session only, drop additional
 domains into `allowlist.txt` and run `claudesafe`; revert the file after. To
-turn filtering off altogether for one run, use `--allow-full-internet`.
+turn filtering off altogether for one run, use `--allow-full-internet`; to
+ignore the file and allow only Claude Code's endpoints, use `--strict`.
 
 ## What's NOT exposed to the container
 
@@ -221,6 +260,9 @@ To re-enable SSH in an **already-running** session without restarting it, run
 `claudesafe --unlock` from another host terminal: it re-adds the key to the
 same persistent agent, and because the running container forwards that same
 socket, git-over-SSH works again immediately.
+
+Under `--strict` none of this applies: outbound SSH is blocked, so the agent
+socket isn't forwarded and no passphrase is asked for.
 
 The firewall already allows outbound port 22, and `bootstrap.sh` pre-trusts
 GitHub's host key, so `git push`/`git pull` over SSH work with no prompts. To
