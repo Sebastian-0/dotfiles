@@ -31,7 +31,7 @@ symlink_config yazi
 echo "Set up plugins and themes..."
 mkdir -p yazi/plugins
 mkdir -p yazi/flavors
-ya pkg install
+yazi.ya pkg install
 
 # If ya can't run try with /snap/yazi/current/ya
 
