@@ -113,7 +113,6 @@ triggers the image build (a few minutes; cached afterwards).
 
 ```bash
 claudesafe                           # interactive Claude in $PWD
-claudesafe my-task                   # tag the session (used as SANDBOX_TASK env var)
 claudesafe --shell                   # drop to bash inside the container
 claudesafe --fresh                   # ephemeral ~/.claude volume
 claudesafe --rebuild                 # rebuild the image
@@ -121,7 +120,7 @@ claudesafe --strict                  # only Claude Code's own endpoints reach ou
 claudesafe --allow-docker            # expose the host Docker socket (DANGEROUS)
 claudesafe --allow-bypass            # skip all permission checks
 claudesafe --allow-full-internet     # skip the firewall (DANGEROUS)
-claudesafe -- -p "do the thing"      # pass args through to `claude`
+claudesafe -p "do the thing"         # unrecognized args go to `claude`
 ```
 
 Warnings and errors are tagged `[WARNING]`/`[ERROR]` and colored when the output
@@ -146,7 +145,7 @@ the next `claudesafe` is back to the defaults.
   across mirrors.
 - `--allow-bypass` -- starts Claude with `--dangerously-skip-permissions`
   instead of auto mode. Nothing is classified and nothing is asked, which is
-  what you want for a long unattended run -- including `-- -p "..."`, where
+  what you want for a long unattended run -- including `-p "..."`, where
   there is nobody around to answer a permission prompt. Without it, bypass is
   still available to switch into mid-session with shift+tab.
 

@@ -14,7 +14,7 @@
 # Dockerfile and base-image.sh are mutually exclusive; base-image.sh wins if both exist.
 #
 # Usage:
-#   claudesafe [task-name] [-- <claude args>]
+#   claudesafe [<claude args>]       # unrecognized args go to claude
 #   claudesafe --shell               # drop to bash inside the container
 #   claudesafe --fresh               # use a per-session ~/.claude volume
 #   claudesafe --rebuild             # force rebuild of the image
@@ -41,7 +41,6 @@ CONTAINER_HOME="/home/$SANDBOX_USER"
 VOLUME_BASE="claude-home"
 GH_VOLUME_BASE="claude-gh"
 
-TASK=""
 SHELL_MODE=0
 FRESH=0
 REBUILD=0
@@ -62,15 +61,15 @@ while [ $# -gt 0 ]; do
         --allow-docker) ALLOW_DOCKER=1 ;;
         --allow-bypass) ALLOW_BYPASS=1 ;;
         --allow-full-internet) ALLOW_FULL_INTERNET=1 ;;
-        # A mistyped --allow-* would otherwise become the task name, leaving
-        # the capability silently off.
+        # Caught here so a typo reports this instead of reaching claude,
+        # which rejects it with an unrelated error.
         --allow-*)
             log_error "unknown capability flag: $1"
             exit 1
             ;;
         --)
             shift
-            CLAUDE_ARGS=("$@")
+            CLAUDE_ARGS+=("$@")
             break
             ;;
         -h | --help)
@@ -79,9 +78,7 @@ while [ $# -gt 0 ]; do
             awk 'NR > 2 && !/^#/ { exit } NR > 2' "$SCRIPT"
             exit 0
             ;;
-        *)
-            if [ -z "$TASK" ]; then TASK="$1"; else CLAUDE_ARGS+=("$1"); fi
-            ;;
+        *) CLAUDE_ARGS+=("$1") ;;
     esac
     shift
 done
@@ -241,7 +238,6 @@ DOCKER_ARGS=(
     -v "$GH_VOLUME:$CONTAINER_HOME/.config/gh"
     -v "$SANDBOX_DIR/allowlist.txt:/etc/allowlist.txt:ro"
     -e "TERM=${TERM:-xterm-256color}"
-    -e "SANDBOX_TASK=${TASK:-}"
     -e "SANDBOX_ALLOW_BYPASS=$ALLOW_BYPASS"
     -e "SANDBOX_ALLOW_FULL_INTERNET=$ALLOW_FULL_INTERNET"
     -e "SANDBOX_STRICT=$STRICT"
@@ -361,4 +357,5 @@ if [ "$SHELL_MODE" = "1" ]; then
 fi
 
 log_info "starting container ($RUN_IMAGE)..."
-exec docker run "${DOCKER_ARGS[@]}" "$RUN_IMAGE" "${CLAUDE_ARGS[@]}"
+exec docker run "${DOCKER_ARGS[@]}" "$RUN_IMAGE" \
+    /usr/local/bin/bootstrap.sh "${CLAUDE_ARGS[@]}"
