@@ -23,6 +23,8 @@ git diff --stat origin/<base-branch>..HEAD         # files changed
 
 Only the listed commits go into the PR — leave unrelated untracked/scratch files alone unless asked.
 
+Commit messages must not carry a `Co-Authored-By: Claude ...` trailer.
+
 ### 2. Push over SSH
 
 ```bash
@@ -37,7 +39,7 @@ If the push fails with an authentication / permission error, the SSH key is like
 gh pr create --base develop --head <branch> --title "<title>" --body "<body>"
 ```
 
-Keep the body **brief** — a short summary of what changed and why, no exhaustive file-by-file detail. Don't state which branch is the base in the body.
+Keep the body **brief** — a short summary of what changed and why, no exhaustive file-by-file detail. Don't state which branch is the base in the body. Never link to a Claude Code session — only the user can open those.
 
 ## Notes
 

@@ -58,6 +58,8 @@ Note which existing commit each fixup belongs to and report that. Follow the rep
 
 Reply to each thread, **prefixing every reply with `Claude:`** so the human author stays distinguishable from the agent.
 
+Keep replies **short and to the point** — a sentence or two: the verdict plus the evidence, no restating the comment, no preamble. Go longer only when the reasoning is genuinely hard to follow and a reader would otherwise be left guessing why the verdict is what it is.
+
 ```bash
 gh api "repos/$OWNER_REPO/pulls/$PR/comments/<comment_id>/replies" -f body="Claude: ..."
 ```

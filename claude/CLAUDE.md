@@ -52,3 +52,5 @@ When executing a multi-step plan, after each step:
 
 Prefer a subject line only. Include a body only when necessary for
 clarification, and keep it brief.
+
+Never add a `Co-Authored-By: Claude ...` trailer.
