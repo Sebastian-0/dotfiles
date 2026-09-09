@@ -54,3 +54,17 @@ Prefer a subject line only. Include a body only when necessary for
 clarification, and keep it brief.
 
 Never add a `Co-Authored-By: Claude ...` trailer.
+
+
+# GitHub Writing
+
+Everything posted to GitHub goes out under the account running the session, so
+prefix every body with `Claude: ` — inline review comments, thread replies,
+issue and PR comments. Once per body, on the first line, not
+per paragraph. Three exceptions: a PR review's summary body, commit messages
+(see above) and PR descriptions.
+
+Keep it terse. A reply is a sentence or two: the verdict and the evidence it
+rests on. Don't restate the comment being answered, don't preamble. Go longer
+only when the reasoning is genuinely hard to follow and a reader would
+otherwise be left guessing.
