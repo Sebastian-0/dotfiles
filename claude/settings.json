@@ -44,6 +44,8 @@
 		"type": "command",
 		"command": "bash \"$HOME/.claude/statusline-command.sh\""
 	},
+	"tui": "fullscreen",
+	"agentPushNotifEnabled": true,
 	"skipAutoPermissionPrompt": true,
 	"hooks": {
 		"PostToolUse": [
