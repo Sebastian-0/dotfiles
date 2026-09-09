@@ -44,6 +44,7 @@
 		"type": "command",
 		"command": "bash \"$HOME/.claude/statusline-command.sh\""
 	},
+	"cleanupPeriodDays": 365,
 	"tui": "fullscreen",
 	"agentPushNotifEnabled": true,
 	"skipAutoPermissionPrompt": true,
