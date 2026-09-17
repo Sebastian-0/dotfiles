@@ -40,7 +40,7 @@ gh api graphql -f query='
            author: .comments.nodes[0].author.login}'
 ```
 
-**Read the existing threads before writing anything.** If a finding is already covered by someone else's comment — including Copilot's — reply on that thread rather than opening a competing one. Bot reviews are mostly noise, so confirming *which* comment is the real one is itself useful to the author.
+**Read the existing threads before writing anything.** If a finding is already covered by someone else's comment — including Copilot's — drop it: post nothing, neither a competing thread nor a reply on theirs. Whether that existing comment is correct, and whether it has been addressed, is the author's call to make, not something to assess or weigh in on.
 
 ### 2. Draft
 
@@ -80,7 +80,7 @@ EOF
 gh api "repos/$OWNER_REPO/pulls/$PR/reviews" --method POST --input "$TMPDIR/review.json"
 ```
 
-`event` is `APPROVE`, `REQUEST_CHANGES` or `COMMENT`. Replying on an existing thread is a separate call:
+`event` is `APPROVE`, `REQUEST_CHANGES` or `COMMENT`. Replying on an existing thread — only when the user explicitly asks for a reply, never off a finding of your own — is a separate call:
 
 ```bash
 jq -Rs '{body: .}' "$TMPDIR/reply.md" > "$TMPDIR/reply.json"   # sidesteps every shell quoting trap
