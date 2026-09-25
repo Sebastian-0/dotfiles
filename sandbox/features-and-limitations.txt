@@ -104,8 +104,8 @@
   .git symlink resolves.
 - The host's *global* git identity is forwarded, so commits are attributed
   correctly without exposing repo-local config.
-- GPUs are passed through automatically when the nvidia container runtime is
-  present.
+- GPUs are passed through automatically when nvidia-smi works on the host
+  (needs nvidia-container-toolkit, but no daemon config).
 - State persists across runs in the named volume, so `claude --resume` works
   after a restart; --fresh gives a clean slate when that is what you want.
 - Preinstalled: node 20, python3/pipx, ripgrep, jq, git, gh (+ gh-stack), vim,

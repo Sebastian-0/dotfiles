@@ -278,12 +278,17 @@ if [ -n "$HOST_GIT_EMAIL" ]; then
     DOCKER_ARGS+=(-e "CLAUDESAFE_GIT_USER_EMAIL=$HOST_GIT_EMAIL")
 fi
 
-# Only request GPUs when Docker actually has the nvidia container runtime
-if docker info --format '{{json .Runtimes}}' 2> /dev/null | grep -q nvidia; then
-    log_info "nvidia runtime detected -- enabling --gpus all"
-    DOCKER_ARGS+=(--gpus all)
+# A driver upgraded without a reboot leaves nvidia-smi failing, and without
+# nvidia-container-toolkit --gpus would fail the whole docker run.
+if ! command -v nvidia-smi > /dev/null; then
+    log_info "no nvidia-smi -- starting without GPU access"
+elif ! nvidia-smi -L > /dev/null 2>&1; then
+    log_info "nvidia-smi present but failing (driver upgraded without a reboot?) -- starting without GPU access"
+elif ! command -v nvidia-container-runtime-hook > /dev/null && ! command -v nvidia-container-toolkit > /dev/null; then
+    log_info "nvidia-container-toolkit missing -- starting without GPU access"
 else
-    log_info "no nvidia runtime -- starting without GPU access"
+    log_info "nvidia-smi works -- enabling --gpus all"
+    DOCKER_ARGS+=(--gpus all)
 fi
 
 # Mount main git folder if we are in a worktree. Note that the main worktree
