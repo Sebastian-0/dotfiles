@@ -12,7 +12,9 @@ LOG_PREFIX=sandbox
 
 CLAUDE_HOST=/workspace/claude-host
 CLAUDE_DIR="$HOME/.claude"
-PROJECT=/workspace/project
+# The project is mounted at its host path, which launch.sh also makes the
+# working directory (-w); remember it before the steps below move around.
+PROJECT="$PWD"
 
 # The firewall is what stops a prompt-injected agent from reaching anything but
 # the allowlist, so skipping it has to be asked for.

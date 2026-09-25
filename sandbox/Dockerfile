@@ -66,7 +66,7 @@ COPY remap-user.sh /usr/local/bin/remap-user.sh
 RUN chmod +x /usr/local/bin/remap-user.sh \
     && /usr/local/bin/remap-user.sh "$SANDBOX_USER" "$HOST_UID" "$HOST_GID"
 
-RUN mkdir -p /workspace/project /workspace/claude-host \
+RUN mkdir -p /workspace/claude-host \
         "/home/$SANDBOX_USER/.claude" \
         "/home/$SANDBOX_USER/.config/gh" \
     && chown -R "$SANDBOX_USER:$SANDBOX_USER" /workspace \
@@ -105,5 +105,6 @@ RUN npm config set prefix /usr/local/share/npm-global \
 
 RUN gh extension install github/gh-stack
 
-WORKDIR /workspace/project
+# launch.sh overrides this with the project's host path (-w).
+WORKDIR /workspace
 CMD ["/usr/local/bin/bootstrap.sh"]

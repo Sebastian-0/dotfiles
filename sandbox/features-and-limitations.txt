@@ -1,6 +1,5 @@
 
 # Limitations
-- All projects are mounted in /workspace/project so project memories are shared between all projects you run. Note that this is actually good if you mount multiple worktrees for the same project.
 - Not specific to the intui repo, so the .claudesafe folder is necessary
 - If the .claudesafe folder doesn't exist in your worktree (or its contents differ) the sandbox will be hampered
 
@@ -43,14 +42,16 @@
   ephemeral and nothing links them in.
 - Editing the host's CLAUDE.md or a skill fails with EROFS, not a permission
   prompt. Those changes have to go through the dotfiles repo on the host.
-  (Exception: when the dotfiles repo *is* $PWD, as it is here, the same files
-  are writable via /workspace/project.)
+  (Exception: when the dotfiles repo *is* $PWD, the same files are writable
+  via the project mount.)
 - ~/.claude is one shared named volume. Two claudesafe sessions running at once
   share history, sessions and .claude.json; --fresh is the only isolation, and
   it also drops the login and the gh token.
-- Project memories are keyed by $PWD, which is always /workspace/project. All
-  projects land in one bucket, and the same repo opened on the host lands in a
-  different one -- the two never merge.
+- Project memories are keyed by $PWD, which is the host path, but they live in
+  the claude-home volume: the host and the container keep separate copies for
+  the same repo, and the two never merge. Each worktree gets its own memories.
+- $PWD can't be under /workspace or /home/ubuntu; launch refuses rather than
+  cover the container's own mounts there.
 - Transcripts are swept at 30 days unless cleanupPeriodDays is set in the
   host's ~/.claude/settings.json, which is mounted ro -- the container cannot
   set it for itself.
@@ -69,7 +70,7 @@
 
 ## Isolation
 - Everything runs in a throwaway container; only $PWD is writable on the host,
-  and it is mounted directly, so edits are real edits -- no copy, no worktree,
+  and it is mounted directly at its host path, so edits are real edits -- no copy, no worktree,
   no sync step. Works whether or not $PWD is a git repo.
 - Default-deny egress firewall applied at boot from allowlist.txt, which is
   mounted fresh each run -- adding a domain needs no rebuild.

@@ -1,10 +1,11 @@
 #!/bin/bash
 # `claudesafe` -- launch Claude Code in the sandbox container.
 #
-# Bind-mounts the current directory ($PWD) as /workspace/project inside the
-# container. Claude runs in auto mode, so it still classifies each tool call;
-# the firewall + named-volume ~/.claude + container isolation bound the blast
-# radius. Files Claude creates/edits land directly in $PWD on the host.
+# Bind-mounts the current directory ($PWD) at the same path inside the
+# container, so paths and project memories match the host. Claude runs in
+# auto mode, so it still classifies each tool call; the firewall +
+# named-volume ~/.claude + container isolation bound the blast radius.
+# Files Claude creates/edits land directly in $PWD on the host.
 #
 # Per-project customization:
 #   .claudesafe/Dockerfile        # built first; becomes the BASE for the claudesafe layer
@@ -213,7 +214,15 @@ docker build $NO_CACHE \
     -t "$RUN_IMAGE" \
     "$SANDBOX_DIR"
 
-log_info "mounting $WORKSPACE_SRC as /workspace/project (changes hit the real folder)"
+# The project is mounted at its host path; these would cover the
+# container's own mounts.
+case "$WORKSPACE_SRC" in
+    /workspace | /workspace/* | "$CONTAINER_HOME" | "$CONTAINER_HOME"/*)
+        log_error "can't mount $WORKSPACE_SRC at its host path -- it would shadow part of the container"
+        exit 1
+        ;;
+esac
+log_info "mounting $WORKSPACE_SRC at the same path (changes hit the real folder)"
 
 # Named volumes for ~/.claude and ~/.config/gh. --fresh gives a unique volume
 # per session so state doesn't persist or collide with parallel containers.
@@ -233,7 +242,8 @@ DOCKER_ARGS=(
     --rm -it
     --cap-add=NET_ADMIN
     --cap-add=NET_RAW
-    -v "$WORKSPACE_SRC:/workspace/project"
+    -v "$WORKSPACE_SRC:$WORKSPACE_SRC"
+    -w "$WORKSPACE_SRC"
     -v "$VOLUME:$CONTAINER_HOME/.claude"
     -v "$GH_VOLUME:$CONTAINER_HOME/.config/gh"
     -v "$SANDBOX_DIR/allowlist.txt:/etc/allowlist.txt:ro"
@@ -291,8 +301,8 @@ else
     DOCKER_ARGS+=(--gpus all)
 fi
 
-# Mount main git folder if we are in a worktree. Note that the main worktree
-# is mounted on the path where it exists on the host to make the .git symlink happy
+# Mount main git folder if we are in a worktree. Like the project, it is
+# mounted at its host path so the worktree's .git link resolves.
 if git rev-parse --is-inside-work-tree > /dev/null 2>&1; then
     GIT_COMMON_DIR="$(readlink -f "$(git rev-parse --git-common-dir)")"
     case "$GIT_COMMON_DIR" in

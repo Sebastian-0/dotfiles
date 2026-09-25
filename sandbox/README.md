@@ -17,8 +17,9 @@ permission checks entirely.
   npm, GitHub's published IP ranges, etc.) -- unless `--allow-full-internet`.
   `--strict` goes the other way and cuts egress down to Claude Code's own
   endpoints, see [Strict mode](#strict-mode).
-- **Bind-mounts `$PWD` as `/workspace/project`** -- Claude's edits land
-  directly in the current folder on the host. No worktree, no copy. Works
+- **Bind-mounts `$PWD` at the same path inside the container** -- Claude's
+  edits land directly in the current folder on the host, and paths (so also
+  project memories) match the host's. No worktree, no copy. Works
   whether or not the folder is a git repo. If you want a throwaway copy,
   make one yourself (`cp -r`, `git worktree`, etc.) and `cd` there first.
 - Mounts individual items from your host `~/.claude/` (settings.json,
