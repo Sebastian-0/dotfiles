@@ -18,7 +18,7 @@ if which exa >&/dev/null || which eza >&/dev/null; then
     alias lt='exa -hlT --git'
 else
     alias ll='ls -alF'
-    alias l='ls -CF'
+    alias l='ls -F' # Dropped -C (column output) because eza doesn't have this flag
 fi
 
 # Vim aliases
