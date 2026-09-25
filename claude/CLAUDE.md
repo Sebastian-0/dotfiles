@@ -48,6 +48,18 @@ When executing a multi-step plan, after each step:
 - Commit (may need SSH key authentication - ask user for help)
 
 
+# Code Review
+
+A feature we discussed and then built gets reviewed before the PR is presented
+-- the review is part of "done". Small or incidental changes do not need one.
+
+Run `/code-review` for it, on Opus, rather than a hand-rolled review agent.
+Relay the findings, fix what we agree on, then push, and note in the PR body
+that it was reviewed.
+
+Do NOT re-review after acting on a review's findings. One review per feature.
+
+
 # Commit Messages
 
 Prefer a subject line only. Include a body only when necessary for

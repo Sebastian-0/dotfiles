@@ -1,7 +1,8 @@
 {
 	"env": {
 		"EDITOR": "nvim",
-		"VISUAL": "nvim"
+		"VISUAL": "nvim",
+		"CLAUDE_CODE_SUBAGENT_MODEL": "opus"
 	},
 	"permissions": {
 		"allow": [
