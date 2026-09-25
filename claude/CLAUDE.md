@@ -53,11 +53,14 @@ When executing a multi-step plan, after each step:
 A feature we discussed and then built gets reviewed before the PR is presented
 -- the review is part of "done". Small or incidental changes do not need one.
 
+Work that runs in stages gets reviewed at the end of each stage, not once at
+the end -- a problem found in the finished product has already been built on.
+
 Run `/code-review` for it, on Opus, rather than a hand-rolled review agent.
 Relay the findings, fix what we agree on, then push, and note in the PR body
 that it was reviewed.
 
-Do NOT re-review after acting on a review's findings. One review per feature.
+Do NOT re-review a stage after acting on its findings. One review per stage.
 
 
 # Commit Messages
