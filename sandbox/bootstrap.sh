@@ -42,24 +42,7 @@ link_if_present() {
     fi
 }
 
-# settings.json is generated (not symlinked) so we can layer container-only
-# overrides on top of the host settings without touching the host file.
-# - skipDangerousModePermissionPrompt: suppress the warning shown when
-#   permission checks are bypassed. Safe inside this container because the
-#   firewall + read-only claude-host mount + bounded $PWD mount cap the blast radius.
-# - env.EDITOR/VISUAL: host config uses nvim; the container only ships vim,
-#   so override both for tools like `git commit` that respect $EDITOR.
-if [ -f "$CLAUDE_HOST/settings.json" ]; then
-    # rm first: the dest may be a stale symlink from an earlier bootstrap
-    # pointing into the read-only claude-host mount, which would make the
-    # redirect below fail with EROFS.
-    rm -f "$CLAUDE_DIR/settings.json"
-    jq '. + {skipDangerousModePermissionPrompt: true}
-          | .env.EDITOR = "vim"
-          | .env.VISUAL = "vim"' \
-        "$CLAUDE_HOST/settings.json" > "$CLAUDE_DIR/settings.json"
-fi
-
+link_if_present "$CLAUDE_HOST/settings.json" "$CLAUDE_DIR/settings.json"
 link_if_present "$CLAUDE_HOST/CLAUDE.md" "$CLAUDE_DIR/CLAUDE.md"
 link_if_present "$CLAUDE_HOST/statusline-command.sh" "$CLAUDE_DIR/statusline-command.sh"
 link_if_present "$CLAUDE_HOST/skills" "$CLAUDE_DIR/skills"
