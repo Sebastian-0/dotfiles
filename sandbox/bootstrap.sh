@@ -95,10 +95,10 @@ fi
 # Auto mode by default, so a destructive call still surfaces instead of running
 # silently. --allow-dangerously-skip-permissions makes bypass available to
 # switch to mid-session without enabling it up front.
-PERMISSION_ARGS=(--permission-mode auto --allow-dangerously-skip-permissions)
+PERMISSION_ARGS=(--permission-mode auto)
 if [ "${SANDBOX_ALLOW_BYPASS:-0}" = "1" ]; then
     log_info "--allow-bypass -- starting with all permission checks off"
-    PERMISSION_ARGS=(--dangerously-skip-permissions)
+    PERMISSION_ARGS=(--allow-dangerously-skip-permissions --dangerously-skip-permissions)
 fi
 
 exec claude \
