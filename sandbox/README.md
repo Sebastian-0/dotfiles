@@ -26,6 +26,8 @@ permission checks entirely.
   CLAUDE.md, statusline-command.sh, skills, plugins, agents, commands)
   read-only at `/workspace/claude-host/` and symlinks them into the
   container's `~/.claude/` so behavior matches your host Claude.
+- Mounts `~/.claude/projects/<project>` read-write, so Claude's memory and
+  sessions for the current folder are shared with the host.
 - Uses a named volume (`claude-home`) for history/cache/sessions **and**
   credentials. The host's `~/.claude/.credentials.json` is never mounted --
   log in once with `claude login` inside the container and the token persists
@@ -196,7 +198,8 @@ ignore the file and allow only Claude Code's endpoints, use `--strict`.
 ## What's NOT exposed to the container
 
 - `~/.claude/history.jsonl` (conversation PII)
-- `~/.claude/projects/`, `sessions/`, `cache/`, `backups/`, `file-history/`
+- `~/.claude/projects/` other than the current project's own folder, and
+  `sessions/`, `cache/`, `backups/`, `file-history/`
 - `~/.config/gh` (the sandbox uses its own `gh` identity in `claude-gh`)
 - `~/.ssh` and your personal SSH key (the sandbox uses its own dedicated key;
   only that key's agent socket is forwarded in, never any key material)

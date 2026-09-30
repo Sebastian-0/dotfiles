@@ -314,6 +314,13 @@ if git rev-parse --is-inside-work-tree > /dev/null 2>&1; then
     esac
 fi
 
+# Claude's memory and sessions for this project, shared with the host. Created
+# first, or docker creates it as root.
+PROJECT_SLUG="${WORKSPACE_SRC//[^A-Za-z0-9]/-}"
+HOST_PROJECT_DIR="$HOME/.claude/projects/$PROJECT_SLUG"
+mkdir -p "$HOST_PROJECT_DIR"
+DOCKER_ARGS+=(-v "$HOST_PROJECT_DIR:$CONTAINER_HOME/.claude/projects/$PROJECT_SLUG")
+
 # Mount individual host ~/.claude items read-only into /workspace/claude-host/.
 # bootstrap.sh links these into the named volume at $HOME/.claude.
 # Docker follows host-side symlinks at mount time, so ~/.claude/skills (a
