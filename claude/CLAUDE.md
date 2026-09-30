@@ -68,7 +68,8 @@ Do NOT re-review a stage after acting on its findings. One review per stage.
 Prefer a subject line only. Include a body only when necessary for
 clarification, and keep it brief.
 
-Never add a `Co-Authored-By: Claude ...` trailer.
+Never add a `Co-Authored-By: Claude ...` trailer, and never add a Claude
+session line (session id, session link, or similar).
 
 
 # GitHub Writing
