@@ -1,0 +1,113 @@
+
+# Limitations
+- All projects are mounted in /workspace/project so project memories are shared between all projects you run. Note that this is actually good if you mount multiple worktrees for the same project.
+- Not specific to the intui repo, so the .claudesafe folder is necessary
+- If the .claudesafe folder doesn't exist in your worktree (or its contents differ) the sandbox will be hampered
+
+## Layering
+- Claude Code's own bubblewrap sandbox does not work in here: docker's default
+  seccomp profile denies unshare(CLONE_NEWUSER) for a uid-1000 process with no
+  effective caps. Every Bash call fails with "No permissions to create new
+  namespace" until it is retried with dangerouslyDisableSandbox. So there is
+  exactly one boundary -- the container -- not two.
+- claude runs as PID 1 (bootstrap execs it). No init, so no zombie reaping, and
+  quitting claude tears down the container (--rm) along with every background
+  job in it.
+- ubuntu is in the sudo group, so `sudo -l` advertises (ALL : ALL) ALL, but no
+  password is set -- only the NOPASSWD list (init-firewall, apt/apt-get/dpkg/
+  pip/pip3) is actually usable.
+- The base image must be Debian/Ubuntu-derived and already have an `ubuntu`
+  user; the claudesafe layer only remaps it, it does not create it.
+
+## Network
+- DNS is wide open outside --strict: any domain resolves, straight to the host's
+  LAN resolver. Egress filtering therefore does not close the DNS exfil channel;
+  only --strict pins queries to /etc/resolv.conf.
+- The allowlist is resolved to IPs once, at container start. Domains behind
+  rotating IPs or a CDN break mid-session, and adding a domain means restarting.
+- The ruleset is IPv4-only; IPv6 is left unfiltered except under --strict.
+- The host-network rule derives a /24 from the default gateway, but the docker
+  bridge is a /16 -- sibling containers outside 172.17.0.x are unreachable.
+- The allowlist bounds *where* data can go, not *whether* it leaves. github.com
+  and pypi.org are writable destinations (gists, PRs, forks), so a prompt
+  injection still has somewhere to push a repo.
+- --allow-docker hands over the host daemon, which is host root; it undoes
+  everything above. --allow-full-internet removes the filter entirely.
+- --strict has still only been exercised against stub iptables/dig/curl
+  binaries. No real container run has confirmed it boots and connects.
+
+## State and config
+- /workspace/claude-host is not itself a mount -- only the individual entries
+  (settings.json, CLAUDE.md, skills, plugins, hooks, statusline) are ro binds.
+  The directory is writable, so files can be created there, but they are
+  ephemeral and nothing links them in.
+- Editing the host's CLAUDE.md or a skill fails with EROFS, not a permission
+  prompt. Those changes have to go through the dotfiles repo on the host.
+  (Exception: when the dotfiles repo *is* $PWD, as it is here, the same files
+  are writable via /workspace/project.)
+- ~/.claude is one shared named volume. Two claudesafe sessions running at once
+  share history, sessions and .claude.json; --fresh is the only isolation, and
+  it also drops the login and the gh token.
+- Project memories are keyed by $PWD, which is always /workspace/project. All
+  projects land in one bucket, and the same repo opened on the host lands in a
+  different one -- the two never merge.
+- Transcripts are swept at 30 days unless cleanupPeriodDays is set in the
+  host's ~/.claude/settings.json, which is mounted ro -- the container cannot
+  set it for itself.
+- Nothing outside $PWD is reachable: sibling repos, host dotfiles, ~/.ssh,
+  ~/.config/gh, the host's Anthropic credentials.
+- The image is tagged per-project *and* per-UID, so the first run in a new
+  worktree pays a full build, and --rebuild is --no-cache (minutes).
+- This repo contains the sandbox's own source and is mounted rw, so a session
+  can edit the scripts that define its confinement. Harmless in practice -- the
+  edits only take effect on the next launch, which happens on the host.
+- Needs a TTY. `claudesafe -p "..."` without --allow-bypass can stall forever on
+  a permission prompt nobody is there to answer.
+
+
+# Features
+
+## Isolation
+- Everything runs in a throwaway container; only $PWD is writable on the host,
+  and it is mounted directly, so edits are real edits -- no copy, no worktree,
+  no sync step. Works whether or not $PWD is a git repo.
+- Default-deny egress firewall applied at boot from allowlist.txt, which is
+  mounted fresh each run -- adding a domain needs no rebuild.
+- The firewall self-verifies before claude starts (example.com must fail,
+  api.anthropic.com must succeed, and under --strict github.com must fail), so a
+  ruleset that silently did not apply fails closed.
+- Three egress tiers: --strict (Claude Code's own endpoints only), default
+  (baseline + allowlist + GitHub's published ranges), --allow-full-internet.
+- Auto mode by default, so risky calls still surface; bypass stays available
+  mid-session via shift+tab, or up front with --allow-bypass for unattended runs.
+
+## Credentials
+- Three separate identities, none of them the host's: the Anthropic token lives
+  in the claude-home volume, the gh token in claude-gh, and git-over-SSH uses a
+  dedicated key. Each is revocable on its own.
+- The SSH key never enters the container -- only its agent socket is forwarded,
+  from an agent kept separate from the personal one. The key is encrypted at
+  rest and auto-expires (CLAUDESAFE_SSH_EXPIRY, default 10h); `claudesafe
+  --unlock` re-arms it for an already-running session.
+- GitHub's host key is pre-trusted, so git push/pull over SSH does not prompt.
+
+## Ergonomics
+- Host ~/.claude config (settings.json, CLAUDE.md, skills, plugins, hooks,
+  agents, commands, statusline) is mounted ro and symlinked in, so behaviour
+  matches the host.
+- The runtime user is remapped to the host UID/GID, so files Claude creates are
+  owned by the host user on both sides.
+- Per-project setup without touching the sandbox: .claudesafe/Dockerfile or
+  .claudesafe/base-image.sh supplies the base image, .claudesafe/mounts adds
+  bind mounts.
+- Git worktrees work -- the shared git dir is mounted at its host path so the
+  .git symlink resolves.
+- The host's *global* git identity is forwarded, so commits are attributed
+  correctly without exposing repo-local config.
+- GPUs are passed through automatically when the nvidia container runtime is
+  present.
+- State persists across runs in the named volume, so `claude --resume` works
+  after a restart; --fresh gives a clean slate when that is what you want.
+- Preinstalled: node 20, python3/pipx, ripgrep, jq, git, gh (+ gh-stack), vim,
+  kitty-terminfo. apt/pip installs work through sudo against the allowlisted
+  Ubuntu mirrors.
