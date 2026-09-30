@@ -60,7 +60,20 @@ Run `/code-review` for it, on Opus, rather than a hand-rolled review agent.
 Relay the findings, fix what we agree on, then push, and note in the PR body
 that it was reviewed.
 
+Not every review finding is worth fixing. For each one, name the input that
+would actually reach it -- if that is a case this system will never see, leave
+it and say so. An edge case that cannot occur is not worth the complexity of
+the fix. Fix the clearly-real findings; list the rest with the reason and let
+the user choose.
+
 Do NOT re-review a stage after acting on its findings. One review per stage.
+
+
+# "Merge" Means A PR
+
+"Merge", "land" and "ship it" mean push the branch and open a PR via the
+`push-and-pr` skill, targeting the default branch unless told otherwise. Never
+merge into a local default branch -- that skips the PR record and CI.
 
 
 # Commit Messages
