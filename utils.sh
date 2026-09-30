@@ -28,7 +28,7 @@ symlink_path() {
         if [ -e "$path/$name" ]; then
             echo "WARNING: The folder $path/$name exists! Continuing will delete it."
             echo ""
-            read -rp "Press enter to continue..."
+            if [ -t 0 ]; then read -rp "Press enter to continue..."; fi
         fi
         rm -rf "${path:?}/$name"
         ln -s "$PWD/$target" "$path/$name"
