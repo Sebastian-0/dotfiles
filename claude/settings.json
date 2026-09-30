@@ -50,6 +50,17 @@
 	"agentPushNotifEnabled": true,
 	"skipAutoPermissionPrompt": true,
 	"hooks": {
+		"SessionStart": [
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "bash \"$HOME/.claude/hooks/claude-memory-link.sh\"",
+						"timeout": 10
+					}
+				]
+			}
+		],
 		"PostToolUse": [
 			{
 				"matcher": "Write|Edit",
