@@ -46,3 +46,6 @@ developer.download.nvidia.com
 
 # Pytorch mirror
 download.pytorch.org
+
+# Linear
+api.linear.app
