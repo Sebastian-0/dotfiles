@@ -97,3 +97,12 @@ Keep it terse. A reply is a sentence or two: the verdict and the evidence it
 rests on. Don't restate the comment being answered, don't preamble. Go longer
 only when the reasoning is genuinely hard to follow and a reader would
 otherwise be left guessing.
+
+
+# Abbreviations
+
+Shorthand I may use in a prompt. It can appear anywhere in the message and
+applies to that message only.
+
+- `DCJA` = Don't code, just answer. Explain, investigate, quote the code --
+  but change nothing on disk.
