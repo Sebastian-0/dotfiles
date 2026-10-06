@@ -47,10 +47,32 @@ gh api graphql -f query='
 Draft to a scratchpad file, not to GitHub.
 
 - **Summary body**: brief. "LGTM", "LGTM, one thing to fix first", or similar. It is not where findings go — reviewers do not look there for actions. **No `Claude:` prefix on the summary body**; it is the one GitHub exception.
-- **Each finding**: an inline comment on the exact line, prefixed `Claude: `, a sentence or two, carrying a ` ```suggestion ` block so the author can click-apply it. Include the evidence that settles it (repro output, the command run) and nothing more — no restating the diagnosis, no rationale essay.
+- **Each finding**: an inline comment, prefixed `Claude: `, written the way a
+  colleague would leave it — usually one sentence, often a question ("Maybe
+  only rebuild when the value changed?"). Name the problem and the direction
+  of the fix; trust the author to work out the consequences. No failure
+  narrative, no history of what the code did before.
+  - Anchor it on the line where the fix goes, not where the cause is — the
+    GitHub UI accepts unchanged lines too, by expanding the diff context.
+  - Back a non-obvious claim about a library or API with a link to its docs
+    (pinned to the version in use) rather than restating it. Match the
+    confidence to what you verified.
+  - One concrete, actionable point per comment. Drop speculative findings
+    ("if the env sends unread channels...") unless the author can act on
+    them.
+  - A ` ```suggestion ` block only when the fix is mechanical and unambiguous;
+    otherwise leave the how to the author.
 - **Must-fix items have to end up as unresolved inline threads.** An approval whose only blocking note sits in the summary body lets the fix slip through; unresolved conversations are what gate the merge.
 
 A suggestion block replaces the comment's whole anchor range (`start_line`..`line`), so it must contain **every** line of that range at the original indentation. One mechanical fix in three places is one comment plus "same swap on lines N and M" — not three threads.
+
+### Adding to the user's pending review
+
+When asked to add to a review the user already started, never create a new
+review. Use GraphQL `addPullRequestReviewThread` with the pending review's
+`pullRequestReviewId`, check after the first one that it landed in that
+review, and stop if it didn't. Never submit it. The user may reword the
+comments afterwards — read their edits, they show the style to aim for.
 
 ### 3. Get sign-off — mandatory
 
