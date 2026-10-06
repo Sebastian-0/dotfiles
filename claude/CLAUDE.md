@@ -78,11 +78,32 @@ merge into a local default branch -- that skips the PR record and CI.
 
 # Commit Messages
 
-Prefer a subject line only. Include a body only when necessary for
-clarification, and keep it brief.
+The subject line names the ONE core change: the point of the commit, not an
+inventory of it. Most commits are a subject and nothing else. Never pack
+several changes into the subject -- a `;` or an "and also" there means the
+rest belongs in a body.
 
-Never add a `Co-Authored-By: Claude ...` trailer, and never add a Claude
-session line (session id, session link, or similar).
+Add a body when the commit carries more than its theme. Either list the
+secondary changes, naming only the ones a reader would care about:
+
+    Lock the screen with the real wallpaper
+
+    Also changed:
+    - Lock blurs instead of pixelating
+    - Added a 5s grace period
+    - Removed the old screenshot helper
+
+or, when the point is WHY, write that as prose:
+
+    Lock the screen with the real wallpaper
+
+    The screenshot path raced with the compositor on resume, so the lock
+    sometimes showed a stale frame.
+
+Keep the body brief and to the point either way.
+
+Never add a `Co-Authored-By: Claude ...` trailer
+Never add a `Claude-Session: ...` trailer
 
 
 # GitHub Writing
