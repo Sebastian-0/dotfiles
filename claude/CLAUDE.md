@@ -102,6 +102,16 @@ or, when the point is WHY, write that as prose:
 
 Keep the body brief and to the point either way.
 
+Follow the seven rules from https://cbea.ms/git-commit/:
+- Separate subject from body with a blank line
+- Limit the subject line to 50 characters
+- Capitalize the subject line
+- Do not end the subject line with a period
+- Use the imperative mood: "If applied, this commit will <subject>" must
+  read as a sentence
+- Wrap the body at 72 characters
+- Use the body to explain what and why, not how -- the diff shows how
+
 Never add a `Co-Authored-By: Claude ...` trailer
 Never add a `Claude-Session: ...` trailer
 
