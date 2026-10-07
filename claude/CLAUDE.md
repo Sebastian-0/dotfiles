@@ -100,7 +100,19 @@ or, when the point is WHY, write that as prose:
     The screenshot path raced with the compositor on resume, so the lock
     sometimes showed a stale frame.
 
-Keep the body brief and to the point either way.
+When the main change needs a why AND other work came along, use both: the
+prose first, then the list:
+
+    Lock the screen with the real wallpaper
+
+    The screenshot path raced with the compositor on resume, so the lock
+    sometimes showed a stale frame.
+
+    Also changed:
+    - Lock blurs instead of pixelating
+    - Added a 5s grace period
+
+Keep the body brief and to the point in every case.
 
 Follow the seven rules from https://cbea.ms/git-commit/:
 - Separate subject from body with a blank line
