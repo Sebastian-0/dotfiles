@@ -23,6 +23,9 @@ productionresultssa8.blob.core.windows.net
 productionresultssa5.blob.core.windows.net
 azureopendatastorage.blob.core.windows.net
 
+# Other git sources
+codeberg.org
+
 # Anthropic docs (useful during Claude sessions)
 docs.anthropic.com
 
@@ -49,3 +52,11 @@ download.pytorch.org
 
 # Linear
 api.linear.app
+
+# Playwright browser downloads
+cdn.playwright.dev
+playwright.download.prss.microsoft.com
+storage.googleapis.com
+
+# Hosting
+netlify.com
