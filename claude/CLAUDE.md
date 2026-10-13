@@ -125,5 +125,5 @@ otherwise be left guessing.
 Shorthand I may use in a prompt. It can appear anywhere in the message and
 applies to that message only.
 
-- `DCJA` = Don't code, just answer. Explain, investigate, quote the code --
+- `DAJA` = Don't act, just answer. Explain, investigate, quote the code --
   but change nothing on disk.
