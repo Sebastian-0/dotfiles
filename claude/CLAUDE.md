@@ -120,6 +120,15 @@ Never add a `Co-Authored-By: Claude ...` trailer
 Never add a `Claude-Session: ...` trailer
 
 
+# PR Descriptions
+
+PR titles and descriptions follow the same rules as commit messages, with one
+exception: do NOT hard-wrap lines. GitHub reflows the text, so manual breaks
+only make it ragged.
+
+Never add a `🤖 Generated with [Claude Code](...)` line.
+
+
 # GitHub Writing
 
 Everything posted to GitHub goes out under the account running the session, so
