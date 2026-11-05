@@ -62,6 +62,23 @@ if [ -n "${CLAUDESAFE_GIT_USER_EMAIL:-}" ]; then
     git config --global user.email "$CLAUDESAFE_GIT_USER_EMAIL"
 fi
 
+# GitHub goes over the sandbox's own gh token; strict mode blocks GitHub.
+if [ "${SANDBOX_STRICT:-0}" != "1" ] && ! gh auth token > /dev/null 2>&1; then
+    log_info "no GitHub token in the sandbox -- log in with gh (stored in the claude-gh volume)"
+    gh auth login --hostname github.com --git-protocol https --web \
+        || log_warn "gh login failed -- continuing without GitHub access"
+fi
+
+# Only this container's global config is changed: .git/config keeps the ssh
+# URL, so the host still uses ssh for the same checkout.
+if gh auth token > /dev/null 2>&1; then
+    git config --global --unset-all url.https://github.com/.insteadOf || true
+    git config --global --add url.https://github.com/.insteadOf git@github.com:
+    git config --global --add url.https://github.com/.insteadOf ssh://git@github.com/
+    git config --global --unset-all credential.https://github.com.helper || true
+    git config --global --add credential.https://github.com.helper '!gh auth git-credential'
+fi
+
 # SSH auth comes from the host's forwarded agent (launch.sh); no key lives here.
 # Pre-trust GitHub's host key so git-over-SSH doesn't prompt (TOFU).
 mkdir -p "$HOME/.ssh"

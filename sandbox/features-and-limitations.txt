@@ -84,13 +84,15 @@
 
 ## Credentials
 - Three separate identities, none of them the host's: the Anthropic token lives
-  in the claude-home volume, the gh token in claude-gh, and git-over-SSH uses a
-  dedicated key. Each is revocable on its own.
+  in the claude-home volume, the gh token in claude-gh (asked for at startup
+  when missing; GitHub git goes over https with it), and an optional dedicated
+  SSH key. Each is revocable on its own.
+- The SSH key is only created and unlocked by `claudesafe --ssh-unlock`;
+  a launch never prompts for it.
 - The SSH key never enters the container -- only its agent socket is forwarded,
   from an agent kept separate from the personal one. The key is encrypted at
   rest and auto-expires (CLAUDESAFE_SSH_EXPIRY, default 10h); `claudesafe
-  --unlock` re-arms it for an already-running session.
-- GitHub's host key is pre-trusted, so git push/pull over SSH does not prompt.
+  --ssh-unlock` re-arms it for an already-running session.
 
 ## Ergonomics
 - Host ~/.claude config (settings.json, CLAUDE.md, skills, plugins, hooks,

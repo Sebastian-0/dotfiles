@@ -38,10 +38,14 @@ permission checks entirely.
   separate from `claude-home` so the two auth domains have independent
   lifecycles. The host's `~/.config/gh` is never mounted; the sandbox holds
   its own gh token, revocable separately. `--fresh` also resets this volume.
-- For git-over-SSH, forwards a **dedicated** ssh-agent from the host that
+- Sends GitHub git traffic (even `git@github.com:` remotes) over https with
+  that gh token, prompting for `gh auth login` at startup when there is none.
+  See [GitHub over the token](#github-over-the-token).
+- Optionally, for SSH, forwards a **dedicated** ssh-agent from the host that
   holds a sandbox-only key (passphrase-encrypted, separate from your personal
-  key, isolated from your normal agent). Only the agent socket enters the
-  container, never the key material. See [SSH access](#ssh-access) below.
+  key, isolated from your normal agent). It only exists once you run
+  `claudesafe --ssh-unlock`. Only the agent socket enters the container, never
+  the key material. See [SSH access](#ssh-access) below.
 
 ## Per-project customization
 
@@ -220,14 +224,25 @@ If you'd rather pass an API key instead, export `ANTHROPIC_API_KEY` on the
 host before running `claudesafe` -- it's forwarded into the container and
 overrides the OAuth flow.
 
-For GitHub access, run `gh auth login` once inside the sandbox. The token
-lands in the `claude-gh` named volume and is reused by every container that
+For GitHub access, `bootstrap.sh` runs `gh auth login` at startup whenever
+the sandbox has no token (skipped under `--strict`). The token lands in the `claude-gh` named volume and is reused by every container that
 shares it. The host's `~/.config/gh` is never mounted, so the sandbox token
 is a distinct identity -- scope it down or revoke it independently of your
 host token from GitHub's settings page.
 
+## GitHub over the token
+
+Once the sandbox has a gh token, `bootstrap.sh` rewrites `git@github.com:`
+and `ssh://git@github.com/` to `https://github.com/` in the container's
+global git config, with `gh auth git-credential` as the credential helper.
+`.git/config` keeps the ssh URL, so the host keeps using ssh for the same
+checkout. If the startup login fails or is cancelled, the session still
+starts, just without GitHub access.
+
 ## SSH access
 
+SSH is optional: GitHub doesn't need it. It is for other hosts reached over
+ssh, and nothing about it happens unless you run `claudesafe --ssh-unlock`.
 The sandbox authenticates over SSH with a **dedicated key** that lives on the
 host, separate from your personal key. The key material never enters the
 container -- `launch.sh` loads it into its own ssh-agent on the host and
@@ -235,8 +250,8 @@ forwards only the agent *socket* in (`SSH_AUTH_SOCK -> /ssh-agent.sock`). The
 container can ask the agent to sign while the key is unlocked, but cannot read
 the key itself.
 
-**First run.** `launch.sh` generates `~/.ssh/claudesafe_ed25519` on the host
-and prompts for a passphrase (the key is encrypted at rest), then prints the
+**First `--ssh-unlock`.** `launch.sh` generates `~/.ssh/claudesafe_ed25519`
+on the host and prompts for a passphrase (the key is encrypted at rest), then prints the
 public key:
 
 ```
@@ -248,29 +263,27 @@ Copy it into GitHub (Settings > SSH and GPG keys). Add it as a **signing key**
 too if you want the sandbox's commits to show as verified. It's a distinct,
 independently-revocable identity -- it can't authenticate or sign as *you*.
 
-**Unlocking.** Each launch, `launch.sh` ensures a dedicated ssh-agent (kept
+**Unlocking.** `claudesafe --ssh-unlock` starts a dedicated ssh-agent (kept
 separate from your personal agent, so the personal key is never reachable)
-holds the key, prompting for the passphrase if needed. The key is
-added with a timeout (`CLAUDESAFE_SSH_EXPIRY`, default 10h) and auto-expires
-like the personal-key workflow -- subsequent launches within the window reuse
-it without re-prompting. If you skip the passphrase, the sandbox still starts,
-just without git-over-SSH.
+and adds the key to it, prompting for the passphrase. The key is added with a
+timeout (`CLAUDESAFE_SSH_EXPIRY`, default 10h) and auto-expires like the
+personal-key workflow. A launch never prompts: it forwards the agent if one is
+running, locked or not, and starts without SSH otherwise.
 
 **Re-unlocking after the timeout.** Unlocking is always host-side -- the
-container only has the forwarded socket, never the key or passphrase. To start
-a new session, just run `claudesafe` again (it re-prompts if the key expired).
-To re-enable SSH in an **already-running** session without restarting it, run
-`claudesafe --unlock` from another host terminal: it re-adds the key to the
-same persistent agent, and because the running container forwards that same
-socket, git-over-SSH works again immediately.
+container only has the forwarded socket, never the key or passphrase. Run
+`claudesafe --ssh-unlock` from another host terminal: it re-adds the key to the
+same persistent agent, and because a running container forwards that same
+socket, SSH works again immediately. A session started while no agent was
+running has no socket, so it needs a restart to get SSH.
 
 Under `--strict` none of this applies: outbound SSH is blocked, so the agent
-socket isn't forwarded and no passphrase is asked for.
+socket isn't forwarded.
 
 The firewall already allows outbound port 22, and `bootstrap.sh` pre-trusts
-GitHub's host key, so `git push`/`git pull` over SSH work with no prompts. To
-rotate the key, delete `~/.ssh/claudesafe_ed25519*` on the host (the next run
-regenerates it; re-register on GitHub).
+GitHub's host key, so SSH to GitHub works with no prompts when there is no gh
+token. To rotate the key, delete `~/.ssh/claudesafe_ed25519*` on the host (the
+next `--ssh-unlock` regenerates it; re-register on GitHub).
 
 Why a dedicated key + agent rather than the simpler alternatives? Forwarding
 your *personal* agent would expose your real identity (it signs your commits

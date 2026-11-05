@@ -8,8 +8,8 @@ Push the current branch and open a PR against the repo's default branch unless t
 ## Key facts about the remote
 
 - The base / default branch must be verified (e.g. by `gh repo view --json defaultBranchRef -q .defaultBranchRef.name`). 
-- `origin` is an **SSH** remote. This VM has its own SSH key, so `git push` over SSH works directly.
-- If the SSH key is **locked**, the push fails with an auth/permission error. Ask the user to run `claudesafe --unlock`, then retry the push.
+- `origin` may be an SSH URL, but in the sandbox git sends GitHub traffic over https with the sandbox's gh token, so `git push` needs no SSH key.
+- If the push fails with an auth/permission error, check `gh auth status`; if the token is missing or expired, ask the user to run `gh auth login`, then retry.
 
 ## Steps
 
@@ -25,13 +25,13 @@ Only the listed commits go into the PR — leave unrelated untracked/scratch fil
 
 Commit messages must not carry a `Co-Authored-By: Claude ...` trailer.
 
-### 2. Push over SSH
+### 2. Push
 
 ```bash
 git push -u origin <branch>
 ```
 
-If the push fails with an authentication / permission error, the SSH key is likely locked — ask the user to run `claudesafe --unlock` and retry.
+If the push fails with an authentication / permission error, see `gh auth status` and ask the user to run `gh auth login`, then retry.
 
 ### 3. Create the PR
 

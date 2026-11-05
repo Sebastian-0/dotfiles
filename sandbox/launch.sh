@@ -19,7 +19,7 @@
 #   claudesafe --shell               # drop to bash inside the container
 #   claudesafe --fresh               # use a per-session ~/.claude volume
 #   claudesafe --rebuild             # force rebuild of the image
-#   claudesafe --unlock              # re-unlock the sandbox SSH key, then exit
+#   claudesafe --ssh-unlock          # create/unlock the optional sandbox SSH key, then exit
 #   claudesafe --strict              # block everything but Claude Code's own endpoints
 #   claudesafe --allow-docker        # expose the host Docker socket (DANGEROUS)
 #   claudesafe --allow-bypass        # run Claude with all permission checks off
@@ -45,7 +45,7 @@ GH_VOLUME_BASE="claude-gh"
 SHELL_MODE=0
 FRESH=0
 REBUILD=0
-UNLOCK=0
+SSH_UNLOCK=0
 STRICT=0
 ALLOW_DOCKER=0
 ALLOW_BYPASS=0
@@ -57,7 +57,7 @@ while [ $# -gt 0 ]; do
         --shell) SHELL_MODE=1 ;;
         --fresh) FRESH=1 ;;
         --rebuild) REBUILD=1 ;;
-        --unlock) UNLOCK=1 ;;
+        --ssh-unlock) SSH_UNLOCK=1 ;;
         --strict) STRICT=1 ;;
         --allow-docker) ALLOW_DOCKER=1 ;;
         --allow-bypass) ALLOW_BYPASS=1 ;;
@@ -92,7 +92,7 @@ if [ "$STRICT" = "1" ] && [ "$ALLOW_DOCKER" = "1" ]; then
     log_warn "--allow-docker can reach the host daemon and undo --strict"
 fi
 
-# --- Dedicated sandbox SSH key + its own ssh-agent ------------------------
+# --- Optional SSH key, created and unlocked only by --ssh-unlock ----------
 # A sandbox-only key (separate from your personal one), passphrase-encrypted on
 # the host and held in a dedicated, isolated agent. Only the agent socket is
 # forwarded in -- key material never enters the container, so Claude can sign
@@ -101,6 +101,18 @@ fi
 CLAUDE_SSH_KEY="$HOME/.ssh/claudesafe_ed25519"
 CLAUDE_SSH_ENV="$HOME/.ssh/claudesafe-agent-env"
 CLAUDE_SSH_EXPIRY="${CLAUDESAFE_SSH_EXPIRY:-36000}"
+
+# Point SSH_AUTH_SOCK at the dedicated agent and return ssh-add -l's status:
+# 0 = key loaded, 1 = agent up but no key, 2 = no agent. Never prompts.
+sandbox_agent_status() {
+    # Talk ONLY to the dedicated agent -- the ambient $SSH_AUTH_SOCK may point
+    # at your personal agent and would leak that key.
+    unset SSH_AUTH_SOCK SSH_AGENT_PID
+    if [ -f "$CLAUDE_SSH_ENV" ]; then
+        . "$CLAUDE_SSH_ENV" > /dev/null 2>&1 || true
+    fi
+    ssh-add -l > /dev/null 2>&1
+}
 
 # Ensure the key exists and is loaded in the dedicated agent (generating and
 # unlocking interactively as needed). On success leaves SSH_AUTH_SOCK pointing
@@ -120,16 +132,8 @@ unlock_sandbox_ssh() {
         fi
     fi
 
-    # Talk ONLY to the dedicated agent -- the ambient $SSH_AUTH_SOCK may point
-    # at your personal agent and would leak that key.
-    unset SSH_AUTH_SOCK SSH_AGENT_PID
-    if [ -f "$CLAUDE_SSH_ENV" ]; then
-        . "$CLAUDE_SSH_ENV" > /dev/null 2>&1 || true
-    fi
-
-    # ssh-add -l: 0 = key loaded, 1 = agent up but no key, 2 = no agent.
     local rc=0
-    ssh-add -l > /dev/null 2>&1 || rc=$?
+    sandbox_agent_status || rc=$?
     if [ "$rc" = "2" ]; then
         log_info "starting dedicated ssh-agent for the sandbox key..."
         ssh-agent -s > "$CLAUDE_SSH_ENV"
@@ -146,9 +150,8 @@ unlock_sandbox_ssh() {
     ssh-add -l > /dev/null 2>&1 && [ -n "${SSH_AUTH_SOCK:-}" ] && [ -S "${SSH_AUTH_SOCK:-}" ]
 }
 
-# --unlock: re-load the key after the timeout without launching a container --
-# re-enables git-over-SSH in an already-running session (same agent socket).
-if [ "$UNLOCK" = "1" ]; then
+# --ssh-unlock: also re-arms an already-running session (same agent socket).
+if [ "$SSH_UNLOCK" = "1" ]; then
     if unlock_sandbox_ssh; then
         log_info "sandbox SSH key is unlocked and ready"
         exit 0
@@ -347,17 +350,22 @@ if [ -f "$MOUNTS_FILE" ]; then
     done < "$MOUNTS_FILE"
 fi
 
-# Unlock the sandbox key and forward only its agent socket (key stays on host).
+# The SSH key is never unlocked here; a running agent is forwarded even while
+# locked, so `claudesafe --ssh-unlock` can enable it mid-session.
 if [ "$STRICT" = "1" ]; then
     log_info "strict mode -- no ssh-agent forwarded (outbound SSH is blocked)"
-elif unlock_sandbox_ssh; then
-    log_info "forwarding sandbox ssh-agent ($SSH_AUTH_SOCK)"
-    DOCKER_ARGS+=(
-        -v "$SSH_AUTH_SOCK:/ssh-agent.sock"
-        -e "SSH_AUTH_SOCK=/ssh-agent.sock"
-    )
 else
-    log_warn "sandbox SSH key unavailable -- continuing without git-over-SSH"
+    AGENT_RC=0
+    sandbox_agent_status || AGENT_RC=$?
+    if [ "$AGENT_RC" = "2" ]; then
+        log_info "no sandbox ssh-agent running -- git-over-SSH off (claudesafe --ssh-unlock to enable)"
+    else
+        log_info "forwarding sandbox ssh-agent ($SSH_AUTH_SOCK)"
+        DOCKER_ARGS+=(
+            -v "$SSH_AUTH_SOCK:/ssh-agent.sock"
+            -e "SSH_AUTH_SOCK=/ssh-agent.sock"
+        )
+    fi
 fi
 
 # Credentials live in the claude-home named volume (written by `claude login`
