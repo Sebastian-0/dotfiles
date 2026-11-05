@@ -150,3 +150,11 @@ applies to that message only.
 
 - `DAJA` = Don't act, just answer. Explain, investigate, quote the code --
   but change nothing on disk.
+
+
+# Git Worktrees
+
+Never run `git worktree prune`, and never remove a worktree you did not create
+in this session. Worktrees often live outside the directories mounted into a
+container or VM, so git reports them as missing or `prunable` even though they
+exist on the host; pruning deletes their metadata and breaks them there.
