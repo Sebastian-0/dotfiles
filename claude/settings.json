@@ -49,6 +49,7 @@
 	"tui": "fullscreen",
 	"agentPushNotifEnabled": true,
 	"skipAutoPermissionPrompt": true,
+	"idleCompaction": false,
 	"hooks": {
 		"PostToolUse": [
 			{
