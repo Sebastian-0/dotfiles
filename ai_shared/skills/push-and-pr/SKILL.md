@@ -36,10 +36,10 @@ If the push fails with an authentication / permission error, see `gh auth status
 ### 3. Create the PR
 
 ```bash
-gh pr create --base develop --head <branch> --title "<title>" --body "<body>"
+gh pr create --base <base-branch> --head <branch> --title "<title>" --body "<body>"
 ```
 
-Keep the body **brief** — a short summary of what changed and why, no exhaustive file-by-file detail. Don't state which branch is the base in the body. Never link to a Claude Code session — only the user can open those.
+Write the title and body by the "PR Descriptions" rules in the global CLAUDE.md. Two things specific to this flow: don't state which branch is the base in the body, and never link to a Claude Code session — only the user can open those.
 
 ## Notes
 

@@ -122,9 +122,39 @@ Never add a `Claude-Session: ...` trailer
 
 # PR Descriptions
 
-PR titles and descriptions follow the same rules as commit messages, with one
-exception: do NOT hard-wrap lines. GitHub reflows the text, so manual breaks
-only make it ragged.
+PR titles and descriptions follow the same rules as commit messages, plus
+the ones below. One exception: do NOT hard-wrap lines. GitHub reflows the
+text, so manual breaks only make it ragged.
+
+Lead with what the PR changes and why. How it was done belongs in the
+commits; mention it only when the reviewer needs it to read the diff (e.g.
+"review commit by commit"). Background comes after the change, and only as
+much as the reader needs to follow it.
+
+Keep before and after apart: the reader must be able to tell which sentences
+describe the old state and which the new. "Previously X; now Y" is the plain
+way to do it when behavior changes. The tell: a sentence that would still be
+true if the PR were closed unmerged is describing the system, not the
+change. Cut it, or move it to the background stated as what already held.
+
+Write for someone who has never seen the repo, the PR chain or the commits,
+possibly reading years later. Don't use terms coined in the repo, the branch
+or this session without saying what they mean. This applies to the title
+first of all: it is read on its own, in lists and in history.
+
+    bad:  Expand the engine's bootstrap
+          A clone sets itself up, and stays set up: direnv runs the bootstrap
+          on every cd.         (undefined "engine"; old and new facts mixed)
+    good: Rerun the setup script on every cd
+          Previously a fresh clone ran `./setup.sh` once, on the first cd;
+          after a tool version bump you had to rerun it by hand. Now direnv
+          runs it on every cd, so tools stay current without anyone
+          remembering to.
+
+Size the description to the change. A small change is a sentence or two;
+minor side changes go in an "Also changed:" list as in commits. A larger
+feature or refactor can use sections such as Background, Changes and Tests,
+plus others like Before/After when they help.
 
 Never add a `🤖 Generated with [Claude Code](...)` line.
 
