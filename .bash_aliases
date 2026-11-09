@@ -45,6 +45,7 @@ if [ "$TERM" = "xterm-kitty" ]; then
         alias ssh="kitten ssh"
         alias diff="kitten diff"
         alias icat="kitten icat"
+        alias dnd="kitten dnd"
     else
         # If we are in a remote session we don't know if we run Kitty or not on this
         # machine, so do the second best and change the TERM for the nested ssh session.
