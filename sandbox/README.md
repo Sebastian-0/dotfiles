@@ -130,6 +130,12 @@ claudesafe --allow-full-internet     # skip the firewall (DANGEROUS)
 claudesafe -p "do the thing"         # unrecognized args go to `claude`
 ```
 
+Claude runs in tmux with the prefix `C-Space`: `C-Space c` opens a shell in
+the same container, behind the same firewall. The orange status bar tells it
+apart from intui-sandbox's (blue) and a host tmux. The container ends when every
+window is closed; detaching is unbound. `-p`/`--print` and runs without a
+terminal skip tmux.
+
 Warnings and errors are tagged `[WARNING]`/`[ERROR]` and colored when the output
 is a terminal; set `NO_COLOR` to suppress the color.
 

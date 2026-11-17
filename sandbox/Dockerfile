@@ -22,6 +22,7 @@ USER root
 #   - python3/pip/pipx/ripgrep: common tooling users want when running scripts
 #   - bubblewrap/socat: Claude Code's command sandbox; org remote settings set
 #     sandbox.failIfUnavailable, so claude refuses to start unless both exist.
+#   - tmux/ncurses-term: claude runs in tmux so a shell can open beside it.
 #   - nodejs/npm: needed for claude-code; pulled from NodeSource for a newer
 #     toolchain than ubuntu:24.04's archive (still apt-managed).
 RUN apt-get update && apt-get install -y --no-install-recommends \
@@ -46,6 +47,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         unzip \
         vim \
         kitty-terminfo \
+        tmux \
+        ncurses-term \
         gnupg \
         ssh \
     && curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
@@ -85,13 +88,17 @@ COPY log.sh /usr/local/lib/log.sh
 # devcontainer).
 COPY init-firewall.sh /usr/local/bin/init-firewall.sh
 COPY bootstrap.sh /usr/local/bin/bootstrap.sh
-RUN chmod +x /usr/local/bin/init-firewall.sh /usr/local/bin/bootstrap.sh \
+COPY run-claude.sh /usr/local/bin/run-claude.sh
+COPY tmux.conf /etc/claudesafe/tmux.conf
+RUN chmod +x /usr/local/bin/init-firewall.sh /usr/local/bin/bootstrap.sh /usr/local/bin/run-claude.sh \
     && printf '%s\n' \
         "$SANDBOX_USER ALL=(root) NOPASSWD: /usr/local/bin/init-firewall.sh" \
         "$SANDBOX_USER ALL=(root) NOPASSWD: /usr/bin/apt, /usr/bin/apt-get, /usr/bin/dpkg, /usr/bin/pip, /usr/bin/pip3" \
         > /etc/sudoers.d/sandbox-user \
     && chmod 0440 /etc/sudoers.d/sandbox-user
 
+# Without a UTF-8 locale tmux draws claude's non-ASCII glyphs as underscores.
+ENV LANG=C.UTF-8
 ENV CLAUDE_CONFIG_DIR=/home/${SANDBOX_USER}/.claude
 ENV PATH=/usr/local/share/npm-global/bin:$PATH
 ENV SANDBOX_USER=${SANDBOX_USER}

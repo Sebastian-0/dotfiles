@@ -9,9 +9,9 @@
   effective caps. Every Bash call fails with "No permissions to create new
   namespace" until it is retried with dangerouslyDisableSandbox. So there is
   exactly one boundary -- the container -- not two.
-- claude runs as PID 1 (bootstrap execs it). No init, so no zombie reaping, and
-  quitting claude tears down the container (--rm) along with every background
-  job in it.
+- claude runs in tmux; the container lives until the tmux session ends (claude
+  and every shell window closed), then --rm tears it down along
+  with every background job in it.
 - ubuntu is in the sudo group, so `sudo -l` advertises (ALL : ALL) ALL, but no
   password is set -- only the NOPASSWD list (init-firewall, apt/apt-get/dpkg/
   pip/pip3) is actually usable.
