@@ -97,6 +97,8 @@ RUN chmod +x /usr/local/bin/init-firewall.sh /usr/local/bin/bootstrap.sh /usr/lo
         > /etc/sudoers.d/sandbox-user \
     && chmod 0440 /etc/sudoers.d/sandbox-user
 
+# Without a UTF-8 locale tmux draws claude's non-ASCII glyphs as underscores.
+ENV LANG=C.UTF-8
 ENV CLAUDE_CONFIG_DIR=/home/${SANDBOX_USER}/.claude
 ENV PATH=/usr/local/share/npm-global/bin:$PATH
 ENV SANDBOX_USER=${SANDBOX_USER}

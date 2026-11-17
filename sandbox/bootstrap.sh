@@ -122,10 +122,9 @@ if [ "$USE_TMUX" = "0" ]; then
 fi
 
 # Claude runs in the first tmux window; C-Space c opens a shell next to it.
-# Detaching ends the container.
 export CLAUDESAFE_LAST_SCREEN=/tmp/claudesafe-last-screen
 status=0
-tmux -f /etc/claudesafe/tmux.conf new-session -s "$(basename "$PROJECT")" -c "$PROJECT" \
+tmux -f /etc/claudesafe/tmux.conf new-session -s "$(basename "$PROJECT")" \
     /usr/local/bin/run-claude.sh "${CLAUDE_ARGS[@]}" || status=$?
 if [ -s "$CLAUDESAFE_LAST_SCREEN" ]; then
     cat "$CLAUDESAFE_LAST_SCREEN"
