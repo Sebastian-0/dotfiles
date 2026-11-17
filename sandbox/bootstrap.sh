@@ -4,7 +4,7 @@
 #   2. Link host ~/.claude items from /workspace/claude-host/ into
 #      /home/node/.claude/ so Claude Code picks up the host's
 #      skills/settings/CLAUDE.md.
-#   3. Hand off to `claude` (or a shell if SANDBOX_SHELL=1).
+#   3. Hand off to `claude` in tmux (or a shell if SANDBOX_SHELL=1).
 set -euo pipefail
 
 LOG_PREFIX=sandbox
@@ -103,7 +103,31 @@ if [ "${SANDBOX_ALLOW_BYPASS:-0}" = "1" ]; then
     PERMISSION_ARGS=(--allow-dangerously-skip-permissions --dangerously-skip-permissions)
 fi
 
-exec claude \
-    "${PERMISSION_ARGS[@]}" \
-    --append-system-prompt "You are running in a sandboxed VM. You are running Ubuntu. Install missing software!" \
+CLAUDE_ARGS=(
+    "${PERMISSION_ARGS[@]}"
+    --append-system-prompt "You are running in a sandboxed VM. You are running Ubuntu. Install missing software!"
     "$@"
+)
+
+# --print output is meant for a pipe or a script; tmux would swallow it.
+USE_TMUX=1
+[ -t 0 ] && [ -t 1 ] || USE_TMUX=0
+for arg in "$@"; do
+    case "$arg" in
+        -p | --print) USE_TMUX=0 ;;
+    esac
+done
+if [ "$USE_TMUX" = "0" ]; then
+    exec claude "${CLAUDE_ARGS[@]}"
+fi
+
+# Claude runs in the first tmux window; C-Space c opens a shell next to it.
+# Detaching ends the container.
+export CLAUDESAFE_LAST_SCREEN=/tmp/claudesafe-last-screen
+status=0
+tmux -f /etc/claudesafe/tmux.conf new-session -s "$(basename "$PROJECT")" -c "$PROJECT" \
+    /usr/local/bin/run-claude.sh "${CLAUDE_ARGS[@]}" || status=$?
+if [ -s "$CLAUDESAFE_LAST_SCREEN" ]; then
+    cat "$CLAUDESAFE_LAST_SCREEN"
+fi
+exit "$status"

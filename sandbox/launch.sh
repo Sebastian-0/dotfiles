@@ -243,6 +243,7 @@ fi
 
 DOCKER_ARGS=(
     --rm -it
+    --init
     --cap-add=NET_ADMIN
     --cap-add=NET_RAW
     -v "$WORKSPACE_SRC:$WORKSPACE_SRC"
