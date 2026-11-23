@@ -62,6 +62,9 @@
 - This repo contains the sandbox's own source and is mounted rw, so a session
   can edit the scripts that define its confinement. Harmless in practice -- the
   edits only take effect on the next launch, which happens on the host.
+- Clipboard images are readable from inside the container at any time, not
+  only on Ctrl+V: whatever screenshot is on the host clipboard, Claude can
+  fetch with `xclip -selection clipboard -o -t image/png`. Text never is.
 - Needs a TTY. `claudesafe -p "..."` without --allow-bypass can stall forever on
   a permission prompt nobody is there to answer.
 
@@ -111,6 +114,8 @@
   (needs nvidia-container-toolkit, but no daemon config).
 - State persists across runs in the named volume, so `claude --resume` works
   after a restart; --fresh gives a clean slate when that is what you want.
+- Ctrl+V pastes clipboard images, through a host-side server that serves
+  image types only (X11 via xclip, Wayland via wl-paste).
 - Preinstalled: node 20, python3/pipx, ripgrep, jq, git, gh (+ gh-stack), vim,
   kitty-terminfo. apt/pip installs work through sudo against the allowlisted
   Ubuntu mirrors.
