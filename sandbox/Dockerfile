@@ -90,7 +90,8 @@ COPY init-firewall.sh /usr/local/bin/init-firewall.sh
 COPY bootstrap.sh /usr/local/bin/bootstrap.sh
 COPY run-claude.sh /usr/local/bin/run-claude.sh
 COPY tmux.conf /etc/claudesafe/tmux.conf
-RUN chmod +x /usr/local/bin/init-firewall.sh /usr/local/bin/bootstrap.sh /usr/local/bin/run-claude.sh \
+COPY xclip-shim.py /usr/local/bin/xclip
+RUN chmod +x /usr/local/bin/init-firewall.sh /usr/local/bin/bootstrap.sh /usr/local/bin/run-claude.sh /usr/local/bin/xclip \
     && printf '%s\n' \
         "$SANDBOX_USER ALL=(root) NOPASSWD: /usr/local/bin/init-firewall.sh" \
         "$SANDBOX_USER ALL=(root) NOPASSWD: /usr/bin/apt, /usr/bin/apt-get, /usr/bin/dpkg, /usr/bin/pip, /usr/bin/pip3" \

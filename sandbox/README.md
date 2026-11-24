@@ -136,6 +136,11 @@ apart from intui-sandbox's (blue) and a host tmux. The container ends when every
 window is closed; detaching is unbound. `-p`/`--print` and runs without a
 terminal skip tmux.
 
+Ctrl+V pastes a clipboard image as in a host session. The container's `xclip`
+is a stand-in that asks a small server launch.sh runs on the host
+(`clipboard-server.py`, needs `python3` and `xclip` or `wl-paste`), which only
+ever hands out image types, never clipboard text.
+
 Warnings and errors are tagged `[WARNING]`/`[ERROR]` and colored when the output
 is a terminal; set `NO_COLOR` to suppress the color.
 
@@ -215,6 +220,7 @@ ignore the file and allow only Claude Code's endpoints, use `--strict`.
   only that key's agent socket is forwarded in, never any key material)
 - Anything outside `$PWD` and the read-only claude-host mounts
 - The Docker socket (no docker-in-docker) unless `--allow-docker` is passed
+- Clipboard text. Clipboard *images* are readable, see Usage
 
 Note: `$PWD` is mounted **read-write**. Claude can create, modify, and delete
 files in the current folder. Everything outside it is unreachable.

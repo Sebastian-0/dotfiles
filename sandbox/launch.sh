@@ -387,6 +387,20 @@ if [ "$SHELL_MODE" = "1" ]; then
     DOCKER_ARGS+=(-e "SANDBOX_SHELL=1")
 fi
 
+# Image paste: the container's xclip asks this server for clipboard images.
+# Mounted as a directory since the socket may appear after the container starts.
+if ! command -v python3 > /dev/null; then
+    log_info "no python3 on the host -- image paste off"
+elif ! { [ -n "${WAYLAND_DISPLAY:-}" ] && command -v wl-paste > /dev/null; } \
+    && ! { [ -n "${DISPLAY:-}" ] && command -v xclip > /dev/null; }; then
+    log_info "no display with xclip or wl-paste -- image paste off"
+elif ! CLIPBOARD_DIR="$(mktemp -d "${XDG_RUNTIME_DIR:-/tmp}/claudesafe-clipboard.XXXXXX")"; then
+    log_warn "could not create the clipboard socket folder -- image paste off"
+else
+    python3 "$SANDBOX_DIR/clipboard-server.py" "$CLIPBOARD_DIR" > /dev/null 2>&1 &
+    DOCKER_ARGS+=(-v "$CLIPBOARD_DIR:/run/claudesafe-clipboard:ro")
+fi
+
 log_info "starting container ($RUN_IMAGE)..."
 exec docker run "${DOCKER_ARGS[@]}" "$RUN_IMAGE" \
     /usr/local/bin/bootstrap.sh "${CLAUDE_ARGS[@]}"
