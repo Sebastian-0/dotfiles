@@ -388,6 +388,7 @@ require("lazy").setup({
                     end
                 },
                 -- NOTE: Use default sorting, but remove 'locality' to improve performance on files with very long lines.
+                -- nvim-cmp fixed this in da88697 (#2187), so 'locality' could probably be put back.
                 -- The sorting config block is copied from:
                 -- https://github.com/hrsh7th/nvim-cmp/blob/d97d85e01339f01b842e6ec1502f639b080cb0fc/lua/cmp/config/default.lua#L67
                 sorting = {
@@ -428,7 +429,6 @@ require("lazy").setup({
         opts = {stop_eof = false, easing_function = "quadratic"},
         event = "VeryLazy"
     },
-    {"ryanoasis/vim-devicons", version = '0.11.x'},
     {"lambdalisue/suda.vim", commit = "c492741", cmd = {"SudaWrite", "SudaRead"}},
     {"Vimjas/vim-python-pep8-indent", commit = '60ba5e1', ft = "python"},
     {
