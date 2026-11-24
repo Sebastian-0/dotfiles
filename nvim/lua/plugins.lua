@@ -155,42 +155,49 @@ require("lazy").setup({
     },
     {
         "nvim-treesitter/nvim-treesitter",
-        -- version = '0.9.x',
-        commit = '5774e7d',
+        branch = "main",
+        commit = "52773f0",
+        lazy = false,
         build = ":TSUpdate",
         config = function()
-            local configs = require("nvim-treesitter.configs")
+            require("nvim-treesitter").install({
+                "bash",
+                "c",
+                "c_sharp",
+                "cmake",
+                "cpp",
+                "cuda",
+                "dockerfile",
+                "glsl",
+                "http",
+                "java",
+                "javascript",
+                "jinja",
+                "just",
+                "lua",
+                "python",
+                "rust",
+                "tsx",
+                "typescript",
+                "vim",
+                "yaml",
+                "zig"
+            })
 
-            configs.setup({
-                ensure_installed = {
-                    "bash",
-                    "c",
-                    "c_sharp",
-                    "cmake",
-                    "cpp",
-                    "cuda",
-                    "dockerfile",
-                    "glsl",
-                    "http",
-                    "java",
-                    "javascript",
-                    "jinja",
-                    "just",
-                    "lua",
-                    "python",
-                    "rust",
-                    "tsx",
-                    "typescript",
-                    "vim",
-                    "yaml",
-                    "zig"
-                },
-                modules = {},
-                ignore_install = {},
-                sync_install = false,
-                auto_install = false, -- NOTE: Requires that you have the treesitter cli installed
-                highlight = {enable = true, additional_vim_regex_highlighting = {"python"}} -- Python regex highlight is a fix for https://github.com/nvim-treesitter/nvim-treesitter/discussions/1951
-                -- indent = { enable = true },
+            vim.api.nvim_create_autocmd("FileType", {
+                group = vim.api.nvim_create_augroup("TreesitterStart", {clear = true}),
+                callback = function(args)
+                    local lang = vim.treesitter.language.get_lang(args.match)
+                    if not lang or not vim.treesitter.language.add(lang) then
+                        return
+                    end
+                    vim.treesitter.start(args.buf, lang)
+                    -- Python regex highlight is a fix for https://github.com/nvim-treesitter/nvim-treesitter/discussions/1951
+                    if vim.bo[args.buf].filetype == "python" then
+                        vim.bo[args.buf].syntax = "on"
+                    end
+                    -- vim.bo[args.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+                end
             })
         end
     },
@@ -230,7 +237,7 @@ require("lazy").setup({
             }
         }
     },
-    {"kylechui/nvim-surround", version = "2.3.x", event = "VeryLazy", opts = {}},
+    {"kylechui/nvim-surround", version = "4.0.x", event = "VeryLazy", opts = {}},
     {
         "nvim-neo-tree/neo-tree.nvim",
         branch = "v3.x",
