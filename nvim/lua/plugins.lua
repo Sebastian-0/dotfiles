@@ -432,6 +432,7 @@ require("lazy").setup({
     },
     {"lambdalisue/suda.vim", commit = "c492741", cmd = {"SudaWrite", "SudaRead"}}, -- master @ 2025-10-29 (after v1.2.4)
     {"Vimjas/vim-python-pep8-indent", commit = '60ba5e1', ft = "python"}, -- master @ 2020-03-20
+    {"lukas-reineke/indent-blankline.nvim", commit = "f1e186e", main = "ibl", opts = {}}, -- v3.10.1
     {
         "jupyter-vim/jupyter-vim",
         commit = "91eef96", -- master @ 2024-06-27
