@@ -18,7 +18,7 @@ if ! which nvim >&/dev/null; then
     # - `xclip` is required for clipboard support in vim
     # - `ripgrep` and `fd-find` are required by telescope.nvim
     # - `python3-venv` is required by ???
-    # - `npm` is required by nvim-treesitter (I think?)
+    # - `npm` is required by mason to install the node based language servers
     if is_ubuntu; then
         sudo apt-get install -y --no-install-recommends ripgrep xclip fd-find python3-venv python3-pynvim luarocks $npm
         sudo update-alternatives --install /usr/bin/editor editor "$(which nvim)" 100
@@ -32,6 +32,24 @@ if ! which nvim >&/dev/null; then
         exit 1
     fi
 fi
+
+echo "Install tree-sitter CLI..."
+# NOTE: nvim-treesitter needs tree-sitter-cli >= 0.26.1, which is newer than the distro packages
+case "$(uname -m)" in
+    x86_64) ts_arch=x64 ;;
+    aarch64) ts_arch=arm64 ;;
+    *)
+        echo "Unsupported architecture for tree-sitter CLI!"
+        exit 1
+        ;;
+esac
+tmp="$(mktemp -d)"
+wget -qO "$tmp/tree-sitter.gz" "https://github.com/tree-sitter/tree-sitter/releases/download/v0.27.2/tree-sitter-linux-$ts_arch.gz"
+gunzip "$tmp/tree-sitter.gz"
+chmod +x "$tmp/tree-sitter"
+mkdir -p ~/.local/bin
+mv "$tmp/tree-sitter" ~/.local/bin/
+rm -rf "$tmp"
 
 echo "Install LSP dependencies..."
 # NOTE:

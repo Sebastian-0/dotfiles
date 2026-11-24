@@ -8,7 +8,6 @@
 --
 --
 -- Configure LSPs
-local lspconfig = require("lspconfig")
 vim.lsp.config('clangd', {
     cmd = {"clangd", "--clang-tidy", "--background-index"}
     -- on_attach = function()
@@ -74,6 +73,8 @@ vim.lsp.enable('rust_analyzer')
 vim.lsp.enable('starpls')
 vim.lsp.enable('ts_ls')
 vim.lsp.enable('zls')
+
+vim.lsp.inlay_hint.enable()
 
 -- Keymaps (most are defined by telescope, here are extra)
 -- TODO: This should only be active for Clangd, and right now it's not obvious

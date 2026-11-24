@@ -29,13 +29,14 @@ vim.opt.rtp:prepend(lazypath)
 
 -- Load plugins
 require("lazy").setup({
+    {"folke/lazy.nvim", commit = "306a055"}, -- main @ 2025-12-17 (after v11.17.5)
     {
         'nvim-telescope/telescope.nvim',
         -- version = '0.1.x',
-        commit = '5899106',
+        commit = '1e1bab7', -- master @ 2026-11-08 (after v0.2.2)
         dependencies = {
-            {'nvim-lua/plenary.nvim', version = '0.1.4'},
-            {"nvim-telescope/telescope-live-grep-args.nvim", commit = "b80ec2c"}
+            {'nvim-lua/plenary.nvim', commit = '74b06c6'}, -- master @ 2026-04-10 (after v0.1.4)
+            {"nvim-telescope/telescope-live-grep-args.nvim", commit = "53e9df5"} -- master @ 2026-04-08
         },
         config = function()
             local builtin = require('telescope.builtin')
@@ -155,53 +156,59 @@ require("lazy").setup({
     },
     {
         "nvim-treesitter/nvim-treesitter",
-        -- version = '0.9.x',
-        commit = '5774e7d',
+        branch = "main",
+        commit = "52773f0", -- main @ 2026-11-21
+        lazy = false,
         build = ":TSUpdate",
         config = function()
-            local configs = require("nvim-treesitter.configs")
+            require("nvim-treesitter").install({
+                "bash",
+                "c",
+                "c_sharp",
+                "cmake",
+                "cpp",
+                "cuda",
+                "dockerfile",
+                "glsl",
+                "http",
+                "java",
+                "javascript",
+                "jinja",
+                "just",
+                "lua",
+                "python",
+                "rust",
+                "tsx",
+                "typescript",
+                "vim",
+                "yaml",
+                "zig"
+            })
 
-            configs.setup({
-                ensure_installed = {
-                    "bash",
-                    "c",
-                    "c_sharp",
-                    "cmake",
-                    "cpp",
-                    "cuda",
-                    "dockerfile",
-                    "glsl",
-                    "http",
-                    "java",
-                    "javascript",
-                    "jinja",
-                    "just",
-                    "lua",
-                    "python",
-                    "rust",
-                    "tsx",
-                    "typescript",
-                    "vim",
-                    "yaml",
-                    "zig"
-                },
-                modules = {},
-                ignore_install = {},
-                sync_install = false,
-                auto_install = false, -- NOTE: Requires that you have the treesitter cli installed
-                highlight = {enable = true, additional_vim_regex_highlighting = {"python"}} -- Python regex highlight is a fix for https://github.com/nvim-treesitter/nvim-treesitter/discussions/1951
-                -- indent = { enable = true },
+            vim.api.nvim_create_autocmd("FileType", {
+                group = vim.api.nvim_create_augroup("TreesitterStart", {clear = true}),
+                callback = function(args)
+                    local lang = vim.treesitter.language.get_lang(args.match)
+                    if not lang or not vim.treesitter.language.add(lang) then
+                        return
+                    end
+                    vim.treesitter.start(args.buf, lang)
+                    -- Python regex highlight is a fix for https://github.com/nvim-treesitter/nvim-treesitter/discussions/1951
+                    if vim.bo[args.buf].filetype == "python" then
+                        vim.bo[args.buf].syntax = "on"
+                    end
+                    -- vim.bo[args.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+                end
             })
         end
     },
     {
         "catppuccin/nvim",
-        version = "v1.11.0",
+        commit = "605b460", -- v2.0.0
         name = "catppuccin",
         priority = 1000,
         opts = {
             integrations = {
-                treesitter = true,
                 telescope = {
                     enabled = true
                     -- style = "nvchad"
@@ -216,10 +223,10 @@ require("lazy").setup({
     },
     {
         'nvim-lualine/lualine.nvim',
-        commit = 'f4f791f',
-        dependencies = {{'nvim-tree/nvim-web-devicons', commit = '1020869'}},
+        commit = '221ce6b', -- master @ 2026-05-31
+        dependencies = {{'nvim-tree/nvim-web-devicons', commit = '0dc0cfb'}}, -- master @ 2026-11-06
         opts = {
-            options = {theme = "catppuccin"},
+            options = {theme = "catppuccin-nvim"},
             sections = {
                 lualine_a = {'mode'},
                 lualine_b = {'diff', 'diagnostics'},
@@ -230,16 +237,17 @@ require("lazy").setup({
             }
         }
     },
-    {"kylechui/nvim-surround", version = "2.3.x", event = "VeryLazy", opts = {}},
+    {"kylechui/nvim-surround", commit = "2e93e15", event = "VeryLazy", opts = {}}, -- v4.0.5
     {
         "nvim-neo-tree/neo-tree.nvim",
         branch = "v3.x",
+        commit = "1a14083", -- v3.x @ 2026-09-01
         dependencies = {
-            {'nvim-lua/plenary.nvim', version = '0.1.4'},
-            {'nvim-tree/nvim-web-devicons', commit = '1020869'},
-            {"MunifTanjim/nui.nvim", version = '0.3.x'}
+            {'nvim-lua/plenary.nvim', commit = '74b06c6'}, -- master @ 2026-04-10 (after v0.1.4)
+            {'nvim-tree/nvim-web-devicons', commit = '0dc0cfb'}, -- master @ 2026-11-06
+            {"MunifTanjim/nui.nvim", commit = 'f535005'} -- 0.4.0
         },
-        event = "VeryLazy",
+        lazy = false,
         opts = {
             window = {position = "current", mappings = {["l"] = "open"}},
             filesystem = {hijack_netrw_behavior = "open_default"},
@@ -259,7 +267,7 @@ require("lazy").setup({
     },
     {
         "lewis6991/gitsigns.nvim",
-        version = "1.0.x",
+        commit = "a462f41", -- v2.1.0
         opts = {
             current_line_blame = true,
             current_line_blame_opts = {delay = 500},
@@ -268,15 +276,19 @@ require("lazy").setup({
                 vim.keymap.set('n', '<leader>gd', gs.preview_hunk_inline, {desc = "Git diff line"})
                 vim.keymap.set('n', '<leader>gD', gs.diffthis, {desc = "Git diff all"})
                 vim.keymap.set('n', '<leader>gw', gs.toggle_word_diff, {desc = "Git diff highlight"})
-                vim.keymap.set('n', '<leader>gn', gs.next_hunk, {desc = "Git hunk next"})
-                vim.keymap.set('n', '<leader>gN', gs.prev_hunk, {desc = "Git hunk previous"})
+                vim.keymap.set('n', '<leader>gn', function()
+                    gs.nav_hunk('next')
+                end, {desc = "Git hunk next"})
+                vim.keymap.set('n', '<leader>gN', function()
+                    gs.nav_hunk('prev')
+                end, {desc = "Git hunk previous"})
                 vim.keymap.set('n', '<leader>gr', gs.reset_hunk, {desc = "Git hunk reset"})
             end
         }
     },
     {
         "rhysd/git-messenger.vim",
-        commit = 'edc603d',
+        commit = 'fd12445', -- master @ 2025-05-30
         event = "VeryLazy",
         init = function()
             vim.g.git_messenger_no_default_mappings = true
@@ -286,19 +298,18 @@ require("lazy").setup({
     },
     {
         "mbbill/undotree",
-        commit = 'b951b87',
+        commit = '6fa6b57', -- master @ 2026-03-07
         event = "VeryLazy",
         init = function()
             vim.keymap.set('n', '<leader>u', vim.cmd.UndotreeToggle, {desc = "Undotree toggle"})
-            vim.opt.undofile = true
             vim.g.undotree_SetFocusWhenToggle = true
         end
     },
-    {"folke/lazydev.nvim", version = "1.10.x", ft = "lua", opts = {}},
+    {"folke/lazydev.nvim", commit = "ff2cbcb", ft = "lua", opts = {}}, -- main @ 2026-03-14 (after v1.10.0)
     {
-        'williamboman/mason.nvim',
-        version = '1.11.x',
-        dependencies = {{'WhoIsSethDaniel/mason-tool-installer.nvim', commit = '1255518'}},
+        'mason-org/mason.nvim',
+        commit = '2a6940a', -- v2.3.1
+        dependencies = {{'WhoIsSethDaniel/mason-tool-installer.nvim', commit = '443f1ef'}}, -- main @ 2026-01-22
         config = function()
             require('mason').setup({})
             require('mason-tool-installer').setup {
@@ -321,15 +332,15 @@ require("lazy").setup({
             }
         end
     },
-    {'neovim/nvim-lspconfig', commit = 'bd1d024', event = "VeryLazy"},
+    {'neovim/nvim-lspconfig', commit = '4648fd8', lazy = false}, -- v2.13.0
     {
         'hrsh7th/nvim-cmp',
-        commit = '1250990',
+        commit = 'fe29aba', -- main @ 2026-11-05
         dependencies = {
-            {'hrsh7th/cmp-path', commit = '91ff86c'},
-            {'hrsh7th/cmp-nvim-lsp', commit = '99290b3'},
-            {'saadparwaiz1/cmp_luasnip', commit = '98d9cb5'},
-            {'L3MON4D3/LuaSnip', version = '2.3.x'}
+            {'hrsh7th/cmp-path', commit = 'c642487'}, -- main @ 2025-07-30
+            {'hrsh7th/cmp-nvim-lsp', commit = 'cd4ee08'}, -- main @ 2026-11-05
+            {'saadparwaiz1/cmp_luasnip', commit = '98d9cb5'}, -- master @ 2024-11-04
+            {'L3MON4D3/LuaSnip', commit = '642b0c5'} -- v2.5.0
         },
         event = "VeryLazy",
         config = function()
@@ -378,6 +389,7 @@ require("lazy").setup({
                     end
                 },
                 -- NOTE: Use default sorting, but remove 'locality' to improve performance on files with very long lines.
+                -- nvim-cmp fixed this in da88697 (#2187), so 'locality' could probably be put back.
                 -- The sorting config block is copied from:
                 -- https://github.com/hrsh7th/nvim-cmp/blob/d97d85e01339f01b842e6ec1502f639b080cb0fc/lua/cmp/config/default.lua#L67
                 sorting = {
@@ -402,28 +414,27 @@ require("lazy").setup({
     },
     {
         "saecki/live-rename.nvim",
-        commit = "3a3cddf",
+        commit = "205bdde", -- main @ 2026-06-01
         keys = {{"grn", ":lua require('live-rename').rename()<CR>", desc = "LSP rename"}}
     },
-    {"rest-nvim/rest.nvim", version = "3.12.0", ft = "http"},
+    {"rest-nvim/rest.nvim", commit = "714d551", ft = "http"}, -- main @ 2025-12-12 (after v3.13.0)
     {
         'rmagatti/auto-session',
-        commit = '9c3f977',
+        commit = '02a5588', -- main @ 2026-09-08
         lazy = false,
         opts = {args_allow_single_directory = false, close_unsupported_windows = false}
     },
     {
         "karb94/neoscroll.nvim",
-        commit = 'f957373',
+        commit = 'c8d2997', -- master @ 2025-12-31
         opts = {stop_eof = false, easing_function = "quadratic"},
         event = "VeryLazy"
     },
-    {"ryanoasis/vim-devicons", version = '0.11.x'},
-    {"lambdalisue/suda.vim", version = "1.2.x", cmd = {"SudaWrite", "SudaRead"}},
-    {"Vimjas/vim-python-pep8-indent", commit = '60ba5e1', ft = "python"},
+    {"lambdalisue/suda.vim", commit = "c492741", cmd = {"SudaWrite", "SudaRead"}}, -- master @ 2025-10-29 (after v1.2.4)
+    {"Vimjas/vim-python-pep8-indent", commit = '60ba5e1', ft = "python"}, -- master @ 2020-03-20
     {
         "jupyter-vim/jupyter-vim",
-        commit = "91eef96",
+        commit = "91eef96", -- master @ 2024-06-27
         -- NOTE: File type needs to be set here to make sure the plugin is loaded early,
         -- because vimscript plugins cannot be loaded on keybinds
         ft = "python",
@@ -442,7 +453,8 @@ require("lazy").setup({
         }
     },
     {
-        "norcalli/nvim-colorizer.lua",
+        "catgoose/nvim-colorizer.lua",
+        commit = "72a05f6", -- master @ 2026-07-14
         event = "VeryLazy",
         config = function()
             require("colorizer").setup()
@@ -450,7 +462,7 @@ require("lazy").setup({
     },
     {
         "vds2212/vim-remotions",
-        commit = "1354375",
+        commit = "6b5b9a8", -- main @ 2026-05-15 (after v2.03)
         event = {"BufRead", "BufWinEnter", "BufNewFile"},
         config = function()
             local motions = {
@@ -468,7 +480,7 @@ require("lazy").setup({
     },
     {
         "nvim-contrib/nvim-coverage",
-        commit = "b5c91d9",
+        commit = "b5c91d9", -- main @ 2026-04-22 (after v0.7.2)
         opts = {
             auto_reload = {enabled = true},
             file = {".cache/coverage/lcov.info", "lcov.info", "kcov-output/lcov.info"}
@@ -482,6 +494,7 @@ require("lazy").setup({
     },
     {
         "folke/which-key.nvim",
+        commit = "3aab214", -- main @ 2025-10-28 (after v3.17.0)
         event = "VeryLazy",
         opts = {preset = "helix", icons = {rules = {{pattern = "lsp", icon = " ", color = "azure"}}}},
         keys = {
@@ -496,10 +509,10 @@ require("lazy").setup({
     },
     {
         "https://codeberg.org/andyg/leap.nvim",
-        commit = "819388c554",
+        commit = "5af48b7", -- main @ 2026-11-19
         keys = {{"<leader>s", "<Plug>(leap)", desc = "Leap.nvim"}}
     }
 })
 
 -- Enable theme
-vim.cmd.colorscheme "catppuccin"
+vim.cmd.colorscheme "catppuccin-nvim"
