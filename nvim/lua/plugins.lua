@@ -203,12 +203,11 @@ require("lazy").setup({
     },
     {
         "catppuccin/nvim",
-        version = "v1.11.0",
+        version = "v2.0.0",
         name = "catppuccin",
         priority = 1000,
         opts = {
             integrations = {
-                treesitter = true,
                 telescope = {
                     enabled = true
                     -- style = "nvchad"
@@ -223,10 +222,10 @@ require("lazy").setup({
     },
     {
         'nvim-lualine/lualine.nvim',
-        commit = 'f4f791f',
-        dependencies = {{'nvim-tree/nvim-web-devicons', commit = '1020869'}},
+        commit = '221ce6b',
+        dependencies = {{'nvim-tree/nvim-web-devicons', commit = '0dc0cfb'}},
         opts = {
-            options = {theme = "catppuccin"},
+            options = {theme = "catppuccin-nvim"},
             sections = {
                 lualine_a = {'mode'},
                 lualine_b = {'diff', 'diagnostics'},
@@ -243,7 +242,7 @@ require("lazy").setup({
         branch = "v3.x",
         dependencies = {
             {'nvim-lua/plenary.nvim', commit = '74b06c6'},
-            {'nvim-tree/nvim-web-devicons', commit = '1020869'},
+            {'nvim-tree/nvim-web-devicons', commit = '0dc0cfb'},
             {"MunifTanjim/nui.nvim", version = '0.4.x'}
         },
         lazy = false,
@@ -266,7 +265,7 @@ require("lazy").setup({
     },
     {
         "lewis6991/gitsigns.nvim",
-        version = "1.0.x",
+        version = "2.1.x",
         opts = {
             current_line_blame = true,
             current_line_blame_opts = {delay = 500},
@@ -275,15 +274,19 @@ require("lazy").setup({
                 vim.keymap.set('n', '<leader>gd', gs.preview_hunk_inline, {desc = "Git diff line"})
                 vim.keymap.set('n', '<leader>gD', gs.diffthis, {desc = "Git diff all"})
                 vim.keymap.set('n', '<leader>gw', gs.toggle_word_diff, {desc = "Git diff highlight"})
-                vim.keymap.set('n', '<leader>gn', gs.next_hunk, {desc = "Git hunk next"})
-                vim.keymap.set('n', '<leader>gN', gs.prev_hunk, {desc = "Git hunk previous"})
+                vim.keymap.set('n', '<leader>gn', function()
+                    gs.nav_hunk('next')
+                end, {desc = "Git hunk next"})
+                vim.keymap.set('n', '<leader>gN', function()
+                    gs.nav_hunk('prev')
+                end, {desc = "Git hunk previous"})
                 vim.keymap.set('n', '<leader>gr', gs.reset_hunk, {desc = "Git hunk reset"})
             end
         }
     },
     {
         "rhysd/git-messenger.vim",
-        commit = 'edc603d',
+        commit = 'fd12445',
         event = "VeryLazy",
         init = function()
             vim.g.git_messenger_no_default_mappings = true
@@ -293,7 +296,7 @@ require("lazy").setup({
     },
     {
         "mbbill/undotree",
-        commit = 'b951b87',
+        commit = '6fa6b57',
         event = "VeryLazy",
         init = function()
             vim.keymap.set('n', '<leader>u', vim.cmd.UndotreeToggle, {desc = "Undotree toggle"})
@@ -301,11 +304,11 @@ require("lazy").setup({
             vim.g.undotree_SetFocusWhenToggle = true
         end
     },
-    {"folke/lazydev.nvim", version = "1.10.x", ft = "lua", opts = {}},
+    {"folke/lazydev.nvim", commit = "ff2cbcb", ft = "lua", opts = {}},
     {
-        'williamboman/mason.nvim',
-        version = '1.11.x',
-        dependencies = {{'WhoIsSethDaniel/mason-tool-installer.nvim', commit = '1255518'}},
+        'mason-org/mason.nvim',
+        version = '2.3.x',
+        dependencies = {{'WhoIsSethDaniel/mason-tool-installer.nvim', commit = '443f1ef'}},
         config = function()
             require('mason').setup({})
             require('mason-tool-installer').setup {
@@ -331,12 +334,12 @@ require("lazy").setup({
     {'neovim/nvim-lspconfig', version = '2.13.x', event = "VeryLazy"},
     {
         'hrsh7th/nvim-cmp',
-        commit = '1250990',
+        commit = 'fe29aba',
         dependencies = {
-            {'hrsh7th/cmp-path', commit = '91ff86c'},
+            {'hrsh7th/cmp-path', commit = 'c642487'},
             {'hrsh7th/cmp-nvim-lsp', commit = 'cd4ee08'},
             {'saadparwaiz1/cmp_luasnip', commit = '98d9cb5'},
-            {'L3MON4D3/LuaSnip', version = '2.3.x'}
+            {'L3MON4D3/LuaSnip', version = '2.5.x'}
         },
         event = "VeryLazy",
         config = function()
@@ -412,21 +415,21 @@ require("lazy").setup({
         commit = "205bdde",
         keys = {{"grn", ":lua require('live-rename').rename()<CR>", desc = "LSP rename"}}
     },
-    {"rest-nvim/rest.nvim", version = "3.12.0", ft = "http"},
+    {"rest-nvim/rest.nvim", commit = "714d551", ft = "http"},
     {
         'rmagatti/auto-session',
-        commit = '9c3f977',
+        commit = '02a5588',
         lazy = false,
         opts = {args_allow_single_directory = false, close_unsupported_windows = false}
     },
     {
         "karb94/neoscroll.nvim",
-        commit = 'f957373',
+        commit = 'c8d2997',
         opts = {stop_eof = false, easing_function = "quadratic"},
         event = "VeryLazy"
     },
     {"ryanoasis/vim-devicons", version = '0.11.x'},
-    {"lambdalisue/suda.vim", version = "1.2.x", cmd = {"SudaWrite", "SudaRead"}},
+    {"lambdalisue/suda.vim", commit = "c492741", cmd = {"SudaWrite", "SudaRead"}},
     {"Vimjas/vim-python-pep8-indent", commit = '60ba5e1', ft = "python"},
     {
         "jupyter-vim/jupyter-vim",
@@ -458,7 +461,7 @@ require("lazy").setup({
     },
     {
         "vds2212/vim-remotions",
-        commit = "1354375",
+        commit = "6b5b9a8",
         event = {"BufRead", "BufWinEnter", "BufNewFile"},
         config = function()
             local motions = {
@@ -504,10 +507,10 @@ require("lazy").setup({
     },
     {
         "https://codeberg.org/andyg/leap.nvim",
-        commit = "819388c554",
+        commit = "5af48b7",
         keys = {{"<leader>s", "<Plug>(leap)", desc = "Leap.nvim"}}
     }
 })
 
 -- Enable theme
-vim.cmd.colorscheme "catppuccin"
+vim.cmd.colorscheme "catppuccin-nvim"
