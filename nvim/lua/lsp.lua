@@ -74,6 +74,8 @@ vim.lsp.enable('starpls')
 vim.lsp.enable('ts_ls')
 vim.lsp.enable('zls')
 
+vim.lsp.inlay_hint.enable()
+
 -- Keymaps (most are defined by telescope, here are extra)
 -- TODO: This should only be active for Clangd, and right now it's not obvious
 --       how to make that happen... Overriding on_attach means the default

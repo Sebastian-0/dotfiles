@@ -7,6 +7,7 @@ vim.opt.breakindent = true
 vim.opt.breakindentopt = "shift:2"
 vim.opt.wildmode = "longest,list"
 vim.opt.ignorecase = true
+vim.opt.undofile = true
 -- vim.opt.signcolumn = "yes" -- Could also set this to "number"
 -- vim.opt.completeopt = "menu" -- I don't notice the difference...
 
@@ -17,7 +18,7 @@ vim.opt.cursorline = true
 -- vim.opt.cursorcolumn = true -- Produces very laggy scrolling
 vim.opt.winborder = "rounded"
 
--- This is only needed for norcalli/nvim-colorizer.lua to work
+-- nvim-colorizer.lua requires this to be set explicitly
 vim.opt.termguicolors = true
 
 -- Leader
@@ -84,9 +85,6 @@ vim.api.nvim_create_autocmd("FileType", {
 })
 
 -- Managing diagnostics
-vim.keymap.set('n', 'gra', '<cmd>lua vim.lsp.buf.code_action()<cr>', {desc = "LSP code action"})
-vim.keymap.set('n', 'gri', '<cmd>lua vim.lsp.buf.implementation()<cr>', {desc = "LSP implementation"})
-vim.keymap.set('n', 'grt', '<cmd>lua vim.lsp.buf.type_definition()<cr>', {desc = "LSP type definition"})
 vim.keymap.set('n', 'gl', '<cmd>lua vim.diagnostic.open_float()<cr>', {desc = "Diagnostics line"})
 -- [d and ]d are default mappings
 vim.diagnostic.config({
@@ -153,11 +151,11 @@ vim.api.nvim_create_autocmd("FileType", {
     group = vim.api.nvim_create_augroup("NvimRestKeybinds", {clear = true}),
     pattern = "http",
     callback = function()
-        vim.keymap.set('n', '<F5>', ":Rest run<CR>", {buffer = 0})
-        vim.keymap.set('n', '<F6>', ":Rest last<CR>", {buffer = 0})
-        vim.keymap.set('n', '<F7>', ":Rest cookies<CR>", {buffer = 0})
-        vim.keymap.set('n', '<F8>', ":Rest env select<CR>", {buffer = 0})
-        vim.keymap.set('n', '<F9>', ":Rest env show<CR>", {buffer = 0})
+        vim.keymap.set('n', '<F5>', ":Rest run<CR>", {buf = 0})
+        vim.keymap.set('n', '<F6>', ":Rest last<CR>", {buf = 0})
+        vim.keymap.set('n', '<F7>', ":Rest cookies<CR>", {buf = 0})
+        vim.keymap.set('n', '<F8>', ":Rest env select<CR>", {buf = 0})
+        vim.keymap.set('n', '<F9>', ":Rest env show<CR>", {buf = 0})
 
         -- Define custom keybinds based on the file contents
         -- NOTE: These bindings apparently become set per buffer, which wasn't what I expected
@@ -165,7 +163,7 @@ vim.api.nvim_create_autocmd("FileType", {
         for _, line in ipairs(lines) do
             local key, name = line:match("^# BIND (%S+) (.+)$")
             if key and name then
-                vim.keymap.set('n', key, ":Rest run " .. name .. "<CR>", {buffer = 0})
+                vim.keymap.set('n', key, ":Rest run " .. name .. "<CR>", {buf = 0})
             end
         end
     end

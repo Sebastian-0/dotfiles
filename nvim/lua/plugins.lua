@@ -300,7 +300,6 @@ require("lazy").setup({
         event = "VeryLazy",
         init = function()
             vim.keymap.set('n', '<leader>u', vim.cmd.UndotreeToggle, {desc = "Undotree toggle"})
-            vim.opt.undofile = true
             vim.g.undotree_SetFocusWhenToggle = true
         end
     },
@@ -331,7 +330,7 @@ require("lazy").setup({
             }
         end
     },
-    {'neovim/nvim-lspconfig', version = '2.13.x', event = "VeryLazy"},
+    {'neovim/nvim-lspconfig', version = '2.13.x', lazy = false},
     {
         'hrsh7th/nvim-cmp',
         commit = 'fe29aba',
