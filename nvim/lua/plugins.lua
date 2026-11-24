@@ -32,10 +32,10 @@ require("lazy").setup({
     {
         'nvim-telescope/telescope.nvim',
         -- version = '0.1.x',
-        commit = '5899106',
+        commit = '1e1bab7',
         dependencies = {
-            {'nvim-lua/plenary.nvim', version = '0.1.4'},
-            {"nvim-telescope/telescope-live-grep-args.nvim", commit = "b80ec2c"}
+            {'nvim-lua/plenary.nvim', commit = '74b06c6'},
+            {"nvim-telescope/telescope-live-grep-args.nvim", commit = "53e9df5"}
         },
         config = function()
             local builtin = require('telescope.builtin')
@@ -242,9 +242,9 @@ require("lazy").setup({
         "nvim-neo-tree/neo-tree.nvim",
         branch = "v3.x",
         dependencies = {
-            {'nvim-lua/plenary.nvim', version = '0.1.4'},
+            {'nvim-lua/plenary.nvim', commit = '74b06c6'},
             {'nvim-tree/nvim-web-devicons', commit = '1020869'},
-            {"MunifTanjim/nui.nvim", version = '0.3.x'}
+            {"MunifTanjim/nui.nvim", version = '0.4.x'}
         },
         event = "VeryLazy",
         opts = {
@@ -328,13 +328,13 @@ require("lazy").setup({
             }
         end
     },
-    {'neovim/nvim-lspconfig', commit = 'bd1d024', event = "VeryLazy"},
+    {'neovim/nvim-lspconfig', version = '2.13.x', event = "VeryLazy"},
     {
         'hrsh7th/nvim-cmp',
         commit = '1250990',
         dependencies = {
             {'hrsh7th/cmp-path', commit = '91ff86c'},
-            {'hrsh7th/cmp-nvim-lsp', commit = '99290b3'},
+            {'hrsh7th/cmp-nvim-lsp', commit = 'cd4ee08'},
             {'saadparwaiz1/cmp_luasnip', commit = '98d9cb5'},
             {'L3MON4D3/LuaSnip', version = '2.3.x'}
         },
@@ -409,7 +409,7 @@ require("lazy").setup({
     },
     {
         "saecki/live-rename.nvim",
-        commit = "3a3cddf",
+        commit = "205bdde",
         keys = {{"grn", ":lua require('live-rename').rename()<CR>", desc = "LSP rename"}}
     },
     {"rest-nvim/rest.nvim", version = "3.12.0", ft = "http"},
@@ -449,7 +449,8 @@ require("lazy").setup({
         }
     },
     {
-        "norcalli/nvim-colorizer.lua",
+        "catgoose/nvim-colorizer.lua",
+        commit = "72a05f6",
         event = "VeryLazy",
         config = function()
             require("colorizer").setup()
