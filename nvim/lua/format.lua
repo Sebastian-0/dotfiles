@@ -320,7 +320,7 @@ vim.api.nvim_create_user_command('RunFormatter', function(opts)
     local new_text = table.concat(new_lines, "\n") .. "\n"
 
     -- Find diffs and apply
-    local indices = vim.diff(orig_text, new_text, {result_type = 'indices', algorithm = 'histogram'})
+    local indices = vim.text.diff(orig_text, new_text, {result_type = 'indices', algorithm = 'histogram'})
     if debug then
         local function ptbl(tbl)
             local str = ""

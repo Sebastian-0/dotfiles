@@ -8,7 +8,6 @@
 --
 --
 -- Configure LSPs
-local lspconfig = require("lspconfig")
 vim.lsp.config('clangd', {
     cmd = {"clangd", "--clang-tidy", "--background-index"}
     -- on_attach = function()

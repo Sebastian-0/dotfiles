@@ -88,8 +88,14 @@ vim.keymap.set('n', 'gra', '<cmd>lua vim.lsp.buf.code_action()<cr>', {desc = "LS
 vim.keymap.set('n', 'gri', '<cmd>lua vim.lsp.buf.implementation()<cr>', {desc = "LSP implementation"})
 vim.keymap.set('n', 'grt', '<cmd>lua vim.lsp.buf.type_definition()<cr>', {desc = "LSP type definition"})
 vim.keymap.set('n', 'gl', '<cmd>lua vim.diagnostic.open_float()<cr>', {desc = "Diagnostics line"})
-vim.keymap.set('n', '[d', '<cmd>lua vim.diagnostic.goto_prev()<cr>', {desc = "Diagnostics previous"})
-vim.keymap.set('n', ']d', '<cmd>lua vim.diagnostic.goto_next()<cr>', {desc = "Diagnostics next"})
+-- [d and ]d are default mappings
+vim.diagnostic.config({
+    jump = {
+        on_jump = function(_, bufnr)
+            vim.diagnostic.open_float({bufnr = bufnr, scope = "cursor", focus = false})
+        end
+    }
+})
 
 -- Moving lines of code
 vim.keymap.set("n", "<a-j>", ":m .+1<CR>==")
