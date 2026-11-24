@@ -246,7 +246,7 @@ require("lazy").setup({
             {'nvim-tree/nvim-web-devicons', commit = '1020869'},
             {"MunifTanjim/nui.nvim", version = '0.4.x'}
         },
-        event = "VeryLazy",
+        lazy = false,
         opts = {
             window = {position = "current", mappings = {["l"] = "open"}},
             filesystem = {hijack_netrw_behavior = "open_default"},
